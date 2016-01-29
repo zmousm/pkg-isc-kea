@@ -1,0 +1,95 @@
+Index: isc-kea/src/lib/dhcpsrv/Makefile.in
+===================================================================
+--- isc-kea.orig/src/lib/dhcpsrv/Makefile.in	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/lib/dhcpsrv/Makefile.in	2016-01-28 00:42:00.761652719 -0600
+@@ -544,7 +544,7 @@
+ top_srcdir = @top_srcdir@
+ AUTOMAKE_OPTIONS = subdir-objects
+ SUBDIRS = . testutils tests
+-dhcp_data_dir = @localstatedir@/@PACKAGE@
++dhcp_data_dir = @localstatedir@/lib/@PACKAGE@
+ kea_lfc_location = @prefix@/sbin/kea-lfc
+ # Set location of the kea-lfc binary.
+ AM_CPPFLAGS = -I$(top_builddir)/src/lib -I$(top_srcdir)/src/lib \
+Index: isc-kea/src/lib/log/interprocess/Makefile.in
+===================================================================
+--- isc-kea.orig/src/lib/log/interprocess/Makefile.in	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/lib/log/interprocess/Makefile.in	2016-01-28 00:42:00.761652719 -0600
+@@ -401,7 +401,7 @@
+ top_srcdir = @top_srcdir@
+ SUBDIRS = . tests
+ AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
+-	-DLOCKFILE_DIR=\"$(localstatedir)/run/$(PACKAGE_NAME)\" \
++	-DLOCKFILE_DIR=\"$(localstatedir)/run\" \
+ 	$(BOOST_INCLUDES)
+ AM_CXXFLAGS = $(KEA_CXXFLAGS)
+ CLEANFILES = *.gcno *.gcda
+Index: isc-kea/src/lib/log/interprocess/interprocess_sync_file.cc
+===================================================================
+--- isc-kea.orig/src/lib/log/interprocess/interprocess_sync_file.cc	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/lib/log/interprocess/interprocess_sync_file.cc	2016-01-28 00:42:00.761652719 -0600
+@@ -48,7 +48,7 @@
+             lockfile_path = env;
+         }
+ 
+-        lockfile_path += "/" + task_name_ + "_lockfile";
++        lockfile_path += "/isc_kea_" + task_name_ + "_lockfile";
+ 
+         // Open the lockfile in the constructor so it doesn't do the access
+         // checks every time a message is logged.
+Index: isc-kea/src/lib/dhcpsrv/daemon.cc
+===================================================================
+--- isc-kea.orig/src/lib/dhcpsrv/daemon.cc	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/lib/dhcpsrv/daemon.cc	2016-01-28 00:42:00.761652719 -0600
+@@ -28,7 +28,7 @@
+ 
+ Daemon::Daemon()
+     : signal_set_(), signal_handler_(), config_file_(""), proc_name_(""),
+-    pid_file_dir_(DHCP_DATA_DIR), pid_file_(), am_file_author_(false) {
++    pid_file_dir_("/var/run"), pid_file_(), am_file_author_(false) {
+ 
+     // The pid_file_dir can be overridden via environment variable
+     // This is primarily intended to simplify testing
+Index: isc-kea/src/bin/d2/spec_config.h.pre.in
+===================================================================
+--- isc-kea.orig/src/bin/d2/spec_config.h.pre.in	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/bin/d2/spec_config.h.pre.in	2016-01-28 00:42:00.761652719 -0600
+@@ -4,4 +4,4 @@
+ // License, v. 2.0. If a copy of the MPL was not distributed with this
+ // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+-#define D2_SPECFILE_LOCATION "@prefix@/share/@PACKAGE@/dhcp-ddns.spec"
++#define D2_SPECFILE_LOCATION "@prefix@/share/kea-dhcp-ddns-server/dhcp-ddns.spec"
+Index: isc-kea/src/bin/dhcp4/spec_config.h.pre.in
+===================================================================
+--- isc-kea.orig/src/bin/dhcp4/spec_config.h.pre.in	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/bin/dhcp4/spec_config.h.pre.in	2016-01-28 00:42:00.761652719 -0600
+@@ -4,4 +4,4 @@
+ // License, v. 2.0. If a copy of the MPL was not distributed with this
+ // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+-#define DHCP4_SPECFILE_LOCATION "@prefix@/share/@PACKAGE@/dhcp4.spec"
++#define DHCP4_SPECFILE_LOCATION "@prefix@/share/kea-dhcp4-server/dhcp4.spec"
+Index: isc-kea/src/bin/dhcp6/spec_config.h.pre.in
+===================================================================
+--- isc-kea.orig/src/bin/dhcp6/spec_config.h.pre.in	2016-01-28 00:42:00.765652681 -0600
++++ isc-kea/src/bin/dhcp6/spec_config.h.pre.in	2016-01-28 00:42:00.761652719 -0600
+@@ -4,4 +4,4 @@
+ // License, v. 2.0. If a copy of the MPL was not distributed with this
+ // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+-#define DHCP6_SPECFILE_LOCATION "@prefix@/share/@PACKAGE@/dhcp6.spec"
++#define DHCP6_SPECFILE_LOCATION "@prefix@/share/kea-dhcp6/dhcp6.spec"
+Index: isc-kea/doc/guide/Makefile.in
+===================================================================
+--- isc-kea.orig/doc/guide/Makefile.in	2015-12-28 14:25:52.000000000 -0600
++++ isc-kea/doc/guide/Makefile.in	2016-01-28 00:43:22.584887938 -0600
+@@ -576,7 +576,7 @@
+ 
+ 
+ kea-messages.xml:
+-	$(top_srcdir)/tools/system_messages -o $@ \
++	../../tools/system_messages -o $@ \
+ 	`find $(top_srcdir) -name "*.mes" -print`
+ 
+ # This is not a "man" manual, but reuse this for now for docbook.

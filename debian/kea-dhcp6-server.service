@@ -1,0 +1,8 @@
+[Unit]
+Description=ISC KEA IPv6 DHCP daemon
+
+[Service]
+ExecStart=/usr/sbin/kea-dhcp6 -c /etc/kea/kea-dhcp6.conf
+
+[Install]
+WantedBy=multi-user.target

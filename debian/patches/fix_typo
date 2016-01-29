@@ -1,0 +1,9 @@
+Index: isc-kea/src/bin/keactrl/keactrl.in
+===================================================================
+--- isc-kea.orig/src/bin/keactrl/keactrl.in	2016-01-27 19:39:23.949193220 -0600
++++ isc-kea/src/bin/keactrl/keactrl.in	2016-01-27 19:39:23.945193172 -0600
+@@ -423,4 +423,3 @@
+         log_error "Invalid command:  ${command}."
+         exit 1 ;;
+ esac
+-fi

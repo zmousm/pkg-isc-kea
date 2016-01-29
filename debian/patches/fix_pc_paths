@@ -1,0 +1,10 @@
+Index: isc-kea/dns++.pc.in
+===================================================================
+--- isc-kea.orig/dns++.pc.in	2016-01-27 19:39:30.021264872 -0600
++++ isc-kea/dns++.pc.in	2016-01-27 19:39:30.021264872 -0600
+@@ -8,4 +8,4 @@
+ Version: @PACKAGE_VERSION@
+ Requires: @CRYPTO_PACKAGE@
+ Cflags: -I${includedir}/@PACKAGE_NAME@
+-Libs: -L${libdir} -lb10-dns++ -lb10-cryptolink -lb10-util -lb10-exceptions -lm
++Libs: -L${libdir} -lkea-dns++ -lkea-cryptolink -lkea-util -lkea-exceptions -lm

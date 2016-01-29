@@ -1,0 +1,5 @@
+# Check if conffiles have been modified
+# This is just to alert maintainer that split up config file
+# may need to be updated
+
+b8d6a8da6189f2ed189150e61cbca131 *src/bin/keactrl/kea.conf.pre

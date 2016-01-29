@@ -1,0 +1,10 @@
+debian/tmp/etc/kea/kea.conf
+debian/tmp/usr/share/doc/kea/AUTHORS
+debian/tmp/usr/share/doc/kea/COPYING
+debian/tmp/usr/share/doc/kea/ChangeLog
+debian/tmp/usr/share/doc/kea/README
+debian/tmp/usr/share/man/man8/kea-admin.8
+debian/tmp/usr/sbin/kea-admin
+debian/tmp/usr/sbin/keactrl
+debian/tmp/etc/kea/keactrl.conf
+debian/tmp/usr/share/man/man8/keactrl.8
