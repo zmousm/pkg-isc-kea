@@ -10,8 +10,17 @@ Files: *
 Copyright: 2014-2015 Internet Systems Consortium, Inc.
 License: MPL-2.0
 
+Files: src/lib/util/encode/base16_from_binary.h
+       src/lib/util/encode/base32hex_from_binary.h
+       src/lib/util/encode/binary_from_base32hex.h
+       src/lib/util/encode/binary_from_base16.h
+Copyright: Copyright 2002 Robert Ramey
+License: BSL-1.0
+
 Files: ext/coroutine/coroutine.h
 Copyright: 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+License: BSL-1.0
+
 License: BSL-1.0
  Boost Software License - Version 1.0 - August 17th, 2003
  .
