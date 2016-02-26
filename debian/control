@@ -5,7 +5,7 @@ Maintainer: Adam Majer <adamm@zombino.com>
 Build-Depends: debhelper (>= 9), autotools-dev, libbotan1.10-dev, liblog4cplus-dev,
                libboost-dev, libboost-system-dev, bison, flex,
                libmysqlclient-dev, libpq-dev, python3-dev, elinks,
-               postgresql-server-dev-9.4 | postgresql-server-dev-9.5,
+               postgresql-server-dev-all,
                xsltproc, docbook, docbook-xsl
 Standards-Version: 3.9.6
 Homepage: http://kea.isc.org/
