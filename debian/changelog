@@ -1,11 +1,11 @@
-isc-kea (1.0.0-2) UNRELEASED; urgency=medium
+isc-kea (1.0.0-2) unstable; urgency=medium
 
   * debian/copyright:
     + Explicitly list more embedded boost headers
   * debian/control:
     + Do not require specific PostgreSQL version (closes: #814323)
 
- -- Adam Majer <adamm@zombino.com>  Sun, 07 Feb 2016 22:38:23 -0600
+ -- Adam Majer <adamm@zombino.com>  Fri, 26 Feb 2016 13:37:51 -0600
 
 isc-kea (1.0.0-1) unstable; urgency=low
 
