@@ -2,6 +2,9 @@ isc-kea (1.0.0-3) UNRELEASED; urgency=medium
 
   * debian/patches/support_kfreebsd
     + Add support for kFreeBSD - detect it as FreeBSD
+  * debian/watch
+    + Only detect X.Y.Z* version formats
+    + Sort beta and other candidates before final release
 
  -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
 
