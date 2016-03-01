@@ -1,3 +1,10 @@
+isc-kea (1.0.0-3) UNRELEASED; urgency=medium
+
+  * debian/patches/support_kfreebsd
+    + Add support for kFreeBSD - detect it as FreeBSD
+
+ -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
+
 isc-kea (1.0.0-2) unstable; urgency=medium
 
   * debian/copyright:
