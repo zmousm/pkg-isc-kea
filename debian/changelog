@@ -1,11 +1,13 @@
 isc-kea (1.0.0-3) UNRELEASED; urgency=medium
 
-  * debian/patches/support_kfreebsd
+  * debian/patches/support_kfreebsd:
     + Add support for kFreeBSD - detect it as FreeBSD
-  * debian/watch
+  * debian/watch:
     + Only detect X.Y.Z* version formats
     + Sort beta and other candidates before final release
     + Verify upstream GPG signature
+  * debian/control:
+    + Add missing build-depends that prevented usage of libbotan
 
  -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
 
