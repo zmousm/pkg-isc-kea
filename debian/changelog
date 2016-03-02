@@ -8,6 +8,8 @@ isc-kea (1.0.0-3) UNRELEASED; urgency=medium
     + Verify upstream GPG signature
   * debian/control:
     + Add missing build-depends that prevented usage of libbotan
+  * debian/rules:
+    + Disable dependency tracking for faster build
 
  -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
 

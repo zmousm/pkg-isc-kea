@@ -30,7 +30,8 @@ override_dh_auto_configure:
 		--enable-generate-docs \
 		--disable-static \
 		--disable-rpath \
-		--enable-generate-parser
+		--enable-generate-parser \
+		--disable-dependency-tracking
 
 override_dh_auto_make:
 	$(MAKE) -C tools system_messages
