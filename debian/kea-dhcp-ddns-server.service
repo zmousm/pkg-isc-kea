@@ -1,6 +1,6 @@
 [Unit]
 Description=ISC KEA DDNS Service
-Documentation=man:kea-dhcp4(8)
+Documentation=man:kea-dhcp-ddns(8)
 Wants=network-online.target
 After=network-online.target
 After=time-sync.target
