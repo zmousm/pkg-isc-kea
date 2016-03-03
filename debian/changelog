@@ -10,6 +10,8 @@ isc-kea (1.0.0-3) UNRELEASED; urgency=medium
     + Add missing build-depends that prevented usage of libbotan
   * debian/rules:
     + Disable dependency tracking for faster build
+  * Updated .service files to start KEA services only after
+    network is up and time has been synced.
 
  -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
 
