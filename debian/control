@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9), autotools-dev, liblog4cplus-dev,
                libmysqlclient-dev, libpq-dev, python3-dev, elinks,
                postgresql-server-dev-all,
                xsltproc, docbook, docbook-xsl
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: http://kea.isc.org/
 Vcs-Git: git://anonscm.debian.org/collab-maint/isc-kea.git
 Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/isc-kea.git;a=summary

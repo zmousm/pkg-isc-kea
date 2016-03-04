@@ -12,6 +12,7 @@ isc-kea (1.0.0-3) UNRELEASED; urgency=medium
     + Disable dependency tracking for faster build
   * Updated .service files to start KEA services only after
     network is up and time has been synced.
+  * Update Standard to 3.9.7. No changes.
 
  -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
 
