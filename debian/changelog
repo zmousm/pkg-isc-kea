@@ -7,7 +7,7 @@ isc-kea (1.0.0-3) UNRELEASED; urgency=medium
     + Sort beta and other candidates before final release
     + Verify upstream GPG signature
   * debian/control:
-    + Add missing build-depends that prevented usage of libbotan
+    + Remove dependency on Botan. Use OpenSSL instead.
   * debian/rules:
     + Disable dependency tracking for faster build
   * Updated .service files to start KEA services only after

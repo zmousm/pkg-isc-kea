@@ -3,7 +3,6 @@ Section: net
 Priority: extra
 Maintainer: Adam Majer <adamm@zombino.com>
 Build-Depends: debhelper (>= 9), autotools-dev, liblog4cplus-dev,
-               libbotan1.10-dev, libbz2-dev, libgmp-dev,
                libboost-dev, libboost-system-dev, bison, flex,
                libmysqlclient-dev, libpq-dev, python3-dev, elinks,
                postgresql-server-dev-all,
