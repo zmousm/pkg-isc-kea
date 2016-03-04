@@ -26,7 +26,7 @@ override_dh_auto_configure:
 	dh_auto_configure $@ -- \
 		--with-dhcp-mysql \
 		--with-dhcp-pgsql \
-		--with-boost-lib=-lboost_system \
+		--with-boost-libs=-lboost_system \
 		--enable-generate-docs \
 		--disable-static \
 		--disable-rpath \
