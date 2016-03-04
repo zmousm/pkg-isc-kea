@@ -1,4 +1,4 @@
-isc-kea (1.0.0-3) UNRELEASED; urgency=medium
+isc-kea (1.0.0-3) unstable; urgency=medium
 
   * debian/patches/support_kfreebsd:
     + Add support for kFreeBSD - detect it as FreeBSD
@@ -15,7 +15,7 @@ isc-kea (1.0.0-3) UNRELEASED; urgency=medium
     network is up and time has been synced.
   * Update Standard to 3.9.7. No changes.
 
- -- Adam Majer <adamm@zombino.com>  Tue, 01 Mar 2016 00:19:47 -0600
+ -- Adam Majer <adamm@zombino.com>  Thu, 03 Mar 2016 20:49:02 -0600
 
 isc-kea (1.0.0-2) unstable; urgency=medium
 
