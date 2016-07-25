@@ -31,7 +31,8 @@ override_dh_auto_configure:
 		--disable-static \
 		--disable-rpath \
 		--enable-generate-parser \
-		--disable-dependency-tracking
+		--disable-dependency-tracking \
+		--without-werror
 
 override_dh_auto_make:
 	$(MAKE) -C tools system_messages

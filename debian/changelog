@@ -1,3 +1,12 @@
+isc-kea (1.0.0-4) unstable; urgency=medium
+
+  * debian/rules:
+    + Disable warnings being treated as errors during compilation.
+      This fixes compilation with GCC 6.0 and Kea's use of
+      auto_ptr which trigger depreciation warning (closes: #831123)
+
+ -- Adam Majer <adamm@zombino.com>  Mon, 25 Jul 2016 22:23:36 +0200
+
 isc-kea (1.0.0-3) unstable; urgency=medium
 
   * debian/patches/support_kfreebsd:
