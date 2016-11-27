@@ -9,6 +9,7 @@ isc-kea (1.1.0-1) UNRELEASED; urgency=medium
       DHCP options.
     + expanded client classification system
     + DHCPv4-over-DHCPv6 - RFC7341
+  * builds with default mysql library (closes: #845856)
 
  -- Adam Majer <adamm@zombino.com>  Sun, 27 Nov 2016 11:14:22 +0100
 
