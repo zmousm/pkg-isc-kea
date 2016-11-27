@@ -1,3 +1,17 @@
+isc-kea (1.1.0-1) UNRELEASED; urgency=medium
+
+  * New upstream version 1.1.0 (closes: #844536)
+    + support PostgreSQL and MySQL for host reservation for both
+      DHCPv4 and DHCPv6
+    + allows MySQL and PostgreSQL host reservations databases
+      to operate in read-only mode
+    + extends host reservations capabilities based on specific
+      DHCP options.
+    + expanded client classification system
+    + DHCPv4-over-DHCPv6 - RFC7341
+
+ -- Adam Majer <adamm@zombino.com>  Sun, 27 Nov 2016 11:14:22 +0100
+
 isc-kea (1.0.0-4) unstable; urgency=medium
 
   * debian/rules:
