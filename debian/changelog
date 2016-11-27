@@ -1,4 +1,4 @@
-isc-kea (1.1.0-1) UNRELEASED; urgency=medium
+isc-kea (1.1.0-1) unstable; urgency=medium
 
   * New upstream version 1.1.0 (closes: #844536)
     + support PostgreSQL and MySQL for host reservation for both
@@ -12,9 +12,9 @@ isc-kea (1.1.0-1) UNRELEASED; urgency=medium
   * builds with default mysql library (closes: #845856)
   * debian/patches:
     - fix_gcc6 - removed, upstreamed
-    - openssl1.1 - add OpenSSL 1.1 support
+    - openssl1.1 - add OpenSSL 1.1 support (closes: #828356)
 
- -- Adam Majer <adamm@zombino.com>  Sun, 27 Nov 2016 11:14:22 +0100
+ -- Adam Majer <adamm@zombino.com>  Sun, 27 Nov 2016 23:07:17 +0100
 
 isc-kea (1.0.0-4) unstable; urgency=medium
 
