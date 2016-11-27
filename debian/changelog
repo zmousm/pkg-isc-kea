@@ -12,6 +12,7 @@ isc-kea (1.1.0-1) UNRELEASED; urgency=medium
   * builds with default mysql library (closes: #845856)
   * debian/patches:
     - fix_gcc6 - removed, upstreamed
+    - openssl1.1 - add OpenSSL 1.1 support
 
  -- Adam Majer <adamm@zombino.com>  Sun, 27 Nov 2016 11:14:22 +0100
 
