@@ -1,3 +1,11 @@
+isc-kea (1.1.0-1~bpo80+1) jessie-backports; urgency=medium
+
+  * Jessie compat: Remove OpenSSL 1.1 patch
+  * Jessie compat: default-libmysqlclient-dev -> libmysqlclient-dev
+  * Rebuild for jessie-backports.
+
+ -- Zenon Mousmoulas <zmousm@noc.grnet.gr>  Sun, 15 Oct 2017 09:12:29 +0300
+
 isc-kea (1.1.0-1) unstable; urgency=medium
 
   * New upstream version 1.1.0 (closes: #844536)
