@@ -1,0 +1,108 @@
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+/**
+  @page dhcpDatabaseBackends DHCP Database Back-Ends
+
+  All DHCP lease data is stored in some form of database, the interface
+  to this being through the Lease Manager.
+
+  All backend classes such as isc::dhcp::MySqlLeaseMgr are derived from
+  the abstract isc::dhcp::LeaseMgr class.  This provides methods to
+  create, retrieve, modify and delete leases in the database.
+
+  There are currently three available Lease Managers, Memfile, MySQL and
+  PostgreSQL:
+
+  - Memfile is an in-memory lease database which can be configured to persist
+  its content to disk in a flat-file.  Support for the Memfile database
+  backend is built into Kea DHCP.
+
+  - The MySQL lease manager uses the freely available MySQL as its backend
+  database.  This is not included in Kea DHCP by default:
+  the \--with-dhcp-mysql switch must be supplied to "configure" for support
+  to be compiled into the software.
+
+  - The PostgreSQL lease manager uses the freely available PostgreSQL as its
+  backend database.  This is not included in Kea DHCP by default:
+  the \--with-dhcp-pgsql switch must be supplied to "configure" for
+  support to be compiled into the software.
+
+  @section dhcpdb-instantiation Instantiation of Lease Managers
+
+  A lease manager is instantiated through the @c LeaseMgrFactory class.  This
+  has three methods:
+
+  - isc::dhcp::LeaseMgrFactory::create - Creates a singleton Lease
+    Manager of the appropriate type.
+  - isc::dhcp::LeaseMgrFactory::instance - Returns a reference to the
+    the instance of the Lease Manager.
+  - isc::dhcp::LeaseMgrFactory::destroy - Destroys the singleton lease manager.
+
+  The selection of the Lease Manager (and thus the backend database) is
+  controlled by the connection string passed to
+  isc::dhcp::LeaseMgrFactory::create.  This is a set of "keyword=value" pairs
+  (no embedded spaces), each pair separated by a space from the others, e.g.
+
+  \code
+  type=mysql user=keatest password=keatest name=keatest host=localhost
+  \endcode
+
+  The following keywords are used for all backends:
+
+  - <b>type</b> - specifies the type of database backend.  The following values
+  for the type keyword are supported:
+     - <B>memfile</b> - In-memory database.
+     - <b>mysql</b> - Use MySQL as the database. Must be enabled at compilation
+       time.
+     - <b>postgresql</b> - Use PostgreSQL as the database. Must be enabled
+       at compilation time.
+     - <b>cql</b> - Use Cassandra (CQL) as the database. Must be enabled at
+       compilation time.
+
+  The following sections list the database-specific keywords:
+
+  @subsection dhcpdb-keywords-mysql MySQL connection string keywords
+
+  - <b>host</b> - host on which the selected database is running.  If not
+  supplied, "localhost" is assumed.
+  - <b>name</b> - name of the MySQL database to access.  There is no default -
+  this must always be supplied.
+  - <b>password</b> - password for the selected user ID (see below).  If not
+  specified, no password is used.
+  - <b>user</b> - database user ID under which the database is accessed.  If not
+    specified, no user ID is used - the database is assumed to be open.
+
+  For details, see @ref isc::dhcp::MySqlConnection::openDatabase().
+
+  @subsection dhcpdb-keywords-pgsql PostgreSQL connection string keywords
+
+  - <b>host</b> - host on which the selected database is running.  If not
+  supplied, "localhost" is assumed.
+  - <b>name</b> - name of the PostgreSQL database to access.  There is no
+  default - this must always be supplied.
+  - <b>password</b> - password for the selected user ID (see below).  If not
+  specified, no password is used.
+  - <b>user</b> - database user ID under which the database is accessed.  If not
+    specified, no user ID is used - the database is assumed to be open.
+
+  For details, see @ref isc::dhcp::PgSqlConnection::openDatabase().
+
+  @subsection dhcpdb-keywords-cql Cassandra (CQL) connection string keywords
+
+  - <b>contact-points</b> - a list of comma separated IP addresses of the
+    cluster contact points>
+  - <b>port</b> - an integer specifying a connection port. If not specified, the
+    default port will be used.
+  - <b>user</b> - a database user name under which the database is accessed. If
+    not specified, no user name is used - the database is assumed to be open.
+  - <b>password</b> - an optional password if required for connection
+  - <b>keyspace</b> - an optional keyspace. If not specified, the default value
+    of 'keatest' will be used.
+
+  For details, see @ref isc::dhcp::CqlConnection::openDatabase().
+
+  */

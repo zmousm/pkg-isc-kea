@@ -1,0 +1,109 @@
+'\" t
+.\"     Title: kea-dhcp-ddns
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: Sep. 28, 2016
+.\"    Manual: Kea
+.\"    Source: ISC Kea 1.1.0
+.\"  Language: English
+.\"
+.TH "KEA\-DHCP\-DDNS" "8" "Sep\&. 28, 2016" "ISC Kea 1.1.0" "Kea"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+kea-dhcp-ddns \- DHCP\-DDNS process in Kea
+.SH "SYNOPSIS"
+.HP \w'\fBkea\-dhcp\-ddns\fR\ 'u
+\fBkea\-dhcp\-ddns\fR [\fB\-v\fR] [\fB\-V\fR] [\fB\-W\fR] [\fB\-d\fR] [\fB\-c\fR\fB\fIconfig\-file\fR\fR] [\fB\-t\fR\fB\fIconfig\-file\fR\fR]
+.SH "DESCRIPTION"
+.PP
+The
+\fBkea\-dhcp\-ddns\fR
+service process requests to update DNS mapping based on DHCP lease change events\&. It runs as a separate process that expects to receive Name Change Requests from Kea DHCP servers\&.
+.SH "ARGUMENTS"
+.PP
+The arguments are as follows:
+.PP
+\fB\-v\fR
+.RS 4
+Display the version\&.
+.RE
+.PP
+\fB\-V\fR
+.RS 4
+Display the extended version\&.
+.RE
+.PP
+\fB\-W\fR
+.RS 4
+Display the configuration report\&.
+.RE
+.PP
+\fB\-d\fR
+.RS 4
+Verbose mode sets the logging level to debug\&. This is primarily for development purposes in stand\-alone mode\&.
+.RE
+.PP
+\fB\-c\fR
+.RS 4
+Configuration file including the configuration for DHCP\-DDNS server\&. It may also contain configuration entries for other Kea services\&.
+.RE
+.PP
+\fB\-t\fR
+.RS 4
+Check the syntax of the configuration file and report the first error if any\&. Note that not all parameters are completely checked, in particular, service socket is not opened\&.
+.RE
+.SH "DOCUMENTATION"
+.PP
+Kea comes with an extensive Kea User\*(Aqs Guide documentation that covers all aspects of running the Kea software \- compilation, installation, configuration, configuration examples and many more\&. Kea also features a Kea Messages Manual, which lists all possible messages Kea can print with a brief description for each of them\&. Both documents are typically available in various formats (txt, html, pdf) with your Kea distribution\&. The on\-line version is available at http://kea\&.isc\&.org/docs/\&.
+.PP
+Kea source code is documented in the Kea Developer\*(Aqs Guide\&. It\*(Aqs on\-line version is available at http://kea\&.isc\&.org\&. Please follow Developer\*(Aqs Guide link\&.
+.PP
+Kea project website is available at: http://kea\&.isc\&.org\&.
+.SH "MAILING LISTS AND SUPPORT"
+.PP
+There are two mailing lists available for Kea project\&. kea\-users (kea\-users at lists\&.isc\&.org) is intended for Kea users, while kea\-dev (kea\-dev at lists\&.isc\&.org) is intended for Kea developers, prospective contributors and other advanced users\&. Both lists are available at http://lists\&.isc\&.org\&. The community provides best effort type of support on both of those lists\&.
+.PP
+ISC provides professional support for Kea services\&. See https://www\&.isc\&.org/kea/ for details\&.
+.SH "HISTORY"
+.PP
+The
+\fBb10\-dhcp\-ddns\fR
+process was first coded in May 2013 by Thomas Markwalder\&.
+.PP
+Kea became a standalone server and the BIND10 framework was removed\&. The DHCP\-DDNS server binary was renamed to kea\-dhcp\-ddns in July 2014\&. Kea 1\&.0\&.0 was released in December 2015\&.
+.SH "SEE ALSO"
+.PP
+\fBkea-dhcp4\fR(8),
+\fBkea-dhcp6\fR(8),
+\fBkea-ctrl-agent\fR(8),
+\fBkea-admin\fR(8),
+\fBkeactrl\fR(8),
+\fBperfdhcp\fR(8),
+\fBkea-lfc\fR(8),
+Kea Administrator\*(Aqs Guide\&.
+.SH "AUTHOR"
+.br
+.PP
+The Kea software has been written by a number of engineers working for ISC: Tomek Mrugalski, Stephen Morris, Marcin Siodelski, Thomas Markwalder, Francis Dupont, Jeremy C\&. Reed, Wlodek Wencel and Shawn Routhier\&. That list is roughly in the chronological order in which the authors made their first contribution\&. For a complete list of authors and contributors, see AUTHORS file\&.
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2013-2016 Internet Systems Consortium, Inc. ("ISC")
+.br

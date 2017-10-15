@@ -1,0 +1,152 @@
+
+ Kea authors and contributors
+------------------------------
+
+Primary developers:
+ - Tomek Mrugalski (lead developer: DHCPv4, DHCPv6 components, prefix
+                    delegation, memfile, database interface, core libdhcp++,
+		    host reservation, MAC extraction in DHCPv6, statistics manager,
+                    kea-shell)
+ - Stephen Morris (Hooks, MySQL)
+ - Marcin Siodelski (DHCPv4, DHCPv6 components, options handling, perfdhcp,
+		     host reservation, lease file cleanup, lease expiration,
+                     control agent)
+ - Thomas Markwalder (DDNS, user_chk)
+ - Jeremy C. Reed (documentation, build system, testing, release engineering)
+ - Wlodek Wencel (testing, release engineering)
+ - Francis Dupont (crypto, perfdhcp, control agent)
+ - Shawn Routhier (lease file cleanup)
+
+Primary area of work mentioned in parentheses. The list is in a roughly
+chronological order.
+
+Kea is using parts of the code of now defunct BIND 10 project. The following
+people contributed to BIND 10 code:
+
+Chen Zhengzhang
+Dmitriy Volodin
+Evan Hunt
+Francis Dupont
+Haidong Wang
+Haikuo Zhang
+Han Feng
+Jelte Jansen
+Jeremy C. Reed
+Xie Jiagui
+Jin Jian
+JINMEI Tatuya
+John DuBois
+Kazunori Fujiwara
+Marcin Siodelski
+Michael Graff
+Michal Vaner
+Mukund Sivaraman
+Naoki Kambe
+Paul Selkirk
+Shane Kerr
+Shen Tingting
+Stephen Morris
+Thomas Markwalder
+Tomek Mrugalski
+Yoshitaka Aharen
+Zhang Likun
+
+We have received the following contributions:
+
+ - David Carlier
+   2013-11: memfile fixes
+   2013-12: better error handling when port is in use
+   2013-12: interface detection for BSD systems
+   2014-04: PostgreSQL support
+
+ - Jiri Popelka, Red Hat
+   2014-08: config files examples permission fix
+   2014-08: compilation fix for armv7
+   2014-08: configure.ac update: AC_PROG_LIBTOOL => LT_INIT
+   2014-08: PostgreSQL compilation fix on i686
+   2015-12: compilation fix in MySQL host data source
+   2016-02: Fixed missing slashes in path_replacer.sh
+
+ - Adam Osuchowski, Silesian University of Technology
+   2014-09: Examples corrected in Kea ARM
+
+ - Nicolas Chaigneau, Capgemini
+   2014-09: Fix for interfaces with multiple addresses in perfdhcp
+   2015-11: query4 parameter added to pkt4_send hook point
+
+ - Marcin Wyszynki, Facebook
+   2014-11: Export CalloutManager headers for testing statically linked
+            libraries.
+
+ - David Gutierrez Rueda, CERN
+   2014-12: Support for client link-address option in DHCPv6 (RFC6939)
+
+ - Adam Kalmus, Gdansk University of Technology
+   2014-12: Extract MAC address from DUID-LL and DUID-LLT types
+   2015-01: Extract MAC address from remote-id
+   2015-05: MySQL schema extended to cover host reservation
+   2015-10: Common MySQL Connector Pool
+   2015-12: MySQL host data source implemented
+   2016-02: IPv6 reservations implemented
+
+ - Jinmei Tatuya
+   2015-10: Pkt4o6 class improvements
+   2015-11: split Dhcpv4Srv::run() into run() and processPacket()
+
+ - Sebastien Couture, Ubity Inc
+   2015-12: Fixes to MySQL schema creation
+
+ - Angelo Failla, Facebook
+   2016-04: Fixes for transaction id generation in perfdhcp
+   2016-08: Using a file as a source of MAC addresses to be used
+            in new transactions.
+   2016-08: Support for generating relayed DHCPv6 traffic.
+
+ - Razvan Becheriu, Qualitance
+   2016-05: Added support for Cassandra
+
+ - Patrik Lundin
+   2016-07: Replace test by expr for < in configure.ac
+   2016-11: Fixes in Lease File Cleanup unit test
+
+ - Michal Humpula (mihu)
+   2016-07: Response to DHCPINFORM is sent to port 68
+
+ - Andreas Rammhold (andir)
+   2016-09: Compilation fixes for GCC 6, using C++14.
+
+ - Yusef Shaban (xxwolfsrainxx)
+   2016-09: MySQL database creation scripts use single quotes for
+            strings to avoid issues with creation of the database
+            when MySQL server operates in ANSI_QUOTES mode.
+
+ - Cristian Secareanu, Qualitance
+   2016-10: Support for IPv6 prefix and PDEXCLUDE option
+
+ - Andrei Pavel, Qualitance
+   2016-10: Support for DHCPv6 options defined in RFC6603 and RFC7598
+   2017-02: Doxygen support updated to 1.8.11
+   2017-02: Improved PgSQL backend version handling
+   2017-02: Numerous spelling mistakes
+
+ - Vincent Legout
+   2016-11: Fixed serveral spelling mistakes
+
+ - Sebasian Schrader
+   2017-01: Fix build dir in doc/guide/Makefile.am
+
+ - Marvin Frick (MrMarvin)
+   2017-04: -h and --host parameters added to kea-admin
+
+ - Olivier Clavel (zeitounator)
+   2017-04: Improvements in valgrind test script
+
+Kea uses log4cplus (http://sourceforge.net/projects/log4cplus/) for logging,
+Boost (http://www.boost.org/) library for almost everything, and can use Botan
+(http://botan.randombit.net/) or OpenSSL (https://www.openssl.org/) for
+cryptographic operations. It can also optionally use PostgreSQL
+(http://www.postgresql.org/) and/or MySQL (http://www.mysql.com/) as a database.
+
+Kea can use googletest for unit-tests (https://github.com/google/googletest).
+
+Kea uses ISC Forge (https://github.com/isc-projects/forge/) for conformance testing.
