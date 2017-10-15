@@ -1,3 +1,22 @@
+isc-kea (1.2.0.1-1~bpo80+1) jessie-backports; urgency=medium
+
+  * New upstream version (fake)
+  * Drop patches for Trac #5325 etc.
+  * Rebuild for jessie-backports
+
+ -- Zenon Mousmoulas <zmousm@noc.grnet.gr>  Mon, 16 Oct 2017 01:31:49 +0300
+
+isc-kea (1.2.0-1~bpo80+1) jessie-backports; urgency=medium
+
+  * New upstream version
+  * Update configuration
+  * Refresh patches
+  * Import patch for Trac #5325: Fix files missing from distcheck
+  * Import d2_parser.yy, strangely missing from 1.2.0
+  * Rebuild for jessie-backports
+
+ -- Zenon Mousmoulas <zmousm@noc.grnet.gr>  Sun, 15 Oct 2017 20:51:20 +0300
+
 isc-kea (1.1.0-1~bpo80+1) jessie-backports; urgency=medium
 
   * Jessie compat: Remove OpenSSL 1.1 patch
