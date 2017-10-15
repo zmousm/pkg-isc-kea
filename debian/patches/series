@@ -2,5 +2,3 @@ path_fixes
 fix_typo
 fix_pc_paths
 support_kfreebsd
-trac5325
-missing_d2_parser.yy
