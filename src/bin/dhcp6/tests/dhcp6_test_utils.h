@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26,6 +26,7 @@
 #include <dhcpsrv/lease_mgr.h>
 #include <dhcpsrv/lease_mgr_factory.h>
 #include <dhcp6/dhcp6_srv.h>
+#include <dhcp6/parser_context.h>
 #include <hooks/hooks_manager.h>
 
 #include <list>
@@ -375,7 +376,7 @@ public:
 // dependencies, we use forward declaration here.
 class Dhcp6Client;
 
-// Provides suport for tests against a preconfigured subnet6
+// Provides support for tests against a preconfigured subnet6
 // extends upon NakedDhcp6SrvTest
 class Dhcpv6SrvTest : public NakedDhcpv6SrvTest {
 public:
@@ -624,6 +625,7 @@ public:
     /// @param stat_name this statistic is expected to be set to 1
     void testReceiveStats(uint8_t pkt_type, const std::string& stat_name);
 
+
     /// A subnet used in most tests
     isc::dhcp::Subnet6Ptr subnet_;
 
@@ -636,6 +638,62 @@ public:
     /// @brief Server object under test.
     NakedDhcpv6Srv srv_;
 };
+
+/// @brief Runs parser in JSON mode, useful for parser testing
+///
+/// @param in string to be parsed
+/// @return ElementPtr structure representing parsed JSON
+inline isc::data::ElementPtr
+parseJSON(const std::string& in)
+{
+    isc::dhcp::Parser6Context ctx;
+    return (ctx.parseString(in, isc::dhcp::Parser6Context::PARSER_JSON));
+}
+
+/// @brief Runs parser in Dhcp6 mode
+///
+/// This is a simplified Dhcp6 mode, so no outer { } and "Dhcp6" is
+/// needed. This format is used by most of the tests.
+///
+/// @param in string to be parsed
+/// @param verbose display the exception message when it fails
+/// @return ElementPtr structure representing parsed JSON
+inline isc::data::ElementPtr
+parseDHCP6(const std::string& in, bool verbose = false)
+{
+    try {
+        isc::dhcp::Parser6Context ctx;
+        return (ctx.parseString(in, isc::dhcp::Parser6Context::SUBPARSER_DHCP6));
+    }
+    catch (const std::exception& ex) {
+        if (verbose) {
+            std::cout << "EXCEPTION: " << ex.what() << std::endl;
+        }
+        throw;
+    }
+}
+
+/// @brief Runs parser in option definition mode
+///
+/// This function parses specified text as JSON that defines option definitions.
+///
+/// @param in string to be parsed
+/// @param verbose display the exception message when it fails
+/// @return ElementPtr structure representing parsed JSON
+inline isc::data::ElementPtr
+parseOPTION_DEF(const std::string& in, bool verbose = false)
+{
+    try {
+        isc::dhcp::Parser6Context ctx;
+        return (ctx.parseString(in, isc::dhcp::Parser6Context::PARSER_OPTION_DEF));
+    }
+    catch (const std::exception& ex) {
+        if (verbose) {
+            std::cout << "EXCEPTION: " << ex.what() << std::endl;
+        }
+        throw;
+    }
+}
 
 }; // end of isc::dhcp::test namespace
 }; // end of isc::dhcp namespace

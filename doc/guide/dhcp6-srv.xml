@@ -4,7 +4,7 @@
 <!ENTITY mdash  "&#x2014;" >
 ]>
 
-  <chapter id="dhcp6">
+ <chapter id="dhcp6">
     <title>The DHCPv6 Server</title>
 
     <section id="dhcp6-start-stop">
@@ -41,6 +41,18 @@
             useful during testing, as a DHCPv6 server listening on
             ports other than the standard ones will not be able to
             handle regular DHCPv6 queries.</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+            <command>-t <replaceable>file</replaceable></command> -
+            specifies the configuration file to be tested. Kea-dhcp6
+            will attempt to load it, and will conduct sanity
+            checks. Note that certain checks are possible only while
+            running the actual server. The actual status is reported
+            with exit code (0 = configuration looks ok, 1 = error
+            encountered). Kea will print out log messages to standard
+            output and error to standard error when testing
+            configuration.</simpara>
           </listitem>
           <listitem>
             <simpara>
@@ -184,7 +196,7 @@ opening curly bracket (or brace). Each configuration consists of
 one or more objects. In this specific example, we have only one
 object, called Dhcp6. This is a simplified configuration, as usually
 there will be additional objects, like <command>Logging</command> or
-<command>DhcpDns</command>, but we omit them now for clarity. The Dhcp6
+<command>DhcpDdns</command>, but we omit them now for clarity. The Dhcp6
 configuration starts with the <command>"Dhcp6": {</command> line
 and ends with the corresponding closing brace (in the above example,
 the brace after the last comment).  Everything defined between those
@@ -443,6 +455,11 @@ be followed by a comma and another object definition.</para>
 <screen>
 "Dhcp6": { "lease-database": { <userinput>"host" : ""</userinput>, ... }, ... }
 </screen>
+  Should the database use a port different than default, it may be
+  specified as well:
+<screen>
+"Dhcp4": { "lease-database": { <userinput>"port" : 12345</userinput>, ... }, ... }
+</screen>
   Should the database be located on a different system, you may need to specify a longer interval
   for the connection timeout:
 <screen>
@@ -451,6 +468,17 @@ be followed by a comma and another object definition.</para>
 The default value of five seconds should be more than adequate for local connections.
 If a timeout is given though, it should be an integer greater than zero.
   </para>
+
+  <para>
+    Note that host parameter is used by MySQL and PostgreSQL
+    backends. Cassandra has a concept of contact points that could be
+    used to contact the cluster, instead of a single IP or
+    hostname. It takes a list of comma separated IP addresses. This may be specified as:
+<screen>
+"Dhcp4": { "lease-database": { <userinput>"contact-points" : "192.0.2.1,192.0.2.2"</userinput>, ... }, ... }
+</screen>
+  </para>
+
   <para>Finally, the credentials of the account under which the server will
   access the database should be set:
 <screen>
@@ -509,6 +537,9 @@ If a timeout is given though, it should be an integer greater than zero.
   the DHCPv6 server.  In this case, set the value to the empty string:
 <screen>
 "Dhcp6": { "hosts-database": { <userinput>"host" : ""</userinput>, ... }, ... }
+</screen>
+<screen>
+"Dhcp4": { "hosts-database": { <userinput>"port" : 12345</userinput>, ... }, ... }
 </screen>
   </para>
   <para>Finally, the credentials of the account under which the server will
@@ -799,7 +830,6 @@ temporarily override a list of interface names and listen on all interfaces.
     </section>
 
     <section>
-<!-- @todo: add real meat to the prefix delegation config this is just place holder stuff -->
       <title>Subnet and Prefix Delegation Pools</title>
       <para>
         Subnets may also be configured to delegate prefixes, as defined in
@@ -833,6 +863,42 @@ temporarily override a list of interface names and listen on all interfaces.
     ...
 }</screen>
       </para>
+
+    </section>
+
+    <section id="pd-exclude-option">
+        <title>Prefix Exclude Option</title>
+        <para>
+          For each delegated prefix the delegating router may choose to exclude
+          a single prefix out of the delegated prefix as specified in the
+          <ulink url="http://tools.ietf.org/html/rfc6603"> RFC 6603</ulink>.
+          The requesting router must not assign the excluded prefix to any
+          of its downstream interfaces and it is intended to be used on a
+          link through which the delegating router exchanges DHCPv6 messages with
+          the requesting router. The configuration example below demonstrates how
+          to specify an excluded prefix within a prefix pool definition. The
+          excluded prefix "2001:db8:1:babe:cafe:80::/72" will be sent to a
+          requesting router which includes Prefix Exclude option in the ORO, and
+          which is delegated a prefix from this pool.
+        </para>
+<screen>
+"Dhcp6": {
+    "subnet6": [
+        {
+            "subnet": "2001:db8:1::/48",
+            "pd-pools": [
+                {
+                    "prefix": "2001:db8:1:8000::",
+                    "prefix-len": 48,
+                    "delegated-len": 64,
+                    "excluded-prefix": "2001:db8:1:babe:cafe:80::",
+                    "excluded-prefix-len": 72
+                }
+            ]
+        }
+    ]
+}
+</screen>
     </section>
 
     <section id="dhcp6-std-options">
@@ -916,9 +982,26 @@ temporarily override a list of interface names and listen on all interfaces.
       </para>
 
       <para>
-        Most of the parameters in the "option-data" structure are optional and
-        can be omitted in some circumstances as discussed in the
-        <xref linkend="dhcp6-option-data-defaults"/>.
+        Most of the parameters in the "option-data" structure are
+        optional and can be omitted in some circumstances as discussed
+        in the <xref linkend="dhcp6-option-data-defaults"/>. Only one
+        of name or code is required, so you don't need to specify
+        both. Space has a default value of "dhcp6", so you can skip
+        this as well if you define a regular (not encapsulated) DHCPv6
+        option.  Finally, csv-format defaults to true, so it too can
+        be skipped, unless you want to specify the option value as
+        hexstring. Therefore the above example can be simplified to:
+        <screen>
+"Dhcp4": {
+    "option-data": [
+        {
+           <userinput>"name": "dns-servers",
+           "data": "2001:db8::cafe, 2001:db8::babe"</userinput>
+        },
+        ...
+    ]
+} </screen>
+
       </para>
 
 
@@ -932,6 +1015,7 @@ temporarily override a list of interface names and listen on all interfaces.
       (Dhcp6/option-data), rather you should set only subnet-specific values
       (Dhcp6/subnet[X]/option-data[Y]).
      </para>
+
      <para>
       The following commands override the global
       DNS servers option for a particular subnet, setting a single DNS
@@ -959,6 +1043,48 @@ temporarily override a list of interface names and listen on all interfaces.
 </screen>
     </para>
 
+     <para>
+       In some cases it is useful to associate some options with an
+       address or prefix pool from which a client is assigned a lease. Pool
+       specific option values override subnet specific and global option
+       values. If the client is assigned multiple leases from different
+       pools, the server will assign options from all pools from which the
+       leases have been obtained. However, if the particular option is specified
+       in multiple pools from which the client obtains the leases, only one
+       instance of this option will be handed out to the client. The server's
+       administrator must not try to prioritize assignment of pool specific
+       options by trying to order pools declarations in the server
+       configuration. Future Kea releases may change the order in which
+       options are assigned from the pools without any notice.
+     </para>
+
+     <para>
+       The following configuration snippet demonstrates how to specify the
+       DNS servers option, which will be assigned to a client only if the
+       client obtains an address from the given pool:
+<screen>
+"Dhcp6": {
+    "subnet6": [
+        {
+            "pools": [
+                {
+                    "pool": "2001:db8:1::100-2001:db8:1::300",
+                    <userinput>"option-data": [
+                        {
+                            "name": "dns-servers",
+                            "data": "2001:db8:1::10"
+                        }
+                    ]</userinput>
+                }
+            ]
+        },
+        ...
+    ],
+    ...
+}
+</screen>
+     </para>
+
     <para>
       The currently supported standard DHCPv6 options are
       listed in <xref linkend="dhcp6-std-options-list"/>.
@@ -971,6 +1097,37 @@ temporarily override a list of interface names and listen on all interfaces.
       Experimental options (like standard options but with a code
       which was not assigned by IANA) are listed in
       <xref linkend="dhcp6-exp-options-list"/>.
+    </para>
+    <para>When a data field is a string, and that string contains
+    the comma (,; U+002C) character, the comma must be escaped with a
+    reverse solidus character (\; U+005C). This double escape is
+    required, because both the routine splitting CSV data into fields
+    and JSON use the same escape character: a single escape (\,) would
+    make the JSON invalid. For example, the string
+    &quot;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&quot; would be
+    represented as:
+<screen>
+"Dhcp6": {
+    "subnet6": [
+        {
+            "pools": [
+                {
+                    <userinput>"option-data": [
+                        {
+                            "name": "new-posix-timezone",
+                            "data": "EST5EDT4\,M3.2.0/02:00\,M11.1.0/02:00"
+                        }
+                    ]</userinput>
+                },
+                ...
+            ],
+            ...
+        },
+        ...
+    ],
+    ...
+}
+</screen>
     </para>
     <para>
       Some options are designated as arrays, which means that more than one
@@ -1064,11 +1221,13 @@ temporarily override a list of interface names and listen on all interfaces.
 <row><entry>lq-relay-data</entry><entry>47</entry><entry>record (ipv6-address, binary)</entry><entry>false</entry></row>
 <row><entry>lq-client-link</entry><entry>48</entry><entry>ipv6-address</entry><entry>true</entry></row>
 <row><entry>bootfile-url</entry><entry>59</entry><entry>string</entry><entry>false</entry></row>
-<row><entry>bootfile-param</entry><entry>60</entry><entry>binary</entry><entry>false</entry></row>
+<row><entry>bootfile-param</entry><entry>60</entry><entry>tuple</entry><entry>true</entry></row>
 <row><entry>client-arch-type</entry><entry>61</entry><entry>uint16</entry><entry>true</entry></row>
 <row><entry>nii</entry><entry>62</entry><entry>record (uint8, uint8, uint8)</entry><entry>false</entry></row>
+<row><entry>aftr-name</entry><entry>64</entry><entry>fqdn</entry><entry>false</entry></row>
 <row><entry>erp-local-domain-name</entry><entry>65</entry><entry>fqdn</entry><entry>false</entry></row>
 <row><entry>rsoo</entry><entry>66</entry><entry>empty</entry><entry>false</entry></row>
+<row><entry>pd-exclude</entry><entry>67</entry><entry>binary</entry><entry>false</entry></row>
 <row><entry>client-linklayer-addr</entry><entry>79</entry><entry>binary</entry><entry>false</entry></row>
 <!-- <row><entry>dhcpv4-message</entry><entry>87</entry><entry>binary</entry><entry>false</entry></row> -->
 <row><entry>dhcp4o6-server-addr</entry><entry>88</entry><entry>ipv6-address</entry><entry>true</entry></row>
@@ -1452,22 +1611,12 @@ should include options from the isc option space:
         </listitem>
 
         <listitem>
-          <simpara><command>csv-format</command> - if this value is not specified
-          and the definition for the particular option exists, the server will assume
-          that the option data is specified as a list of comma separated values to be
-          assigned to individual fields of the DHCP option. If the definition
-          does not exist for this option, the server will assume that the data
-          parameter contains the option payload in the binary format (represented
-          as a string of hexadecimal digits). Note that not specifying this
-          parameter doesn't imply that it defaults to a fixed value, but
-          the configuration data interpretation also depends on the presence
-          of the option definition. An administrator must be aware if the
-          definition for the particular option exists when this parameter
-          is not specified. It is generally recommended to not specify this
-          parameter only for the options for which the definition exists, e.g.
-          standard options. Setting <command>csv-format</command> to an explicit
-          value will cause the server to strictly check the format of the option
-          data specified.
+          <simpara><command>csv-format</command> - if this value is not
+          specified the server will assume that the option data is specified as
+          a list of comma separated values to be assigned to individual fields
+          of the DHCP option. This behavior has changed in Kea 1.2. Older
+          versions used additional logic to determine whether the csv-format
+          should be true or false. That is no longer the case.
           </simpara>
         </listitem>
       </itemizedlist>
@@ -2113,9 +2262,10 @@ should include options from the isc option space:
     <note>
     Note that formerly, this parameter was a boolean and permitted only values
     of <command>true</command> and <command>false</command>.  Boolean values
-    will still be accepted but may eventually be deprecated. A value of
-    <command>true</command> equates to <command>when-present</command>,
-    <command>false</command> equates to <command>never</command>.
+    have been deprecated and are no longer accepted.  If you are currently using
+    booleans, you must replace them with the desired mode name. A value of
+    <command>true</command> maps to <command>"when-present"</command>, while
+    <command>false</command> maps to <command>"never"</command>.
     </note>
 
       For example, To instruct kea-dhcp6 to always generate the FQDN for a
@@ -2328,7 +2478,7 @@ should include options from the isc option space:
         "pd-pools": [
             {
                 "prefix": "2001:db8:1:8000::",
-                "prefix-len": 56,
+                "prefix-len": 48,
                 "delegated-len": 64
             }
         ],
@@ -2339,7 +2489,7 @@ should include options from the isc option space:
             },
             {
                 "hw-address": "00:01:02:03:04:05",
-                "ip-addresses": [ "2001:db8:1::101, 2001:db8:1::102" ]
+                "ip-addresses": [ "2001:db8:1::101", "2001:db8:1::102" ]
             },
             {
                 "duid": "01:02:03:04:05:06:07:08:09:0A",
@@ -2570,7 +2720,7 @@ should include options from the isc option space:
     <userinput>"option-data": [
     {
         "name": "vendor-opts",
-        "data": 4491"
+        "data": 4491
     },
     {
         "name": "tftp-servers",
@@ -2635,7 +2785,7 @@ should include options from the isc option space:
  }
 
 </screen>
-    <para>Static class assignments, as shown above, can be used in conjuction
+    <para>Static class assignments, as shown above, can be used in conjunction
     with classification using expressions.</para>
     </section>
 
@@ -3151,6 +3301,9 @@ If not specified, the default value is:
 </screen>
       </para>
 
+      <para>If "relay" is specified, the "ip-address" parameter within
+      it is mandatory.</para>
+
     </section>
 
       <section id="dhcp6-client-class-relay">
@@ -3227,7 +3380,8 @@ If not specified, the default value is:
       provided by the clients.
       </para>
       <para>
-      The configuration is controlled by the <command>mac-sources</command>parameter as follows:
+      The configuration is controlled by the <command>mac-sources</command>
+      parameter as follows:
         <screen>
 "Dhcp6": {
     <userinput>"mac-sources": [ "method1", "method2", "method3", ... ]</userinput>,
@@ -3240,7 +3394,8 @@ If not specified, the default value is:
 
     When not specified, a special value of "any" is used, which
     instructs the server to attempt to use all the methods in sequence and use
-    value returned by the first one that succeeds.</para>
+    value returned by the first one that succeeds. If specified, it
+    has to have at least one value.</para>
 
     <para>Supported methods are:
     <itemizedlist>
@@ -3274,7 +3429,7 @@ If not specified, the default value is:
         that those addresses are based on EUI-64, which contains MAC address. This
         method is not completely reliable, as clients may use other link-local address
         types.  In particular, privacy extensions, defined in
-        <ulink utl="http://tools.ietf.org/html/rfc4941">RFC 4941</ulink>, do not use
+        <ulink url="http://tools.ietf.org/html/rfc4941">RFC 4941</ulink>, do not use
         MAC addresses.  Also note that successful extraction requires that the
         address's u-bit must be set to 1 and its g-bit set to 0, indicating that it
         is an interface identifier as per
@@ -3331,7 +3486,11 @@ If not specified, the default value is:
         </simpara>
       </listitem>
     </itemizedlist>
-    </para>
+  </para>
+
+  <para>Empty mac-sources is not allowed. If you do not want to specify it,
+  either simply omit mac-sources definition or specify it with the "any" value
+  which is the default.</para>
   </section>
 
     <section id="dhcp6-decline">
@@ -3570,7 +3729,7 @@ If not specified, the default value is:
                 statistic is expected to grow if there are devices
                 that are using DHCPv4-over-DHCPv6. DHCPv4-QUERY
                 messages are used by DHCPv4 clients on an IPv6 only
-                line which encapsulatesi the requests over DHCPv6.
+                line which encapsulates the requests over DHCPv6.
               </entry>
             </row>
 
@@ -3698,6 +3857,27 @@ If not specified, the default value is:
             </row>
 
             <row>
+              <entry>reclaimed-leases</entry>
+              <entry>integer</entry>
+              <entry> This statistic is the number of expired leases that have been
+              reclaimed since server startup. It is incremented each time an expired
+              lease is reclaimed (it counts both NA and PD reclamations) and is reset
+              when the server is reconfigured.
+              </entry>
+            </row>
+
+            <row>
+              <entry>subnet[id].reclaimed-leases</entry>
+              <entry>integer</entry>
+              <entry>This statistic is the number of expired leases associated with
+              a given subnet (<emphasis>"id"</emphasis> is the subnet-id) that have
+              been reclaimed since server startup. It is incremented each time an expired
+              lease is reclaimed (it counts both NA and PD reclamations) and is reset
+              when the server is reconfigured.
+              </entry>
+            </row>
+
+            <row>
             <entry>declined-addresses</entry>
             <entry>integer</entry>
             <entry>
@@ -3798,14 +3978,88 @@ If not specified, the default value is:
         See the Control Channel section in the Kea Developer's Guide for more details.
       </para>
 
-      <para>The DHCPv6 server supports <command>statistic-get</command>,
-      <command>statistic-reset</command>, <command>statistic-remove</command>,
-      <command>statistic-get-all</command>, <command>statistic-reset-all</command>
-      and <command>statistic-remove-all</command>, specified in
-      <xref linkend="command-stats"/>. It also supports
-      <command>list-commands</command> and <command>shutdown</command>,
-      specified in <xref linkend="command-list-commands" /> and
-      <xref linkend="command-shutdown" />, respectively.</para>
+      <para>The DHCPv6 server supports the following operational commands:
+        <itemizedlist>
+            <listitem>build-report</listitem>
+            <listitem>config-get</listitem>
+            <listitem>config-reload</listitem>
+            <listitem>config-set</listitem>
+            <listitem>config-test</listitem>
+            <listitem>config-write</listitem>
+            <listitem>leases-reclaim</listitem>
+            <listitem>list-commands</listitem>
+            <listitem>shutdown</listitem>
+            <listitem>version-get</listitem>
+        </itemizedlist>
+         as described in <xref linkend="commands-common"/>.  In addition,
+         it supports the following statistics related commands:
+        <itemizedlist>
+            <listitem>statistic-get</listitem>
+            <listitem>statistic-reset</listitem>
+            <listitem>statistic-remove</listitem>
+            <listitem>statistic-get-all</listitem>
+            <listitem>statistic-reset-all</listitem>
+            <listitem>statistic-remove-all</listitem>
+        </itemizedlist>
+        as described here <xref linkend="command-stats"/>.
+      </para>
+
+    </section>
+
+      <section>
+        <title>User context in IPv6 pools</title>
+        <para>
+          Kea allows loading hook libraries that sometimes could benefit from
+          additional parameters. If such a parameter is specific to the whole
+          library, it is typically defined as a parameter for the hook library.
+          However, sometimes there is a need to specify parameters that are
+          different for each pool.
+        </para>
+        <para>
+          Let's consider an example where certain parameters are supposed
+          to be delivered to clients in form of additional options,
+          and the values of those options are correlated to delegated
+          prefixes. It seems reasonable to keep those parameters with
+          the the definition of the PD pool. On the other hand, this
+          functionality is is not part of the base Kea code so Kea will
+          not understand any hook-specific keywords in that definition.
+          The solution to this problem is to use user context. For
+          each PD pool that is expected to be used with this feature,
+          a "user context" is defined.  This is a structure that holds the
+          parameters used by the hook library when it is loaded.
+          An example configuration could look as follows:
+          <screen>
+"Dhcp4": {
+    "subnet6": [ {
+        "pd-pools": [
+        {
+            "prefix":  "2001:db8::",
+            "prefix-len": 56,
+            "delegated-len": 64,
+            <userinput>"user-context": {
+                "threshold-percent": 85,
+                "v4-network": "192.168.0.0/16",
+                "v4-overflow": "10.0.0.0/16"
+            }</userinput>
+        } ],
+        "subnet": "2001:db8::/32"
+    } ],
+    ...
+}</screen>
+        </para>
+
+        <para>
+          Kea does not interpret or use the content of the user context:
+          it just stores it, making it available to the hook
+          libraries. It is up to each hook library to extract the information
+          and make use of it.
+        </para>
+        <para>
+          Currently only address and prefix pools allow definition of user
+          contexts, but this concept is expected to be enhanced to other
+          structures in the future. For more background information, see <xref
+          linkend="user-context"/>
+        </para>
     </section>
 
     <section id="dhcp6-std">
@@ -3846,11 +4100,23 @@ If not specified, the default value is:
             Supported option is CLIENT_FQDN.</simpara>
           </listitem>
           <listitem>
+            <simpara><emphasis>Dynamic Host Configuration Protocol for IPv6 (DHCPv6)
+            Option for Dual-Stack Lite</emphasis>,
+            <ulink url="http://tools.ietf.org/html/rfc6334">RFC 6334</ulink>:
+            the AFTR-Name DHCPv6 Option is supported.</simpara>
+          </listitem>
+          <listitem>
             <simpara><emphasis>Relay-Supplied DHCP Options</emphasis>,
             <ulink url="http://tools.ietf.org/html/rfc6422">RFC 6422</ulink>:
             Full functionality is supported: OPTION_RSOO, ability of the server
             to echo back the options, checks whether an option is RSOO-enabled,
             ability to mark additional options as RSOO-enabled.</simpara>
+          </listitem>
+          <listitem>
+            <simpara><emphasis>Prefix Exclude Option for DHCPv6-based Prefix
+            Delegation</emphasis>,
+            <ulink url="http://tools.ietf.org/html/rfc6603">RFC
+            6603</ulink>: Prefix Exclude option is supported.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>Client Link-Layer Address Option in

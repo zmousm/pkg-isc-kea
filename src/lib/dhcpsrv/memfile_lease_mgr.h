@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -650,7 +650,7 @@ private:
     /// the unit tests need to override this path (with the path in the
     /// Kea build directory, the @c KEA_LFC_EXECUTABLE environmental
     /// variable should be set to hold an absolute path to the kea-lfc
-    /// excutable.
+    /// executable.
     /// @param conversion_needed flag that indicates input lease file(s) are
     /// schema do not match the current schema (older or newer), and need
     /// conversion. This value is passed through to LFCSetup::setup() via its

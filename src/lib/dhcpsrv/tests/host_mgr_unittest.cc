@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -388,6 +388,18 @@ TEST_F(HostMgrTest, get6ByPrefix) {
     testGet6ByPrefix(*getCfgHosts(), *getCfgHosts());
 }
 
+// This test verifies that without a host data source an exception is thrown.
+TEST_F(HostMgrTest, addNoDataSource) {
+    // Remove all configuration.
+    CfgMgr::instance().clear();
+    // Recreate HostMgr instance.
+    HostMgr::create();
+
+    HostPtr host(new Host(hwaddrs_[0]->toText(false), "hw-address",
+                          SubnetID(1), SubnetID(0), IOAddress("192.0.2.5")));
+    EXPECT_THROW(HostMgr::instance().add(host), NoHostDataSourceManager);
+}
+
 // The following tests require MySQL enabled.
 #if defined HAVE_MYSQL
 
@@ -438,7 +450,7 @@ TEST_F(MySQLHostMgrTest, getAll) {
 }
 
 // This test verifies that IPv4 reservations for a particular client can
-// be retrieved from the configuration file and a database simulatneously.
+// be retrieved from the configuration file and a database simultaneously.
 TEST_F(MySQLHostMgrTest, getAll4) {
     testGetAll4(*getCfgHosts(), HostMgr::instance());
 }
@@ -515,7 +527,7 @@ TEST_F(PostgreSQLHostMgrTest, getAll) {
 }
 
 // This test verifies that IPv4 reservations for a particular client can
-// be retrieved from the configuration file and a database simulatneously.
+// be retrieved from the configuration file and a database simultaneously.
 TEST_F(PostgreSQLHostMgrTest, getAll4) {
     testGetAll4(*getCfgHosts(), HostMgr::instance());
 }

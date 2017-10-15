@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,7 +8,12 @@
 #include <dhcp/option_space.h>
 #include <dhcpsrv/cfg_option.h>
 #include <dhcp/dhcp6.h>
+#include <util/encode/hex.h>
 #include <string>
+#include <sstream>
+#include <vector>
+
+using namespace isc::data;
 
 namespace isc {
 namespace dhcp {
@@ -105,19 +110,31 @@ CfgOption::encapsulateInternal(const std::string& option_space) {
     // from the option spaces they encapsulate.
     for (OptionContainer::const_iterator opt = options->begin();
          opt != options->end(); ++opt) {
-        // Get encapsulated option space for the option.
-        const std::string& encap_space = opt->option_->getEncapsulatedSpace();
-        // Empty value means that no option space is encapsulated.
-        if (!encap_space.empty()) {
-            // Retrieve all options from the encapsulated option space.
-            OptionContainerPtr encap_options = getAll(encap_space);
-            for (OptionContainer::const_iterator encap_opt =
-                     encap_options->begin(); encap_opt != encap_options->end();
-                 ++encap_opt) {
-                // Add sub-option if there isn't one added already.
-                if (!opt->option_->getOption(encap_opt->option_->getType())) {
-                    opt->option_->addOption(encap_opt->option_);
-                }
+        encapsulateInternal(opt->option_);
+    }
+}
+
+void
+CfgOption::encapsulateInternal(const OptionPtr& option) {
+    // Get encapsulated option space for the option.
+    const std::string& encap_space = option->getEncapsulatedSpace();
+    // Empty value means that no option space is encapsulated.
+    if (!encap_space.empty()) {
+        // Retrieve all options from the encapsulated option space.
+        OptionContainerPtr encap_options = getAll(encap_space);
+        for (OptionContainer::const_iterator encap_opt =
+                 encap_options->begin(); encap_opt != encap_options->end();
+             ++encap_opt) {
+            // Add sub-option if there isn't one added already.
+            if (!option->getOption(encap_opt->option_->getType())) {
+                option->addOption(encap_opt->option_);
+            }
+            // This is a workaround for preventing infinite recursion when
+            // trying to encapsulate options created with default global option
+            // spaces.
+            if (encap_space != DHCP4_OPTION_SPACE &&
+                encap_space != DHCP6_OPTION_SPACE) {
+                encapsulateInternal(encap_opt->option_);
             }
         }
     }
@@ -169,6 +186,90 @@ CfgOption::getAll(const std::string& option_space) const {
 OptionContainerPtr
 CfgOption::getAll(const uint32_t vendor_id) const {
     return (vendor_options_.getItems(vendor_id));
+}
+
+ElementPtr
+CfgOption::toElement() const {
+    // option-data value is a list of maps
+    ElementPtr result = Element::createList();
+    // Iterate first on options using space names
+    const std::list<std::string>& names = options_.getOptionSpaceNames();
+    for (std::list<std::string>::const_iterator name = names.begin();
+         name != names.end(); ++name) {
+        OptionContainerPtr opts = getAll(*name);
+        for (OptionContainer::const_iterator opt = opts->begin();
+             opt != opts->end(); ++opt) {
+            // Get and fill the map for this option
+            ElementPtr map = Element::createMap();
+            // First set space from parent iterator
+            map->set("space", Element::create(*name));
+            // Set the code
+            uint16_t code = opt->option_->getType();
+            map->set("code", Element::create(code));
+            // Set the name (always for standard options else when asked for)
+            OptionDefinitionPtr def = LibDHCP::getOptionDef(*name, code);
+            if (!def) {
+                def = LibDHCP::getRuntimeOptionDef(*name, code);
+            }
+            if (def) {
+                map->set("name", Element::create(def->getName()));
+            }
+            // Set the data item
+            if (!opt->formatted_value_.empty()) {
+                map->set("csv-format", Element::create(true));
+                map->set("data", Element::create(opt->formatted_value_));
+            } else {
+                map->set("csv-format", Element::create(false));
+                std::vector<uint8_t> bin = opt->option_->toBinary();
+                std::string repr = util::encode::encodeHex(bin);
+                map->set("data", Element::create(repr));
+            }
+            // Push on the list
+            result->add(map);
+        }
+    }
+    // Iterate first on vendor_options using vendor ids
+    const std::list<uint32_t>& ids = vendor_options_.getOptionSpaceNames();
+    for (std::list<uint32_t>::const_iterator id = ids.begin();
+         id != ids.end(); ++id) {
+        OptionContainerPtr opts = getAll(*id);
+        for (OptionContainer::const_iterator opt = opts->begin();
+             opt != opts->end(); ++opt) {
+            // Get and fill the map for this option
+            ElementPtr map = Element::createMap();
+            // First set space from parent iterator
+            std::ostringstream oss;
+            oss << "vendor-" << *id;
+            map->set("space", Element::create(oss.str()));
+            // Set the code
+            uint16_t code = opt->option_->getType();
+            map->set("code", Element::create(code));
+            // Set the name
+            Option::Universe universe = opt->option_->getUniverse();
+            OptionDefinitionPtr def =
+                LibDHCP::getVendorOptionDef(universe, *id, code);
+            if (!def) {
+                // vendor-XXX space is in oss
+                def = LibDHCP::getRuntimeOptionDef(oss.str(), code);
+            }
+            if (def) {
+                map->set("name", Element::create(def->getName()));
+            }
+            // Set the data item
+            if (!opt->formatted_value_.empty()) {
+                map->set("csv-format", Element::create(true));
+                map->set("data", Element::create(opt->formatted_value_));
+            } else {
+                map->set("csv-format", Element::create(false));
+                std::vector<uint8_t> bin = opt->option_->toBinary();
+                std::string repr = util::encode::encodeHex(bin);
+                map->set("data", Element::create(repr));
+            }
+            // Push on the list
+            result->add(map);
+        }
+    }
+    return (result);
 }
 
 } // end of namespace isc::dhcp

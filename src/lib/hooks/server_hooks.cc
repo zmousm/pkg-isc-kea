@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -46,10 +46,24 @@ ServerHooks::registerHook(const string& name) {
         hooks_.insert(make_pair(name, index));
 
     if (!result.second) {
+
+        // There's a problem with hook libraries that need to be linked with
+        // libdhcpsrv. For example host_cmds hook library requires host
+        // parser, so it needs to be linked with libdhcpsrv. However, when
+        // unit-tests are started, the hook points are not registered.
+        // When the library is loaded new hook points are registered.
+        // This causes issues in the hooks framework, especially when
+        // LibraryManager::unloadLibrary() iterates through all hooks
+        // and then calls deregisterAllCallouts. This method gets
+        // hook_index that is greater than number of elements in
+        // hook_vector_ and then we have a read past the array boundary.
+        /// @todo: See ticket 5251 and 5208 for details.
+        return (getIndex(name));
+
         // New element was not inserted because an element with the same name
         // already existed.
-        isc_throw(DuplicateHook, "hook with name " << name <<
-                  " is already registered");
+        //isc_throw(DuplicateHook, "hook with name " << name <<
+        //         " is already registered");
     }
 
     // Element was inserted, so add to the inverse hooks collection.
@@ -142,7 +156,12 @@ ServerHooks::getHookNames() const {
 
 ServerHooks&
 ServerHooks::getServerHooks() {
-    static ServerHooks hooks;
+    return (*getServerHooksPtr());
+}
+
+ServerHooksPtr
+ServerHooks::getServerHooksPtr() {
+    static ServerHooksPtr hooks(new ServerHooks());
     return (hooks);
 }
 

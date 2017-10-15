@@ -36,7 +36,7 @@ libkea_eval_la_LIBADD  += $(top_builddir)/src/lib/util/libkea-util.la
 libkea_eval_la_LIBADD  += $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
 libkea_eval_la_LIBADD  += $(LOG4CPLUS_LIBS) $(CRYPTO_LIBS)
 
-libkea_eval_la_LDFLAGS  = -no-undefined -version-info 4:0:0
+libkea_eval_la_LDFLAGS  = -no-undefined -version-info 5:0:0
 libkea_eval_la_LDFLAGS += $(CRYPTO_LDFLAGS)
 
 EXTRA_DIST  = eval.dox
@@ -94,7 +94,7 @@ location.hh position.hh stack.hh parser.cc parser.h: parser.yy
 	$(YACC) --defines=parser.h -o parser.cc parser.yy
 
 lexer.cc: lexer.ll
-	$(LEX) -o lexer.cc lexer.ll
+	$(LEX) --prefix eval -o lexer.cc lexer.ll
 
 else
 

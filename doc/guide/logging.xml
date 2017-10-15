@@ -61,7 +61,7 @@
         runtime) are responsible for creating the loggers used by those
         libraries. Such loggers should have unique names, different
         from the logger names used by Kea. In this way the
-        messages output by the hooks library can be distingued from
+        messages output by the hooks library can be distinguished from
         messages issued by the core Kea code. Unique names also allow
         the loggers to be configured independently of loggers used
         by Kea.  Whenever it makes sense, a hook library can use multiple
@@ -150,7 +150,7 @@
           packet drops, you must create configuration entry for the
           logger called <quote>kea-dhcp4.bad-packets</quote> and specify
           severity DEBUG for this logger. All other configuration
-          parameters may be omited for this logger if the logger should
+          parameters may be omitted for this logger if the logger should
           use the default values specified in the root logger's
           configuration.
         </para>
@@ -181,6 +181,22 @@
           Currently defined loggers are:
         </para>
         <itemizedlist>
+          <listitem>
+            <simpara>
+              <command>kea-ctrl-agent</command> - the root logger for the
+              Control Agent exposing RESTful control API. All components used
+              by the Control Agent inherit the settings from this logger.
+            </simpara>
+          </listitem>
+
+          <listitem>
+            <simpara>
+              <command>kea-ctrl-agent.http</command> - a logger which outputs
+              log messages related to receiving, parsing and sending HTTP
+              messages.
+            </simpara>
+          </listitem>
+
           <listitem>
             <simpara>
               <command>kea-dhcp4</command> - the root logger for the DHCPv4
@@ -441,10 +457,16 @@
 
           <listitem>
             <simpara>
+              <command>kea-dhcp-ddns.dctl</command> - the logger used by the
+              kea-dhcp-ddns daemon for logging basic information about the
+              process, received signals and triggered reconfigurations.
+            </simpara>
+          </listitem>
+
+          <listitem>
+            <simpara>
               <command>kea-dhcp-ddns.dhcpddns</command> - the logger used by the
-              kea-dhcp-ddns daemon for logging configuration and global event
-              information.  This logger does not specify logging settings for
-              libraries used by the daemon.
+              kea-dhcp-ddns daemon for logging events related to DDNS operations.
             </simpara>
           </listitem>
 

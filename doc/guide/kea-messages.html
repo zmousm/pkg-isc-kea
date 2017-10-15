@@ -1,10 +1,10 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kea Messages Manual</title><link rel="stylesheet" type="text/css" href="kea-guide.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><meta name="description" content="This is the messages manual for Kea version 1.1.0. The most up-to-date version of this document, along with other documents for Kea, can be found at ."></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book"><div class="titlepage"><div><div><h1 class="title"><a name="idp27772672"></a>Kea Messages Manual</h1></div><div><p class="releaseinfo">This is the messages manual for Kea version
-        1.1.0.</p></div><div><p class="copyright">Copyright © 2011-2015 Internet Systems Consortium, Inc.</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
-        This is the messages manual for Kea version 1.1.0.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kea Messages Manual</title><link rel="stylesheet" type="text/css" href="kea-guide.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><meta name="description" content="This is the messages manual for Kea version 1.2.0. The most up-to-date version of this document, along with other documents for Kea, can be found at ."></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book"><div class="titlepage"><div><div><h1 class="title"><a name="idm6298672"></a>Kea Messages Manual</h1></div><div><p class="releaseinfo">This is the messages manual for Kea version
+        1.2.0.</p></div><div><p class="copyright">Copyright © 2011-2017 Internet Systems Consortium, Inc.</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+        This is the messages manual for Kea version 1.2.0.
             The most up-to-date version of this document, along with
             other documents for Kea, can be found at
         <a class="ulink" href="http://kea.isc.org/docs" target="_top">http://kea.isc.org/docs</a>.
-      </p></div></div></div><hr></div><div class="toc"><dl class="toc"><dt><span class="chapter"><a href="#intro">1. Introduction</a></span></dt><dt><span class="chapter"><a href="#messages">2. Kea Log Messages</a></span></dt><dd><dl><dt><span class="section"><a href="#ALLOC">ALLOC Module</a></span></dt><dt><span class="section"><a href="#ASIODNS">ASIODNS Module</a></span></dt><dt><span class="section"><a href="#COMMAND">COMMAND Module</a></span></dt><dt><span class="section"><a href="#DCTL">DCTL Module</a></span></dt><dt><span class="section"><a href="#DHCP4">DHCP4 Module</a></span></dt><dt><span class="section"><a href="#DHCP6">DHCP6 Module</a></span></dt><dt><span class="section"><a href="#DHCPRSV">DHCPRSV Module</a></span></dt><dt><span class="section"><a href="#DHCPSRV">DHCPSRV Module</a></span></dt><dt><span class="section"><a href="#DHCP">DHCP Module</a></span></dt><dt><span class="section"><a href="#EVAL">EVAL Module</a></span></dt><dt><span class="section"><a href="#HOOKS">HOOKS Module</a></span></dt><dt><span class="section"><a href="#HOSTS">HOSTS Module</a></span></dt><dt><span class="section"><a href="#LFC">LFC Module</a></span></dt><dt><span class="section"><a href="#LOGIMPL">LOGIMPL Module</a></span></dt><dt><span class="section"><a href="#LOG">LOG Module</a></span></dt><dt><span class="section"><a href="#USER">USER Module</a></span></dt></dl></dd></dl></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="intro"></a>Chapter 1. Introduction</h1></div></div></div><p>
+      </p></div></div></div><hr></div><div class="toc"><dl class="toc"><dt><span class="chapter"><a href="#intro">1. Introduction</a></span></dt><dt><span class="chapter"><a href="#messages">2. Kea Log Messages</a></span></dt><dd><dl><dt><span class="section"><a href="#ALLOC">ALLOC Module</a></span></dt><dt><span class="section"><a href="#ASIODNS">ASIODNS Module</a></span></dt><dt><span class="section"><a href="#COMMAND">COMMAND Module</a></span></dt><dt><span class="section"><a href="#CTRL">CTRL Module</a></span></dt><dt><span class="section"><a href="#DCTL">DCTL Module</a></span></dt><dt><span class="section"><a href="#DHCP4">DHCP4 Module</a></span></dt><dt><span class="section"><a href="#DHCP6">DHCP6 Module</a></span></dt><dt><span class="section"><a href="#DHCPRSV">DHCPRSV Module</a></span></dt><dt><span class="section"><a href="#DHCPSRV">DHCPSRV Module</a></span></dt><dt><span class="section"><a href="#DHCP">DHCP Module</a></span></dt><dt><span class="section"><a href="#EVAL">EVAL Module</a></span></dt><dt><span class="section"><a href="#HOOKS">HOOKS Module</a></span></dt><dt><span class="section"><a href="#HOSTS">HOSTS Module</a></span></dt><dt><span class="section"><a href="#HTTP">HTTP Module</a></span></dt><dt><span class="section"><a href="#LFC">LFC Module</a></span></dt><dt><span class="section"><a href="#LOGIMPL">LOGIMPL Module</a></span></dt><dt><span class="section"><a href="#LOG">LOG Module</a></span></dt><dt><span class="section"><a href="#USER">USER Module</a></span></dt></dl></dd></dl></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="intro"></a>Chapter 1. Introduction</h1></div></div></div><p>
       This document lists each message that can be logged by the
       programs in the Kea package.  Each entry in this manual
       is of the form:
@@ -551,6 +551,16 @@ given in the message).  Please submit a bug report.
 This debug message indicates that the daemon stopped supporting specified
 command. This command can no longer be issued. If the command socket is
 open and this command is issued, the daemon will not be able to process it.
+</p></dd><dt><a name="COMMAND_EXTENDED_REGISTERED"></a><span class="term">COMMAND_EXTENDED_REGISTERED Command %1 registered</span></dt><dd><p>
+This debug message indicates that the daemon started supporting specified
+command. The handler for the registered command includes a parameter holding
+entire command to be processed.
+</p></dd><dt><a name="COMMAND_HOOK_RECEIVE_SKIP"></a><span class="term">COMMAND_HOOK_RECEIVE_SKIP command %1 has been handled by the hook library which returned the skip state</span></dt><dd><p>
+This debug message is issued when a hook library has processed the control
+command and returned the skip status. The callout should have set the
+'response' argument which contains the result of processing the command.
+The Command Manager skips processing of this command and simply returns
+the response generated by the hook library.
 </p></dd><dt><a name="COMMAND_PROCESS_ERROR1"></a><span class="term">COMMAND_PROCESS_ERROR1 Error while processing command: %1</span></dt><dd><p>
 This warning message indicates that the server encountered an error while
 processing received command. Additional information will be provided, if
@@ -584,6 +594,12 @@ but may also mean a timeout.
 </p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_OPENED"></a><span class="term">COMMAND_SOCKET_CONNECTION_OPENED Opened socket %1 for incoming command connection on socket %2</span></dt><dd><p>
 This is an informational message that a new incoming command connection was
 detected and a dedicated socket was opened for that connection.
+</p></dd><dt><a name="COMMAND_SOCKET_DUP_WARN"></a><span class="term">COMMAND_SOCKET_DUP_WARN Failed to duplicate socket for response: %1</span></dt><dd><p>
+This debug message indicates that the commandReader was unable to duplicate
+the connection socket prior to executing the command. This is most likely a
+system resource issue.  The command should still be processed and the response
+sent, unless the command caused the command channel to be closed (e.g. a
+reconfiguration command).
 </p></dd><dt><a name="COMMAND_SOCKET_FAIL_NONBLOCK"></a><span class="term">COMMAND_SOCKET_FAIL_NONBLOCK Failed to set non-blocking mode for socket %1 created for incoming connection on socket %2: %3</span></dt><dd><p>
 This error message indicates that the server failed to set non-blocking mode
 on just created socket. That socket was created for accepting specific
@@ -611,20 +627,79 @@ descriptor and path specified.
 </p></dd><dt><a name="COMMAND_SOCKET_WRITE"></a><span class="term">COMMAND_SOCKET_WRITE Sent response of %1 bytes over command socket %2</span></dt><dd><p>
 This debug message indicates that the specified number of bytes was sent
 over command socket identifier by the specified file descriptor.
-</p></dd><dt><a name="COMMAND_SOCKET_WRITE_FAIL"></a><span class="term">COMMAND_SOCKET_WRITE_FAIL Error while writing %1 bytes to command socket %2</span></dt><dd><p>
+</p></dd><dt><a name="COMMAND_SOCKET_WRITE_FAIL"></a><span class="term">COMMAND_SOCKET_WRITE_FAIL Error while writing %1 bytes to command socket %2 : %3</span></dt><dd><p>
 This error message indicates that an error was encountered while
 attempting to send a response to the command socket.
 </p></dd></dl></div><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="CTRL"></a>CTRL Module</h2></div></div></div><p>
+      </p><div class="variablelist"><dl class="variablelist"><dt><a name="CTRL_AGENT_COMMAND_FORWARDED"></a><span class="term">CTRL_AGENT_COMMAND_FORWARDED command %1 successfully forwarded to the service %2</span></dt><dd><p>
+This informational message is issued when the CA successfully forwards
+the control message to the specified Kea service and receives a response.
+</p></dd><dt><a name="CTRL_AGENT_COMMAND_FORWARD_BEGIN"></a><span class="term">CTRL_AGENT_COMMAND_FORWARD_BEGIN begin forwarding command %1 to service %2</span></dt><dd><p>
+This debug message is issued when the Control Agent starts forwarding a
+received command to one of the Kea servers.
+</p></dd><dt><a name="CTRL_AGENT_COMMAND_FORWARD_FAILED"></a><span class="term">CTRL_AGENT_COMMAND_FORWARD_FAILED failed forwarding command %1: %2</span></dt><dd><p>
+This debug message is issued when the Control Agent failed forwarding a
+received command to one of the Kea servers. The second argument provides
+the details of the error.
+</p></dd><dt><a name="CTRL_AGENT_COMMAND_PROCESS_SKIP"></a><span class="term">CTRL_AGENT_COMMAND_PROCESS_SKIP command %1 already processed by hooks libraries, skipping</span></dt><dd><p>
+This debug message is issued when the Control Agent skips processing
+received command because it has determined that the hooks libraries
+already processed the command.
+</p></dd><dt><a name="CTRL_AGENT_CONFIG_CHECK_FAIL"></a><span class="term">CTRL_AGENT_CONFIG_CHECK_FAIL Control Agent configuration check failed: %1</span></dt><dd><p>
+This error message indicates that the CA had failed configuration
+check. Details are provided. Additional details may be available
+in earlier log entries, possibly on lower levels.
+</p></dd><dt><a name="CTRL_AGENT_CONFIG_FAIL"></a><span class="term">CTRL_AGENT_CONFIG_FAIL Control Agent configuration failed: %1</span></dt><dd><p>
+This error message indicates that the CA had failed configuration
+attempt. Details are provided. Additional details may be available
+in earlier log entries, possibly on lower levels.
+</p></dd><dt><a name="CTRL_AGENT_FAILED"></a><span class="term">CTRL_AGENT_FAILED application experienced a fatal error: %1</span></dt><dd><p>
+This is a debug message issued when the Control Agent application
+encounters an unrecoverable error from within the event loop.
+</p></dd><dt><a name="CTRL_AGENT_HTTP_SERVICE_STARTED"></a><span class="term">CTRL_AGENT_HTTP_SERVICE_STARTED HTTP service bound to address %1:%2</span></dt><dd><p>
+This informational message indicates that the server has started HTTP service
+on the specified address and port. All control commands should be sent to this
+address and port.
+</p></dd><dt><a name="CTRL_AGENT_RUN_EXIT"></a><span class="term">CTRL_AGENT_RUN_EXIT application is exiting the event loop</span></dt><dd><p>
+This is a debug message issued when the Control Agent exits its
+event loop.
+</p></dd><dt><a name="CTRL_AGENT_STARTED"></a><span class="term">CTRL_AGENT_STARTED Kea Control Agent version %1 started</span></dt><dd><p>
+This informational message indicates that the Control Agent has
+processed all configuration information and is ready to begin processing.
+The version is also printed.
+</p></dd></dl></div><p>
     </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="DCTL"></a>DCTL Module</h2></div></div></div><p>
-      </p><div class="variablelist"><dl class="variablelist"><dt><a name="DCTL_CCSESSION_ENDING"></a><span class="term">DCTL_CCSESSION_ENDING %1 ending control channel session</span></dt><dd><p>
+      </p><div class="variablelist"><dl class="variablelist"><dt><a name="DCTL_ALREADY_RUNNING"></a><span class="term">DCTL_ALREADY_RUNNING %1 already running? %2</span></dt><dd><p>
+This is an error message that occurs when a module encounters a pre-existing
+PID file which contains the PID of a running process.  This most likely
+indicates an attempt to start a second instance of a module using the
+same configuration file.  It is possible, though unlikely, that the PID file
+is a remnant left behind by a server crash or power failure and the PID
+it contains refers to a process other than Kea process.  In such an event,
+it would be necessary to manually remove the PID file.  The first argument is
+the process name, the second contains the PID and PID file.
+</p></dd><dt><a name="DCTL_CCSESSION_ENDING"></a><span class="term">DCTL_CCSESSION_ENDING %1 ending control channel session</span></dt><dd><p>
 This debug message is issued just before the controller attempts
 to disconnect from its session with the Kea control channel.
 </p></dd><dt><a name="DCTL_CCSESSION_STARTING"></a><span class="term">DCTL_CCSESSION_STARTING %1 starting control channel session, specfile: %2</span></dt><dd><p>
 This debug message is issued just before the controller attempts
 to establish a session with the Kea control channel.
+</p></dd><dt><a name="DCTL_CFG_FILE_RELOAD_ERROR"></a><span class="term">DCTL_CFG_FILE_RELOAD_ERROR configuration reload failed: %1, reverting to current configuration.</span></dt><dd><p>
+This is an error message indicating that the application attempted to reload
+its configuration from file and encountered an error.  This is likely due to
+invalid content in the configuration file.  The application should continue
+to operate under its current configuration.
+</p></dd><dt><a name="DCTL_CFG_FILE_RELOAD_SIGNAL_RECVD"></a><span class="term">DCTL_CFG_FILE_RELOAD_SIGNAL_RECVD OS signal %1 received, reloading configuration from file: %2</span></dt><dd><p>
+This is an informational message indicating the application has received a signal
+instructing it to reload its configuration from file.
 </p></dd><dt><a name="DCTL_COMMAND_RECEIVED"></a><span class="term">DCTL_COMMAND_RECEIVED %1 received command: %2, arguments: %3</span></dt><dd><p>
 A debug message listing the command (and possible arguments) received
 from the Kea control system by the controller.
+</p></dd><dt><a name="DCTL_CONFIG_CHECK_COMPLETE"></a><span class="term">DCTL_CONFIG_CHECK_COMPLETE server has completed configuration check: %1, result: %2</span></dt><dd><p>
+This is an informational message announcing the successful processing of a
+new configuration check is complete. The result of that check is printed.
+This informational message is printed when configuration check is requested.
 </p></dd><dt><a name="DCTL_CONFIG_COMPLETE"></a><span class="term">DCTL_CONFIG_COMPLETE server has completed configuration: %1</span></dt><dd><p>
 This is an informational message announcing the successful processing of a
 new configuration. It is output during server startup, and when an updated
@@ -661,6 +736,14 @@ On receipt of a new configuration, the server failed to create a parser to
 decode the contents of the named configuration element, or the creation
 succeeded but the parsing actions and committal of changes failed.
 The reason for the failure is given in the message.
+</p></dd><dt><a name="DCTL_PID_FILE_ERROR"></a><span class="term">DCTL_PID_FILE_ERROR %1 could not create a PID file: %2</span></dt><dd><p>
+This is an error message that occurs when the server is unable to create
+its PID file.  The log message should contain details sufficient to
+determine the underlying cause.  The most likely culprits are that
+some portion of the pathname does not exist or a permissions issue. The
+default path is determined by --localstatedir configure parameter but
+may be overridden by setting environment variable, KEA_PIDFILE_DIR.  The
+first argument is the process name.
 </p></dd><dt><a name="DCTL_PROCESS_FAILED"></a><span class="term">DCTL_PROCESS_FAILED %1 application execution failed: %2</span></dt><dd><p>
 The controller has encountered a fatal error while running the
 application and is terminating. The reason for the failure is
@@ -671,11 +754,30 @@ the application run method.
 </p></dd><dt><a name="DCTL_SESSION_FAIL"></a><span class="term">DCTL_SESSION_FAIL %1 controller failed to establish Kea session: %1</span></dt><dd><p>
 The controller has failed to establish communication with the rest of
 Kea and will exit.
+</p></dd><dt><a name="DCTL_SHUTDOWN"></a><span class="term">DCTL_SHUTDOWN %1 has shut down, pid: %2, version: %3</span></dt><dd><p>
+This is an informational message indicating that the service has shut
+down. The argument specifies a name of the service.
+</p></dd><dt><a name="DCTL_SHUTDOWN_SIGNAL_RECVD"></a><span class="term">DCTL_SHUTDOWN_SIGNAL_RECVD OS signal %1 received, starting shutdown</span></dt><dd><p>
+This is a debug message indicating the application has received a signal
+instructing it to shutdown.
+</p></dd><dt><a name="DCTL_SIGNAL_ERROR"></a><span class="term">DCTL_SIGNAL_ERROR signal handler for signal %1, threw an unexpected exception: %2</span></dt><dd><p>
+This is an error message indicating that the application encountered an unexpected
+error after receiving a signal.  This is a programmatic error and should be
+reported.  While The application will likely continue to operating, it may be
+unable to respond correctly to signals.
 </p></dd><dt><a name="DCTL_STANDALONE"></a><span class="term">DCTL_STANDALONE %1 skipping message queue, running standalone</span></dt><dd><p>
 This is a debug message indicating that the controller is running in the
 application in standalone mode. This means it will not connected to the Kea
 message queue. Standalone mode is only useful during program development,
 and should not be used in a production environment.
+</p></dd><dt><a name="DCTL_STARTING"></a><span class="term">DCTL_STARTING %1 starting, pid: %2, version: %3</span></dt><dd><p>
+This is an informational message issued when controller for the
+service first starts. Version is also reported.
+</p></dd><dt><a name="DCTL_UNSUPPORTED_SIGNAL"></a><span class="term">DCTL_UNSUPPORTED_SIGNAL ignoring reception of unsupported signal: %1</span></dt><dd><p>
+This is a debug message indicating that the application received an
+unsupported signal.  This is a programming error indicating that the
+application has registered to receive the signal but no associated
+processing logic has been added.
 </p></dd></dl></div><p>
     </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="DHCP4"></a>DHCP4 Module</h2></div></div></div><p>
       </p><div class="variablelist"><dl class="variablelist"><dt><a name="DHCP4_ACTIVATE_INTERFACE"></a><span class="term">DHCP4_ACTIVATE_INTERFACE activating interface %1</span></dt><dd><p>
@@ -725,12 +827,6 @@ packet, but the wait has been interrupted by the signal received
 by the process. The signal will be handled before the server starts
 waiting for next packets. The argument specifies the next signal to
 be handled by the server.
-</p></dd><dt><a name="DHCP4_CCSESSION_STARTED"></a><span class="term">DHCP4_CCSESSION_STARTED control channel session started on socket %1</span></dt><dd><p>
-A debug message issued during startup after the DHCPv4 server has
-successfully established a session with the Kea control channel.
-</p></dd><dt><a name="DHCP4_CCSESSION_STARTING"></a><span class="term">DHCP4_CCSESSION_STARTING starting control channel session, specfile: %1</span></dt><dd><p>
-This debug message is issued just before the DHCPv4 server attempts
-to establish a session with the Kea control channel.
 </p></dd><dt><a name="DHCP4_CLASS_ASSIGNED"></a><span class="term">DHCP4_CLASS_ASSIGNED %1: client packet has been assigned to the following class(es): %2</span></dt><dd><p>
 This debug message informs that incoming packet has been assigned to specified
 class or classes. This is a normal behavior and indicates successful operation.
@@ -875,6 +971,11 @@ This debug message is issued when the server received an empty Hostname option
 from a client. Server does not process empty Hostname options and therefore
 option is skipped. The argument holds the client and transaction identification
 information.
+</p></dd><dt><a name="DHCP4_FLEX_ID"></a><span class="term">DHCP4_FLEX_ID flexible identifier generated for incoming packet: %1</span></dt><dd><p>
+This debug message is printed when host reservation type is set to flexible identifier
+and the expression specified in its configuration generated (was evaluated to)
+an identifier for incoming packet. This debug message is mainly intended as a
+debugging assistance for flexible identifier.
 </p></dd><dt><a name="DHCP4_GENERATE_FQDN"></a><span class="term">DHCP4_GENERATE_FQDN %1: client did not send a FQDN or hostname; FQDN will be be generated for the client</span></dt><dd><p>
 This debug message is issued when the server did not receive a Hostname option
 from the client and hostname generation is enabled.  This provides a means to
@@ -994,7 +1095,7 @@ server is about to open sockets on the specified port.
 </p></dd><dt><a name="DHCP4_OPEN_SOCKET_FAIL"></a><span class="term">DHCP4_OPEN_SOCKET_FAIL failed to open socket: %1</span></dt><dd><p>
 A warning message issued when IfaceMgr fails to open and bind a socket. The reason
 for the failure is appended as an argument of the log message.
-</p></dd><dt><a name="DHCP4_PACKET_DROP_0001"></a><span class="term">DHCP4_PACKET_DROP_0001 failed to parse packet from %1 to %2, received over interace %3, reason: %4</span></dt><dd><p>
+</p></dd><dt><a name="DHCP4_PACKET_DROP_0001"></a><span class="term">DHCP4_PACKET_DROP_0001 failed to parse packet from %1 to %2, received over interface %3, reason: %4</span></dt><dd><p>
 The DHCPv4 server has received a packet that it is unable to
 interpret. The reason why the packet is invalid is included in the message.
 </p></dd><dt><a name="DHCP4_PACKET_DROP_0002"></a><span class="term">DHCP4_PACKET_DROP_0002 %1, from interface %2: no suitable subnet configured for a direct client</span></dt><dd><p>
@@ -1122,10 +1223,6 @@ On receipt of message containing details to a change of the DHCPv4
 server configuration, a set of parsers were successfully created, but
 one of them failed to commit its changes.  The reason for the failure
 is given in the message.
-</p></dd><dt><a name="DHCP4_PARSER_CREATED"></a><span class="term">DHCP4_PARSER_CREATED created parser for configuration element %1</span></dt><dd><p>
-A debug message output during a configuration update of the DHCPv4
-server, notifying that the parser for the specified configuration element
-has been successfully created.
 </p></dd><dt><a name="DHCP4_PARSER_EXCEPTION"></a><span class="term">DHCP4_PARSER_EXCEPTION failed to create or run parser for configuration element %1</span></dt><dd><p>
 On receipt of message containing details to a change of its configuration,
 the DHCPv4 server failed to create a parser to decode the contents of
@@ -1322,12 +1419,6 @@ packet, but the wait has been interrupted by the signal received
 by the process. The signal will be handled before the server starts
 waiting for next packets. The argument specifies the next signal to
 be handled by the server.
-</p></dd><dt><a name="DHCP6_CCSESSION_STARTED"></a><span class="term">DHCP6_CCSESSION_STARTED control channel session started on socket %1</span></dt><dd><p>
-A debug message issued during startup after the IPv6 DHCP server has
-successfully established a session with the Kea control channel.
-</p></dd><dt><a name="DHCP6_CCSESSION_STARTING"></a><span class="term">DHCP6_CCSESSION_STARTING starting control channel session, specfile: %1</span></dt><dd><p>
-This debug message is issued just before the IPv6 DHCP server attempts
-to establish a session with the Kea control channel.
 </p></dd><dt><a name="DHCP6_CLASS_ASSIGNED"></a><span class="term">DHCP6_CLASS_ASSIGNED %1: client packet has been assigned to the following class(es): %2</span></dt><dd><p>
 This debug message informs that incoming packet has been assigned to specified
 class or classes. This is a normal behavior and indicates successful operation.
@@ -1485,6 +1576,11 @@ as a result of receiving SIGHUP signal.
 </p></dd><dt><a name="DHCP6_DYNAMIC_RECONFIGURATION_FAIL"></a><span class="term">DHCP6_DYNAMIC_RECONFIGURATION_FAIL dynamic server reconfiguration failed with file: %1</span></dt><dd><p>
 This is an error message logged when the dynamic reconfiguration of the
 DHCP server failed.
+</p></dd><dt><a name="DHCP6_FLEX_ID"></a><span class="term">DHCP6_FLEX_ID flexible identifier generated for incoming packet: %1</span></dt><dd><p>
+This debug message is printed when host reservation type is set to flexible identifier
+and the expression specified in its configuration generated (was evaluated to)
+an indetifier for incoming packet. This debug message is mainly intended as a
+debugging assistance for flexible identifier.
 </p></dd><dt><a name="DHCP6_HANDLE_SIGNAL_EXCEPTION"></a><span class="term">DHCP6_HANDLE_SIGNAL_EXCEPTION An exception was thrown while handing signal: %1</span></dt><dd><p>
 This error message is printed when an exception was raised during signal
 processing. This likely indicates a coding error and should be reported to ISC.
@@ -1687,10 +1783,6 @@ On receipt of message containing details to a change of the IPv6 DHCP
 server configuration, a set of parsers were successfully created, but
 one of them failed to commit its changes.  The reason for the failure
 is given in the message.
-</p></dd><dt><a name="DHCP6_PARSER_CREATED"></a><span class="term">DHCP6_PARSER_CREATED created parser for configuration element %1</span></dt><dd><p>
-A debug message output during a configuration update of the IPv6 DHCP
-server, notifying that the parser for the specified configuration element
-has been successfully created.
 </p></dd><dt><a name="DHCP6_PARSER_EXCEPTION"></a><span class="term">DHCP6_PARSER_EXCEPTION failed to create or run parser for configuration element %1</span></dt><dd><p>
 On receipt of message containing details to a change of its configuration,
 the IPv6 DHCP server failed to create a parser to decode the contents of
@@ -2290,6 +2382,11 @@ from the lease file. All leases currently held in the memory will be
 replaced by those read from the file.
 </p></dd><dt><a name="DHCPSRV_MEMFILE_LEASE_LOAD"></a><span class="term">DHCPSRV_MEMFILE_LEASE_LOAD loading lease %1</span></dt><dd><p>
 A debug message issued when DHCP lease is being loaded from the file to memory.
+</p></dd><dt><a name="DHCPSRV_MEMFILE_LEASE_LOAD_ROW_ERROR"></a><span class="term">DHCPSRV_MEMFILE_LEASE_LOAD_ROW_ERROR discarding row %1, error: %2</span></dt><dd><p>
+An error message issued the the DHCP lease being loaded from the given row of
+the lease file fails. The log message should contain the specific reason the
+row was discarded. The server will continue loading the remaining data.
+This may indicate a corrupt lease file.
 </p></dd><dt><a name="DHCPSRV_MEMFILE_LFC_EXECUTE"></a><span class="term">DHCPSRV_MEMFILE_LFC_EXECUTE executing Lease File Cleanup using: %1</span></dt><dd><p>
 An informational message issued when the Memfile lease database backend
 starts a new process to perform Lease File Cleanup.
@@ -2700,21 +2797,13 @@ the DHCP_DDNS process name, the second contains the PID and PID file.
 </p></dd><dt><a name="DHCP_DDNS_AT_MAX_TRANSACTIONS"></a><span class="term">DHCP_DDNS_AT_MAX_TRANSACTIONS application has %1 queued requests but has reached maximum number of %2 concurrent transactions</span></dt><dd><p>
 This is a debug message that indicates that the application has DHCP_DDNS
 requests in the queue but is working as many concurrent requests as allowed.
-</p></dd><dt><a name="DHCP_DDNS_CFG_FILE_RELOAD_ERROR"></a><span class="term">DHCP_DDNS_CFG_FILE_RELOAD_ERROR configuration reload failed: %1, reverting to current configuration.</span></dt><dd><p>
-This is an error message indicating that the application attempted to reload
-its configuration from file and encountered an error.  This is likely due to
-invalid content in the configuration file.  The application should continue
-to operate under its current configuration.
-</p></dd><dt><a name="DHCP_DDNS_CFG_FILE_RELOAD_SIGNAL_RECVD"></a><span class="term">DHCP_DDNS_CFG_FILE_RELOAD_SIGNAL_RECVD OS signal %1 received, reloading configuration from file: %2</span></dt><dd><p>
-This is an informational message indicating the application has received a signal
-instructing it to reload its configuration from file.
 </p></dd><dt><a name="DHCP_DDNS_CLEARED_FOR_SHUTDOWN"></a><span class="term">DHCP_DDNS_CLEARED_FOR_SHUTDOWN application has met shutdown criteria for shutdown type: %1</span></dt><dd><p>
 This is a debug message issued when the application has been instructed
 to shutdown and has met the required criteria to exit.
 </p></dd><dt><a name="DHCP_DDNS_COMMAND"></a><span class="term">DHCP_DDNS_COMMAND command directive received, command: %1 - args: %2</span></dt><dd><p>
 This is a debug message issued when the DHCP-DDNS application command method
 has been invoked.
-</p></dd><dt><a name="DHCP_DDNS_CONFIGURE"></a><span class="term">DHCP_DDNS_CONFIGURE configuration update received: %1</span></dt><dd><p>
+</p></dd><dt><a name="DHCP_DDNS_CONFIGURE"></a><span class="term">DHCP_DDNS_CONFIGURE configuration %1 received: %2</span></dt><dd><p>
 This is a debug message issued when the DHCP-DDNS application configure method
 has been invoked.
 </p></dd><dt><a name="DHCP_DDNS_FAILED"></a><span class="term">DHCP_DDNS_FAILED application experienced a fatal error: %1</span></dt><dd><p>
@@ -2893,14 +2982,6 @@ update a the reverse DNS information for the given FQDN but for which there are
 no configured DDNS domains in the DHCP_DDNS configuration.  Either the DHCP_DDNS
 configuration needs to be updated or the source of the FQDN itself should be
 investigated.
-</p></dd><dt><a name="DHCP_DDNS_PID_FILE_ERROR"></a><span class="term">DHCP_DDNS_PID_FILE_ERROR %1 could not create a PID file: %2</span></dt><dd><p>
-This is an error message that occurs when DHCP_DDNS is unable to create
-its PID file.  The log message should contain details sufficient to
-determine the underlying cause.  The most likely culprits are that
-some portion of the pathname does not exist or a permissions issue. The
-default path is determined by --localstatedir configure parameter but
-may be overridden by setting environment variable, KEA_PIDFILE_DIR.  The
-first argument is the DHCP_DDNS process name.
 </p></dd><dt><a name="DHCP_DDNS_PROCESS_INIT"></a><span class="term">DHCP_DDNS_PROCESS_INIT application init invoked</span></dt><dd><p>
 This is a debug message issued when the DHCP-DDNS application enters
 its initialization method.
@@ -3030,27 +3111,13 @@ reverse update will not performed.
 </p></dd><dt><a name="DHCP_DDNS_RUN_EXIT"></a><span class="term">DHCP_DDNS_RUN_EXIT application is exiting the event loop</span></dt><dd><p>
 This is a debug message issued when the DHCP-DDNS server exits its
 event lo
-</p></dd><dt><a name="DHCP_DDNS_SHUTDOWN"></a><span class="term">DHCP_DDNS_SHUTDOWN DHCP-DDNS has shut down</span></dt><dd><p>
-This is an informational message indicating that the DHCP-DDNS service
-has shut down.
 </p></dd><dt><a name="DHCP_DDNS_SHUTDOWN_COMMAND"></a><span class="term">DHCP_DDNS_SHUTDOWN_COMMAND application received shutdown command with args: %1</span></dt><dd><p>
 This is a debug message issued when the application has been instructed
 to shut down by the controller.
-</p></dd><dt><a name="DHCP_DDNS_SHUTDOWN_SIGNAL_RECVD"></a><span class="term">DHCP_DDNS_SHUTDOWN_SIGNAL_RECVD OS signal %1 received, starting shutdown</span></dt><dd><p>
-This is a debug message indicating the application has received a signal
-instructing it to shutdown.
-</p></dd><dt><a name="DHCP_DDNS_SIGNAL_ERROR"></a><span class="term">DHCP_DDNS_SIGNAL_ERROR signal handler for signal %1, threw an unexpected exception: %2</span></dt><dd><p>
-This is an error message indicating that the application encountered an unexpected
-error after receiving a signal.  This is a programmatic error and should be
-reported.  While The application will likely continue to operating, it may be
-unable to respond correctly to signals.
 </p></dd><dt><a name="DHCP_DDNS_STARTED"></a><span class="term">DHCP_DDNS_STARTED Kea DHCP-DDNS server version %1 started</span></dt><dd><p>
 This informational message indicates that the DHCP-DDNS server has
 processed all configuration information and is ready to begin processing.
 The version is also printed.
-</p></dd><dt><a name="DHCP_DDNS_STARTING"></a><span class="term">DHCP_DDNS_STARTING DHCP-DDNS starting, pid: %1, version: %2</span></dt><dd><p>
-This is an informational message issued when controller for the
-service first starts. Version is also reported.
 </p></dd><dt><a name="DHCP_DDNS_STARTING_TRANSACTION"></a><span class="term">DHCP_DDNS_STARTING_TRANSACTION Request ID %1:</span></dt><dd><p>
 This is a debug message issued when DHCP-DDNS has begun a transaction for
 a given request.
@@ -3079,11 +3146,6 @@ This is an error message that indicates that an exception was thrown but not
 caught in the application's send completion handler.  This is a programmatic
 error that needs to be reported.  Dependent upon the nature of the error the
 client may or may not continue operating normally.
-</p></dd><dt><a name="DHCP_DDNS_UNSUPPORTED_SIGNAL"></a><span class="term">DHCP_DDNS_UNSUPPORTED_SIGNAL ignoring reception of unsupported signal: %1</span></dt><dd><p>
-This is a debug message indicating that the application received an
-unsupported signal.  This is a programming error indicating that the
-application has registered to receive the signal but no associated
-processing logic has been added.
 </p></dd><dt><a name="DHCP_DDNS_UPDATE_REQUEST_SENT"></a><span class="term">DHCP_DDNS_UPDATE_REQUEST_SENT Request ID %1: %2 to server: %3</span></dt><dd><p>
 This is a debug message issued when DHCP_DDNS sends a DNS request to a DNS
 server.
@@ -3461,6 +3523,17 @@ This debug message is issued when the Host Manager doesn't find the
 host connected to the specific subnet and identified by the HW address
 or DUID, and it is starting to search for this host in the alternate
 host data source.
+</p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET4_SUBNET_ID_IDENTIFIER"></a><span class="term">HOSTS_MGR_ALTERNATE_GET4_SUBNET_ID_IDENTIFIER get one host with IPv4 reservation for subnet id %1, identified by %2</span></dt><dd><p>
+This debug message is issued when starting to retrieve a host holding
+IPv4 reservation, which is connected to a specific subnet and
+is identified by a specific unique identifier.
+</p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET4_SUBNET_ID_IDENTIFIER_HOST"></a><span class="term">HOSTS_MGR_ALTERNATE_GET4_SUBNET_ID_IDENTIFIER_HOST using subnet id %1 and identifier %2, found host: %3</span></dt><dd><p>
+This debug message includes the details of a host returned by an
+alternate hosts data source using a subnet id and specific host
+identifier.
+</p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET4_SUBNET_ID_IDENTIFIER_NULL"></a><span class="term">HOSTS_MGR_ALTERNATE_GET4_SUBNET_ID_IDENTIFIER_NULL host not found using subnet id %1 and identifier %2</span></dt><dd><p>
+This debug message is issued when no host was found using the specified
+subnet id and host identifier.
 </p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET6_PREFIX"></a><span class="term">HOSTS_MGR_ALTERNATE_GET6_PREFIX trying alternate source for host using prefix %1/%2</span></dt><dd><p>
 This debug message is issued when the Host Manager doesn't find the
 host connected to the specific subnet and having the reservation for
@@ -3476,6 +3549,50 @@ This debug message is issued when the Host Manager doesn't find the
 host connected to the specific subnet and identified by the specified
 DUID or HW Address, and it is starting to search for this host in the
 alternate host data source.
+</p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET6_SUBNET_ID_IDENTIFIER"></a><span class="term">HOSTS_MGR_ALTERNATE_GET6_SUBNET_ID_IDENTIFIER get one host with IPv6 reservation for subnet id %1, identified by %2</span></dt><dd><p>
+This debug message is issued when starting to retrieve a host holding
+IPv4 reservation, which is connected to a specific subnet and
+is identified by a specific unique identifier.
+</p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET6_SUBNET_ID_IDENTIFIER_HOST"></a><span class="term">HOSTS_MGR_ALTERNATE_GET6_SUBNET_ID_IDENTIFIER_HOST using subnet id %1 and identifier %2, found host: %3</span></dt><dd><p>
+This debug message includes the details of a host returned by an
+alternate hosts data source using a subnet id and specific host
+identifier.
+</p></dd><dt><a name="HOSTS_MGR_ALTERNATE_GET6_SUBNET_ID_IDENTIFIER_NULL"></a><span class="term">HOSTS_MGR_ALTERNATE_GET6_SUBNET_ID_IDENTIFIER_NULL host not found using subnet id %1 and identifier %2</span></dt><dd><p>
+This debug message is issued when no host was found using the specified
+subnet id and host identifier.
+</p></dd></dl></div><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="HTTP"></a>HTTP Module</h2></div></div></div><p>
+      </p><div class="variablelist"><dl class="variablelist"><dt><a name="HTTP_CONNECTION_STOP"></a><span class="term">HTTP_CONNECTION_STOP stopping HTTP connection from %1</span></dt><dd><p>
+This debug message is issued when one of the HTTP connections is stopped.
+The connection can be stopped as a result of an error or after the
+successful message exchange with a client.
+</p></dd><dt><a name="HTTP_CONNECTION_STOP_FAILED"></a><span class="term">HTTP_CONNECTION_STOP_FAILED stopping HTTP connection failed</span></dt><dd><p>
+This error message is issued when an error occurred during closing a
+HTTP connection with a client.
+</p></dd><dt><a name="HTTP_DATA_RECEIVED"></a><span class="term">HTTP_DATA_RECEIVED received %1 bytes from %2</span></dt><dd><p>
+This debug message is issued when the server receives a chunk of data from
+the remote endpoint. This may include the whole request or only a part
+of the request. The first argument specifies the amount of received data.
+The second argument specifies an address of the remote endpoint which
+produced the data.
+</p></dd><dt><a name="HTTP_REQUEST_RECEIVED"></a><span class="term">HTTP_REQUEST_RECEIVED received HTTP request from %1</span></dt><dd><p>
+This debug message is issued when the server finished receiving a HTTP
+request from the remote endpoint. The address of the remote endpoint is
+specified as an argument.
+</p></dd><dt><a name="HTTP_REQUEST_RECEIVE_START"></a><span class="term">HTTP_REQUEST_RECEIVE_START start receiving request from %1 with timeout %2</span></dt><dd><p>
+This debug message is issued when the server starts receiving new request
+over the established connection. The first argument specifies the address
+of the remote endpoint. The second argument specifies request timeout in
+seconds.
+</p></dd><dt><a name="HTTP_REQUEST_TIMEOUT_OCCURRED"></a><span class="term">HTTP_REQUEST_TIMEOUT_OCCURRED HTTP request timeout occurred when communicating with %1</span></dt><dd><p>
+This debug message is issued when the HTTP request timeout has occurred and
+the server is going to send a response with Http Request timeout status
+code.
+</p></dd><dt><a name="HTTP_RESPONSE_SEND"></a><span class="term">HTTP_RESPONSE_SEND sending HTTP response %1 to %2</span></dt><dd><p>
+This debug message is issued when the server is starting to send a HTTP
+response to a remote endpoint. The first argument holds basic information
+about the response (HTTP version number and status code). The second
+argument specifies an address of the remote endpoint.
 </p></dd></dl></div><p>
     </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="LFC"></a>LFC Module</h2></div></div></div><p>
       </p><div class="variablelist"><dl class="variablelist"><dt><a name="LFC_FAIL_PID_CREATE"></a><span class="term">LFC_FAIL_PID_CREATE : %1</span></dt><dd><p>

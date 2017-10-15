@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -373,6 +373,12 @@ TEST_F(MemfileLeaseMgrTest, constructor) {
     pmap["persist"] = "true";
     pmap["lfc-interval"] = "bogus";
     EXPECT_THROW(lease_mgr.reset(new Memfile_LeaseMgr(pmap)), isc::BadValue);
+}
+
+// Checks if there is no lease manager NoLeaseManager is thrown.
+TEST_F(MemfileLeaseMgrTest, noLeaseManager) {
+    LeaseMgrFactory::destroy();
+    EXPECT_THROW(LeaseMgrFactory::instance(), NoLeaseManager);
 }
 
 // Checks if the getType() and getName() methods both return "memfile".
@@ -1647,7 +1653,7 @@ TEST_F(MemfileLeaseMgrTest, lease4ContainerIndexUpdate) {
     // pick a lease.
     std::vector<IOAddress> lease_addresses;
 
-    // Generarate random leases. We remember their addresses in
+    // Generate random leases. We remember their addresses in
     // lease_addresses.
     for (uint32_t i = 0; i < leases_cnt; ++i) {
         Lease4Ptr lease = initiateRandomLease4(addr);
@@ -1786,7 +1792,7 @@ TEST_F(MemfileLeaseMgrTest, lease6ContainerIndexUpdate) {
     // pick a lease.
     std::vector<IOAddress> lease_addresses;
 
-    // Generarate random leases. We remember their addresses in
+    // Generate random leases. We remember their addresses in
     // lease_addresses.
     for (uint32_t i = 0; i < leases_cnt; ++i) {
         Lease6Ptr lease = initiateRandomLease6(addr);

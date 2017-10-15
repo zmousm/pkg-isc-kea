@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -39,20 +39,23 @@ namespace isc {
 namespace dhcp {
 namespace test {
 
-bool testStatistics(const std::string& stat_name, const int64_t exp_value) {
+bool testStatistics(const std::string& stat_name, const int64_t exp_value,
+                    const SubnetID subnet_id) {
     try {
-        ObservationPtr observation = StatsMgr::instance().getObservation(stat_name);
+        std::string name = (!subnet_id ? stat_name : 
+                            StatsMgr::generateName("subnet", subnet_id, stat_name));
+        ObservationPtr observation = StatsMgr::instance().getObservation(name);
         if (observation) {
             if (observation->getInteger().first != exp_value) {
                 ADD_FAILURE()
                     << "value of the observed statistics '"
-                    << stat_name << "' " << "("
+                    << name << "' " << "("
                     << observation->getInteger().first << ") "
                     <<  "doesn't match expected value (" << exp_value << ")";
             }
             return (observation->getInteger().first == exp_value);
         } else {
-            ADD_FAILURE() << "Expected statistic " << stat_name
+            ADD_FAILURE() << "Expected statistic " << name
                           << " not found.";
         }
 
@@ -136,20 +139,23 @@ AllocEngine6Test::AllocEngine6Test() {
     // hardcoded anywhere.
     const uint8_t mac[] = { 0, 1, 22, 33, 44, 55};
     hwaddr_ = HWAddrPtr(new HWAddr(mac, sizeof(mac), HTYPE_FDDI));
-
     // Initialize a subnet and short address pool.
     initSubnet(IOAddress("2001:db8:1::"),
                IOAddress("2001:db8:1::10"),
-               IOAddress("2001:db8:1::20"));
+               IOAddress("2001:db8:1::20"),
+               IOAddress("2001:db8:1:2::"),
+               64, 80);
 
     initFqdn("", false, false);
-
 }
 
 void
 AllocEngine6Test::initSubnet(const asiolink::IOAddress& subnet,
-                    const asiolink::IOAddress& pool_start,
-                    const asiolink::IOAddress& pool_end) {
+                             const asiolink::IOAddress& pool_start,
+                             const asiolink::IOAddress& pool_end,
+                             const asiolink::IOAddress& pd_pool_prefix,
+                             const uint8_t pd_pool_length,
+                             const uint8_t pd_delegated_length) {
     CfgMgr& cfg_mgr = CfgMgr::instance();
 
     subnet_ = Subnet6Ptr(new Subnet6(subnet, 56, 100, 200, 300, 400));
@@ -157,19 +163,14 @@ AllocEngine6Test::initSubnet(const asiolink::IOAddress& subnet,
 
     subnet_->addPool(pool_);
 
-    pd_pool_ = Pool6Ptr(new Pool6(Lease::TYPE_PD, subnet, 56, 64));
+    if (!pd_pool_prefix.isV6Zero()) {
+        pd_pool_ = Pool6Ptr(new Pool6(Lease::TYPE_PD, pd_pool_prefix,
+                                      pd_pool_length, pd_delegated_length));
+    }
     subnet_->addPool(pd_pool_);
 
     cfg_mgr.getStagingCfg()->getCfgSubnets6()->add(subnet_);
     cfg_mgr.commit();
-
-    // By default we pretend our subnet has 100 addresses and prefixes allocated.
-    StatsMgr::instance().setValue(
-        StatsMgr::generateName("subnet", subnet_->getID(), "assigned-nas"),
-        static_cast<int64_t>(100));
-    StatsMgr::instance().setValue(
-        StatsMgr::generateName("subnet", subnet_->getID(), "assigned-pds"),
-        static_cast<int64_t>(100));
 }
 
 void

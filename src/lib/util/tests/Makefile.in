@@ -87,6 +87,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/process_spawn_app.sh.in $(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -108,16 +109,16 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 	boost_time_utils_unittest.cc buffer_unittest.cc \
 	csv_file_unittest.cc fd_share_tests.cc fd_tests.cc \
 	filename_unittest.cc hex_unittest.cc io_utilities_unittest.cc \
-	memory_segment_local_unittest.cc \
+	labeled_value_unittest.cc memory_segment_local_unittest.cc \
 	memory_segment_common_unittest.h \
 	memory_segment_common_unittest.cc optional_value_unittest.cc \
 	pid_file_unittest.cc process_spawn_unittest.cc \
 	qid_gen_unittest.cc random_number_generator_unittest.cc \
 	socketsession_unittest.cc staged_value_unittest.cc \
-	strutil_unittest.cc time_utilities_unittest.cc \
-	range_utilities_unittest.cc signal_set_unittest.cc \
-	stopwatch_unittest.cc versioned_csv_file_unittest.cc \
-	watch_socket_unittests.cc
+	state_model_unittest.cc strutil_unittest.cc \
+	time_utilities_unittest.cc range_utilities_unittest.cc \
+	signal_set_unittest.cc stopwatch_unittest.cc \
+	versioned_csv_file_unittest.cc watch_socket_unittests.cc
 @HAVE_GTEST_TRUE@am_run_unittests_OBJECTS =  \
 @HAVE_GTEST_TRUE@	run_unittests-run_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-base32hex_unittest.$(OBJEXT) \
@@ -130,6 +131,7 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	run_unittests-filename_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-hex_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-io_utilities_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-labeled_value_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-memory_segment_local_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-memory_segment_common_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-optional_value_unittest.$(OBJEXT) \
@@ -139,6 +141,7 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	run_unittests-random_number_generator_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-socketsession_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-staged_value_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-state_model_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-strutil_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-time_utilities_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-range_utilities_unittest.$(OBJEXT) \
@@ -400,8 +403,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -472,6 +477,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -499,6 +505,7 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	fd_share_tests.cc fd_tests.cc \
 @HAVE_GTEST_TRUE@	filename_unittest.cc hex_unittest.cc \
 @HAVE_GTEST_TRUE@	io_utilities_unittest.cc \
+@HAVE_GTEST_TRUE@	labeled_value_unittest.cc \
 @HAVE_GTEST_TRUE@	memory_segment_local_unittest.cc \
 @HAVE_GTEST_TRUE@	memory_segment_common_unittest.h \
 @HAVE_GTEST_TRUE@	memory_segment_common_unittest.cc \
@@ -507,7 +514,8 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	process_spawn_unittest.cc qid_gen_unittest.cc \
 @HAVE_GTEST_TRUE@	random_number_generator_unittest.cc \
 @HAVE_GTEST_TRUE@	socketsession_unittest.cc \
-@HAVE_GTEST_TRUE@	staged_value_unittest.cc strutil_unittest.cc \
+@HAVE_GTEST_TRUE@	staged_value_unittest.cc \
+@HAVE_GTEST_TRUE@	state_model_unittest.cc strutil_unittest.cc \
 @HAVE_GTEST_TRUE@	time_utilities_unittest.cc \
 @HAVE_GTEST_TRUE@	range_utilities_unittest.cc \
 @HAVE_GTEST_TRUE@	signal_set_unittest.cc stopwatch_unittest.cc \
@@ -586,6 +594,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-filename_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-hex_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-io_utilities_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-labeled_value_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-memory_segment_common_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-memory_segment_local_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-optional_value_unittest.Po@am__quote@
@@ -598,6 +607,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-signal_set_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-socketsession_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-staged_value_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-state_model_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-stopwatch_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-strutil_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-time_utilities_unittest.Po@am__quote@
@@ -779,6 +789,20 @@ run_unittests-io_utilities_unittest.obj: io_utilities_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-io_utilities_unittest.obj `if test -f 'io_utilities_unittest.cc'; then $(CYGPATH_W) 'io_utilities_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/io_utilities_unittest.cc'; fi`
 
+run_unittests-labeled_value_unittest.o: labeled_value_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-labeled_value_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-labeled_value_unittest.Tpo -c -o run_unittests-labeled_value_unittest.o `test -f 'labeled_value_unittest.cc' || echo '$(srcdir)/'`labeled_value_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-labeled_value_unittest.Tpo $(DEPDIR)/run_unittests-labeled_value_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='labeled_value_unittest.cc' object='run_unittests-labeled_value_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-labeled_value_unittest.o `test -f 'labeled_value_unittest.cc' || echo '$(srcdir)/'`labeled_value_unittest.cc
+
+run_unittests-labeled_value_unittest.obj: labeled_value_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-labeled_value_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-labeled_value_unittest.Tpo -c -o run_unittests-labeled_value_unittest.obj `if test -f 'labeled_value_unittest.cc'; then $(CYGPATH_W) 'labeled_value_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/labeled_value_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-labeled_value_unittest.Tpo $(DEPDIR)/run_unittests-labeled_value_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='labeled_value_unittest.cc' object='run_unittests-labeled_value_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-labeled_value_unittest.obj `if test -f 'labeled_value_unittest.cc'; then $(CYGPATH_W) 'labeled_value_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/labeled_value_unittest.cc'; fi`
+
 run_unittests-memory_segment_local_unittest.o: memory_segment_local_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-memory_segment_local_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-memory_segment_local_unittest.Tpo -c -o run_unittests-memory_segment_local_unittest.o `test -f 'memory_segment_local_unittest.cc' || echo '$(srcdir)/'`memory_segment_local_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-memory_segment_local_unittest.Tpo $(DEPDIR)/run_unittests-memory_segment_local_unittest.Po
@@ -904,6 +928,20 @@ run_unittests-staged_value_unittest.obj: staged_value_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='staged_value_unittest.cc' object='run_unittests-staged_value_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-staged_value_unittest.obj `if test -f 'staged_value_unittest.cc'; then $(CYGPATH_W) 'staged_value_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/staged_value_unittest.cc'; fi`
+
+run_unittests-state_model_unittest.o: state_model_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-state_model_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-state_model_unittest.Tpo -c -o run_unittests-state_model_unittest.o `test -f 'state_model_unittest.cc' || echo '$(srcdir)/'`state_model_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-state_model_unittest.Tpo $(DEPDIR)/run_unittests-state_model_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='state_model_unittest.cc' object='run_unittests-state_model_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-state_model_unittest.o `test -f 'state_model_unittest.cc' || echo '$(srcdir)/'`state_model_unittest.cc
+
+run_unittests-state_model_unittest.obj: state_model_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-state_model_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-state_model_unittest.Tpo -c -o run_unittests-state_model_unittest.obj `if test -f 'state_model_unittest.cc'; then $(CYGPATH_W) 'state_model_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/state_model_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-state_model_unittest.Tpo $(DEPDIR)/run_unittests-state_model_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='state_model_unittest.cc' object='run_unittests-state_model_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-state_model_unittest.obj `if test -f 'state_model_unittest.cc'; then $(CYGPATH_W) 'state_model_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/state_model_unittest.cc'; fi`
 
 run_unittests-strutil_unittest.o: strutil_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-strutil_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-strutil_unittest.Tpo -c -o run_unittests-strutil_unittest.o `test -f 'strutil_unittest.cc' || echo '$(srcdir)/'`strutil_unittest.cc

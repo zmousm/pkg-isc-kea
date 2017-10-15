@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20,10 +20,11 @@
 using namespace std;
 using namespace isc;
 using namespace isc::d2;
+using namespace isc::util;
 
 namespace {
 
-/// @brief Test class derived from NameAddTransaction to provide visiblity
+/// @brief Test class derived from NameAddTransaction to provide visibility
 // to protected methods.
 class NameAddStub : public NameAddTransaction {
 public:
@@ -1029,7 +1030,7 @@ TEST_F(NameAddTransactionTest, replacingFwdAddrsHandler_OtherRcode) {
     EXPECT_FALSE(name_add->getForwardChangeCompleted());
     EXPECT_FALSE(name_add->getReverseChangeCompleted());
 
-    // We should have failed the transaction. Verifiy that we transitioned
+    // We should have failed the transaction. Verify that we transitioned
     // correctly.
     EXPECT_EQ(NameChangeTransaction::PROCESS_TRANS_FAILED_ST,
               name_add->getCurrState());

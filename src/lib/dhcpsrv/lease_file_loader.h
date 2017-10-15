@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -91,6 +91,10 @@ public:
         while (true) {
             // Unable to parse the lease.
             if (!lease_file.next(lease)) {
+                LOG_ERROR(dhcpsrv_logger, DHCPSRV_MEMFILE_LEASE_LOAD_ROW_ERROR)
+                            .arg(lease_file.getReads())
+                            .arg(lease_file.getReadMsg());
+
                 // A value of 0xFFFFFFFF indicates that we don't return
                 // until the whole file is parsed, even if errors occur.
                 // Otherwise, check if we have exceeded the maximum number
@@ -214,7 +218,7 @@ public:
     }
 };
 
-} // namesapce dhcp
-} // namespace isc
+}  // namespace dhcp
+}  // namespace isc
 
 #endif // LEASE_FILE_LOADER_H

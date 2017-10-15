@@ -84,6 +84,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(libkea_hooks_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -138,7 +139,9 @@ libkea_hooks_la_DEPENDENCIES =  \
 am_libkea_hooks_la_OBJECTS = libkea_hooks_la-callout_handle.lo \
 	libkea_hooks_la-callout_manager.lo \
 	libkea_hooks_la-hooks_log.lo libkea_hooks_la-hooks_manager.lo \
-	libkea_hooks_la-libinfo.lo libkea_hooks_la-library_handle.lo \
+	libkea_hooks_la-hooks_config.lo \
+	libkea_hooks_la-hooks_parser.lo libkea_hooks_la-libinfo.lo \
+	libkea_hooks_la-library_handle.lo \
 	libkea_hooks_la-library_manager.lo \
 	libkea_hooks_la-library_manager_collection.lo \
 	libkea_hooks_la-server_hooks.lo
@@ -370,8 +373,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -442,6 +447,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -472,7 +478,8 @@ CLEANFILES = *.gcno *.gcda hooks_messages.h hooks_messages.cc s-messages
 lib_LTLIBRARIES = libkea-hooks.la
 libkea_hooks_la_SOURCES = callout_handle.cc callout_handle.h \
 	callout_manager.cc callout_manager.h hooks.h hooks_log.cc \
-	hooks_log.h hooks_manager.cc hooks_manager.h libinfo.cc \
+	hooks_log.h hooks_manager.cc hooks_manager.h hooks_config.cc \
+	hooks_config.h hooks_parser.cc hooks_parser.h libinfo.cc \
 	libinfo.h library_handle.cc library_handle.h \
 	library_manager.cc library_manager.h \
 	library_manager_collection.cc library_manager_collection.h \
@@ -480,7 +487,7 @@ libkea_hooks_la_SOURCES = callout_handle.cc callout_handle.h \
 nodist_libkea_hooks_la_SOURCES = hooks_messages.cc hooks_messages.h
 libkea_hooks_la_CXXFLAGS = $(AM_CXXFLAGS)
 libkea_hooks_la_CPPFLAGS = $(AM_CPPFLAGS)
-libkea_hooks_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -version-info 2:0:0
+libkea_hooks_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -version-info 3:0:0
 libkea_hooks_la_LIBADD = $(top_builddir)/src/lib/log/libkea-log.la \
 	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
@@ -582,9 +589,11 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-callout_handle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-callout_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-hooks_config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-hooks_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-hooks_manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-hooks_messages.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-hooks_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-libinfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-library_handle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_hooks_la-library_manager.Plo@am__quote@
@@ -639,6 +648,20 @@ libkea_hooks_la-hooks_manager.lo: hooks_manager.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='hooks_manager.cc' object='libkea_hooks_la-hooks_manager.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_hooks_la_CPPFLAGS) $(CPPFLAGS) $(libkea_hooks_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_hooks_la-hooks_manager.lo `test -f 'hooks_manager.cc' || echo '$(srcdir)/'`hooks_manager.cc
+
+libkea_hooks_la-hooks_config.lo: hooks_config.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_hooks_la_CPPFLAGS) $(CPPFLAGS) $(libkea_hooks_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_hooks_la-hooks_config.lo -MD -MP -MF $(DEPDIR)/libkea_hooks_la-hooks_config.Tpo -c -o libkea_hooks_la-hooks_config.lo `test -f 'hooks_config.cc' || echo '$(srcdir)/'`hooks_config.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_hooks_la-hooks_config.Tpo $(DEPDIR)/libkea_hooks_la-hooks_config.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='hooks_config.cc' object='libkea_hooks_la-hooks_config.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_hooks_la_CPPFLAGS) $(CPPFLAGS) $(libkea_hooks_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_hooks_la-hooks_config.lo `test -f 'hooks_config.cc' || echo '$(srcdir)/'`hooks_config.cc
+
+libkea_hooks_la-hooks_parser.lo: hooks_parser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_hooks_la_CPPFLAGS) $(CPPFLAGS) $(libkea_hooks_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_hooks_la-hooks_parser.lo -MD -MP -MF $(DEPDIR)/libkea_hooks_la-hooks_parser.Tpo -c -o libkea_hooks_la-hooks_parser.lo `test -f 'hooks_parser.cc' || echo '$(srcdir)/'`hooks_parser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_hooks_la-hooks_parser.Tpo $(DEPDIR)/libkea_hooks_la-hooks_parser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='hooks_parser.cc' object='libkea_hooks_la-hooks_parser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_hooks_la_CPPFLAGS) $(CPPFLAGS) $(libkea_hooks_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_hooks_la-hooks_parser.lo `test -f 'hooks_parser.cc' || echo '$(srcdir)/'`hooks_parser.cc
 
 libkea_hooks_la-libinfo.lo: libinfo.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_hooks_la_CPPFLAGS) $(CPPFLAGS) $(libkea_hooks_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_hooks_la-libinfo.lo -MD -MP -MF $(DEPDIR)/libkea_hooks_la-libinfo.Tpo -c -o libkea_hooks_la-libinfo.lo `test -f 'libinfo.cc' || echo '$(srcdir)/'`libinfo.cc

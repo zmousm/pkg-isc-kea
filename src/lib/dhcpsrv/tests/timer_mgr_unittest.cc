@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2016-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -217,7 +217,7 @@ TEST_F(TimerMgrTest, unregisterTimer) {
     ASSERT_GT(calls_count, 0);
 
     // Check that an attempt to unregister a non-existing timer would
-    // result in exeception.
+    // result in exception.
     ASSERT_THROW(timer_mgr_->unregisterTimer("timer2"), BadValue);
     // Number of timers shouldn't have changed.
     ASSERT_EQ(1, timer_mgr_->timersCount());
@@ -374,7 +374,7 @@ TEST_F(TimerMgrTest, scheduleTimers) {
 
     // We have been running the timer for 1000ms at the interval of
     // 50ms. The maximum number of callbacks is 20. However, the
-    // callback itself takes time. Stoping the thread takes time.
+    // callback itself takes time. Stopping the thread takes time.
     // So, the real number differs significantly. We don't know
     // exactly how many have been executed. It should be more
     // than 10 for sure. But we really made up the numbers here.

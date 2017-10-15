@@ -86,6 +86,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -103,11 +104,13 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_2 = $(am__EXEEXT_1)
 PROGRAMS = $(noinst_PROGRAMS)
 am__run_unittests_SOURCES_DIST = command_interpreter_unittests.cc \
-	data_unittests.cc data_file_unittests.cc run_unittests.cc
+	data_unittests.cc data_file_unittests.cc run_unittests.cc \
+	simple_parser_unittest.cc
 @HAVE_GTEST_TRUE@am_run_unittests_OBJECTS = run_unittests-command_interpreter_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-data_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-data_file_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	run_unittests-run_unittests.$(OBJEXT)
+@HAVE_GTEST_TRUE@	run_unittests-run_unittests.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-simple_parser_unittest.$(OBJEXT)
 run_unittests_OBJECTS = $(am_run_unittests_OBJECTS)
 am__DEPENDENCIES_1 =
 @HAVE_GTEST_TRUE@run_unittests_DEPENDENCIES =  \
@@ -305,8 +308,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -377,6 +382,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -393,7 +399,7 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@run_unittests_SOURCES =  \
 @HAVE_GTEST_TRUE@	command_interpreter_unittests.cc \
 @HAVE_GTEST_TRUE@	data_unittests.cc data_file_unittests.cc \
-@HAVE_GTEST_TRUE@	run_unittests.cc
+@HAVE_GTEST_TRUE@	run_unittests.cc simple_parser_unittest.cc
 @HAVE_GTEST_TRUE@run_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 @HAVE_GTEST_TRUE@run_unittests_LDFLAGS = $(AM_LDFLAGS) $(GTEST_LDFLAGS)
 @HAVE_GTEST_TRUE@run_unittests_LDADD =  \
@@ -463,6 +469,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-data_file_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-data_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-run_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-simple_parser_unittest.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -540,6 +547,20 @@ run_unittests-run_unittests.obj: run_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='run_unittests.cc' object='run_unittests-run_unittests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-run_unittests.obj `if test -f 'run_unittests.cc'; then $(CYGPATH_W) 'run_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/run_unittests.cc'; fi`
+
+run_unittests-simple_parser_unittest.o: simple_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-simple_parser_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-simple_parser_unittest.Tpo -c -o run_unittests-simple_parser_unittest.o `test -f 'simple_parser_unittest.cc' || echo '$(srcdir)/'`simple_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-simple_parser_unittest.Tpo $(DEPDIR)/run_unittests-simple_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='simple_parser_unittest.cc' object='run_unittests-simple_parser_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-simple_parser_unittest.o `test -f 'simple_parser_unittest.cc' || echo '$(srcdir)/'`simple_parser_unittest.cc
+
+run_unittests-simple_parser_unittest.obj: simple_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-simple_parser_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-simple_parser_unittest.Tpo -c -o run_unittests-simple_parser_unittest.obj `if test -f 'simple_parser_unittest.cc'; then $(CYGPATH_W) 'simple_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/simple_parser_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-simple_parser_unittest.Tpo $(DEPDIR)/run_unittests-simple_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='simple_parser_unittest.cc' object='run_unittests-simple_parser_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-simple_parser_unittest.obj `if test -f 'simple_parser_unittest.cc'; then $(CYGPATH_W) 'simple_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/simple_parser_unittest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,31 +13,15 @@
 #include <dhcp/option_space_container.h>
 #include <dhcpsrv/cfg_option.h>
 #include <dhcpsrv/cfg_4o6.h>
-#include <dhcpsrv/pool.h>
-#include <dhcpsrv/triplet.h>
 #include <dhcpsrv/lease.h>
+#include <dhcpsrv/pool.h>
+#include <dhcpsrv/subnet_id.h>
+#include <dhcpsrv/triplet.h>
 
 #include <boost/shared_ptr.hpp>
 
 namespace isc {
 namespace dhcp {
-
-/// @brief a base class for Subnet4 and Subnet6
-///
-/// This class presents a common base for IPv4 and IPv6 subnets.
-/// In a physical sense, a subnet defines a single network link with all devices
-/// attached to it. In most cases all devices attached to a single link can
-/// share the same parameters. Therefore Subnet holds several values that are
-/// typically shared by all hosts: renew timer (T1), rebind timer (T2) and
-/// leased addresses lifetime (valid-lifetime). It also holds the set
-/// of DHCP option instances configured for the subnet. These options are
-/// included in DHCP messages being sent to clients which are connected
-/// to the particular subnet.
-///
-/// @todo: Implement support for options here
-
-/// @brief Unique identifier for a subnet (both v4 and v6)
-typedef uint32_t SubnetID;
 
 class Subnet {
 public:
@@ -173,13 +157,20 @@ public:
     /// requesting router because the requesting router may use the
     /// delegated prefixes in different networks (using different subnets).
     ///
+    /// A DHCPv4 pool being added must not overlap with any existing DHCPv4
+    /// pool. A DHCPv6 pool being added must not overlap with any existing
+    /// DHCPv6 pool.
+    ///
+    /// Pools held within a subnet are sorted by first pool address/prefix
+    /// from the lowest to the highest.
+    ///
     /// @param pool pool to be added
     ///
-    /// @throw isc::BadValue if the pool type is invalid or the pool
+    /// @throw isc::BadValue if the pool type is invalid, the pool
     /// is not an IA_PD pool and the address range of this pool does not
-    /// match the subnet prefix.
+    /// match the subnet prefix, or the pool overlaps with an existing pool
+    /// within the subnet.
     void addPool(const PoolPtr& pool);
-
 
     /// @brief Deletes all pools of specified type
     ///
@@ -188,6 +179,10 @@ public:
     void delPools(Lease::Type type);
 
     /// @brief Returns a pool that specified address belongs to
+    ///
+    /// This method uses binary search to retrieve the pool. Thus, the number
+    /// of comparisons performed by this method is logarithmic in the number
+    /// of pools belonging to a subnet.
     ///
     /// If there is no pool that the address belongs to (hint is invalid), other
     /// pool of specified type will be returned.
@@ -315,6 +310,16 @@ public:
     void
     allowClientClass(const isc::dhcp::ClientClass& class_name);
 
+    /// @brief returns the client class white list
+    ///
+    /// @note The returned reference is only valid as long as the object
+    /// returned it is valid.
+    ///
+    /// @return client classes @ref white_list_
+    const isc::dhcp::ClientClasses& getClientClasses() const {
+        return (white_list_);
+    }
+
     /// @brief Specifies what type of Host Reservations are supported.
     ///
     /// Host reservations may be either in-pool (they reserve an address that
@@ -362,7 +367,7 @@ protected:
     /// @param t2 T2 (rebind-time) timer, expressed in seconds
     /// @param valid_lifetime valid lifetime of leases in this subnet (in seconds)
     /// @param relay optional relay information (currently with address only)
-    /// @param id arbitraty subnet id, value of 0 triggers autogeneration
+    /// @param id arbitrary subnet id, value of 0 triggers autogeneration
     /// of subnet id
     Subnet(const isc::asiolink::IOAddress& prefix, uint8_t len,
            const Triplet<uint32_t>& t1,
@@ -379,7 +384,7 @@ protected:
 
     /// @brief keeps the subnet-id value
     ///
-    /// It is inreased every time a new Subnet object is created. It is reset
+    /// It is incremented every time a new Subnet object is created. It is reset
     /// (@ref resetSubnetID) every time reconfiguration
     /// occurs.
     ///
@@ -412,6 +417,16 @@ protected:
     /// @param pools list of pools
     /// @return sum of possible leases
     uint64_t sumPoolCapacity(const PoolCollection& pools) const;
+
+    /// @brief Checks if the specified pool overlaps with an existing pool.
+    ///
+    /// @param pool_type Pool type.
+    /// @param pool Pointer to a pool for which the method should check if
+    /// it overlaps with any existing pool within this subnet.
+    ///
+    /// @return true if pool overlaps with an existing pool of a specified
+    /// type.
+    bool poolOverlaps(const Lease::Type& pool_type, const PoolPtr& pool) const;
 
     /// @brief subnet-id
     ///
@@ -516,7 +531,7 @@ public:
     /// @param t1 renewal timer (in seconds)
     /// @param t2 rebind timer (in seconds)
     /// @param valid_lifetime preferred lifetime of leases (in seconds)
-    /// @param id arbitraty subnet id, default value of 0 triggers
+    /// @param id arbitrary subnet id, default value of 0 triggers
     /// autogeneration of subnet id
     Subnet4(const isc::asiolink::IOAddress& prefix, uint8_t length,
             const Triplet<uint32_t>& t1,
@@ -615,7 +630,7 @@ public:
     /// @param t2 rebind timer (in seconds)
     /// @param preferred_lifetime preferred lifetime of leases (in seconds)
     /// @param valid_lifetime preferred lifetime of leases (in seconds)
-    /// @param id arbitraty subnet id, default value of 0 triggers
+    /// @param id arbitrary subnet id, default value of 0 triggers
     /// autogeneration of subnet id
     Subnet6(const isc::asiolink::IOAddress& prefix, uint8_t length,
             const Triplet<uint32_t>& t1,
@@ -624,7 +639,7 @@ public:
             const Triplet<uint32_t>& valid_lifetime,
             const SubnetID id = 0);
 
-    /// @brief Returns preverred lifetime (in seconds)
+    /// @brief Returns preferred lifetime (in seconds)
     ///
     /// @return a triplet with preferred lifetime
     Triplet<uint32_t> getPreferred() const {

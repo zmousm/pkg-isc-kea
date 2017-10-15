@@ -205,29 +205,41 @@
               example and create your own custom logging hooks.</entry>
             </row>
             <row>
-              <entry>Lightweight 4over6</entry>
+              <entry>Flexible Identifier</entry>
               <entry>Support customers</entry>
-              <entry>Autumn 2016</entry>
-              <entry>Lightweight 4over6
-              (<ulink url="http://tools.ietf.org/html/rfc7596">RFC 7596</ulink>)
-              is a new IPv6 transition
-              technology that provides IPv4 as a service in IPv6-only
-              network. It assumes that dual-stack clients will get a regular IPv6
-              address and IPv6 prefix, but only a fraction of an IPv4 address. The
-              fraction is specified as port-set, which is essentially a range of
-              TCP and UDP ports a client can use. By doing the transition on the
-              client side, this technology eliminates the need to deploy
-              expensive Carrier Grade NATs within the operator's network. The
-              problem on the DHCP side is the non-trivial logic behind it: each
-              client needs to receive an unique set of lightweight 4over6 options
-              (<ulink url="http://tools.ietf.org/html/rfc7598">RFC 7598</ulink>),
-              that include the IPv4 address (shared among several
-              clients), port-set (which is unique among clients sharing the same
-              IPv4 address) and a number of additional parameters. This hooks
-              library will generate values of those options dynamically, thus
-              eliminating the need to manually configure values for each client
-              separately.
+              <entry>Kea 1.2.0</entry>
+              <entry>Kea software provides a way to handle host reservations
+              that include addresses, prefixes, options, client classes and
+              other features. The reservation can be based on hardware address,
+              DUID, circuit-id or client-id in DHCPv4 and using hardware address
+              or DUID in DHCPv6. However, there are sometimes scenarios where the
+              reservation is more complex, e.g. uses other options that
+              mentioned above, uses part of specific options or perhaps even a
+              combination of several options and fields to uniquely identify a
+              client. Those scenarios are addressed by the Flexible Identifiers
+              hook application. It allows defining an expression, similar to
+              the one used in client classification,
+              e.g. substring(relay6[0].option[37],0,6). Each incoming packet is
+              evaluated against that expression and its value is then searched
+              in the reservations database.
               </entry>
+            </row>
+            <row>
+              <entry>Host Commands</entry>
+              <entry>Support customers</entry>
+              <entry>Kea 1.2.0</entry>
+              <entry>Kea provides a way to store host reservations in a
+              database. In many larger deployments it is useful to be able to
+              manage that information while the server is running. This library
+              provides management commands for adding, querying and deleting
+              host reservations in a safe way without restarting the server.
+              In particular, it validates the parameters, so an attempt to
+              insert incorrect data, e.g. add a host with conflicting identifier
+              in the same subnet will be rejected. Those commands are
+              exposed via command channel (JSON over unix sockets) and Control
+              Agent (JSON over RESTful interface). Additional commands and
+              capabilities related to host reservations will be added in the
+              future.</entry>
             </row>
           </tbody>
           </tgroup>
@@ -271,7 +283,7 @@
           </itemizedlist>
         </para>
         <para>
-          Once loaded, the library allows segregating incomings requests into
+          Once loaded, the library allows segregating incoming requests into
           known and unknown clients. For known clients, the packets are
           processed mostly as usual, except it is possible to override certain
           options being sent. That can be done on a per host basis. Clients
@@ -306,7 +318,7 @@
             is "HW_ADDR" for IPv4 users or "DUID" for IPv6
             users</para></listitem>
             <listitem><para><command>id</command>, whose value is
-            either the hardware address or the DUID from the equest
+            either the hardware address or the DUID from the request
             formatted as a string of hex digits, with or without
             ":" delimiters.</para></listitem>
           </itemizedlist>
@@ -341,10 +353,10 @@ and may have the zero or more of the following entries:
 
       </section>
       <section>
-        <title>Forensic Logging Hooks</title>
+        <title>legal_log: Forensic Logging Hooks</title>
         <para>
         This section describes the forensic log hooks library. This library
-        povides hooks that record a detailed log of lease assignments
+        provides hooks that record a detailed log of lease assignments
         and renewals into a set of log files.  Currently this library
         is only available to ISC customers with a support contract.
         </para>
@@ -419,8 +431,9 @@ address duration device-id {client-info} {relay-info}
             a hex string.
             </para></listitem>
             <listitem><para>
-            relay-info - for relayed packets the giaddr and the RAI circuit id
-            and remote id options (option 82 sub options 1 and 2) if present.
+            relay-info - for relayed packets the giaddr and the RAI circuit-id,
+            remote-id and subscriber-id options (option 82 sub
+            options: 1, 2 and 6) if present.
             The circuit id and remote id are presented as hex strings
             </para></listitem>
           </itemizedlist>
@@ -467,7 +480,13 @@ address duration device-id {relay-info}*
             </para></listitem>
             <listitem><para>
             relay-info - for relayed packets the content of relay agent
-            messages, remote id and subscriber id options (x and xx) if present.
+            messages, remote-id (code 37), subscriber-id (code 38) and
+            interface-id (code 18) options if present. Note that
+            interface-id option, if present, identifies the whole interface the
+            relay agent received the message on. This typically translates to a
+            single link in your network, but it depends on your specific network
+            topology. Nevertheless, this is useful information to better scope
+            down the location of the device, so it is being recorded, if present.
             </para></listitem>
           </itemizedlist>
           </para>
@@ -537,12 +556,442 @@ link address: 3001::1, hop count: 1, identified by remote-id:
             </para></listitem>
             <listitem><para>
             base-name - an arbitrary value which is used in conjunction with
-            the current system date to form the current foresnic file name.  It defaults
+            the current system date to form the current forensic file name.  It defaults
             to <filename>kea-legal</filename>.
             </para></listitem>
           </itemizedlist>
           </para>
         </section>
       </section>
+
+      <section id="flex-id">
+        <title>flex_id: Flexible Identifiers for Host Reservations</title>
+        <para>
+          This section describes a hook application dedicated to generate
+          flexible identifiers for host reservation. Kea software provides a way
+          to handle host reservations that include addresses, prefixes, options,
+          client classes and other features. The reservation can be based on
+          hardware address, DUID, circuit-id or client-id in DHCPv4 and using
+          hardware address or DUID in DHCPv6. However, there are sometimes
+          scenario where the reservation is more complex, e.g. uses other
+          options that mentioned above, uses part of specific options or perhaps
+          even a combination of several options and fields to uniquely identify
+          a client. Those scenarios are addressed by the Flexible Identifiers
+        hook application.</para>
+
+        <para>Currently this library is only available to ISC customers with a
+        support contract.</para>
+
+        <para>The library allows for defining an expression, using notation
+        initially used for client classification only. See <xref
+        linkend="classification-using-expressions" /> for detailed description
+        of the syntax available. One notable difference is that for client
+        classification the expression currently has to evaluate to either true
+        or false, while the flexible identifier expression is expected to
+        evaluate to a string that will be used as identifier. It is a valid case
+        for the expression to evaluate to empty string (e.g. in cases where a
+        client does not sent specific options). This expression is then
+        evaluated for each incoming packet. This evaluation generates an
+        identifier that is used to identify the client. In particular, there may
+        be host reservations that are tied to specific values of the flexible
+        identifier.</para>
+
+        <para>
+          The library can be loaded in similar way as other hook libraries. It
+          takes one mandatory parameter identifier-expression:
+<screen>
+"Dhcp6": { <userinput>
+    "hooks-libraries": [
+        {
+            "library": "/path/libdhcp_flex_id.so",
+            "parameters": {
+                "identifier-expression": "<userinput>expression</userinput>"
+            }
+        },
+        ...
+    ] </userinput>
+}
+</screen>
+        </para>
+
+        <para>
+          The flexible identifier library supports both DHCPv4 and DHCPv6.
+        </para>
+
+        <para>
+          EXAMPLE: Let's consider a case of an IPv6 network that has an
+          independent interface for each of the connected customers. Customers
+          are able to plug in whatever device they want, so any type of
+          identifier (e.g. a client-id) is unreliable. Therefore the operator
+          may decide to use an option inserted by a relay agent to differentiate
+          between clients. In this particular deployment, the operator verified
+          that the interface-id is unique for each customer facing
+          interface. Therefore it is suitable for usage as reservation. However,
+          only the first 6 bytes of the interface-id are interesting, because
+          remaining bytes are either randomly changed or not unique between
+          devices. Therefore the customer decided to use first 6 bytes of the
+          interface-id option inserted by the relay agent. This could be
+          achieved by using the following configuration:
+<screen>
+"Dhcp6": {
+    "subnet6": [{ ..., // subnet definition starts here
+    "reservations": [
+        <userinput>"flex-id": "'port1234'"</userinput>, // value of the first 8 bytes of the interface-id
+        "ip-addresses": [ "2001:db8::1" ]
+    ],
+    }], // end of subnet definitions
+    "hooks-libraries": [
+        {
+            "library": "/path/libdhcp_flex_id.so",
+            "parameters": {
+                "identifier-expression": "<userinput>substring(relay6[0].option[18],0,8)</userinput>"
+            }
+        },
+        ...
+    ]
+}
+</screen>
+        </para>
+
+        <para>
+          NOTE: Care should be taken when adjusting the expression. If the
+          expression changes, then all the flex-id values may change, possibly
+          rendering all reservations based on flex-id unusable until they're
+          manually updated. Therefore it is strongly recommended to start with
+          the expression and a handful reservations, adjust the expression as
+          needed and only after it was confirmed the expression does exactly
+          what is expected out of it go forward with host reservations on any
+          broader scale.
+        </para>
+
+        <para>
+          flex-id values in host reservations can be specified in two
+          ways. First, they can be expressed as hex string, e.g. bar string
+          can be represented as 626174. Alternatively, it can be expressed
+          as quoted value (using double and single quotes), e.g. "'bar'".
+          The former is more convenient for printable characters, while hex
+          string values are more convenient for non-printable characters.
+        </para>
+      </section>
+
+      <section id="host-cmds">
+        <title>host_cmds: Host Commands</title>
+        <para>
+          This section describes a hook application that offers a number of new
+          commands used to query and manipulate host reservations. Kea provides
+          a way to store host reservations in a database. In many larger
+          deployments it is useful to be able to manage that information while
+          the server is running. This library provides management commands for
+          adding, querying and deleting host reservations in a safe way without
+          restarting the server.  In particular, it validates the parameters, so
+          an attempt to insert incorrect data e.g. add a host with conflicting
+          identifier in the same subnet will be rejected. Those commands are
+          exposed via command channel (JSON over unix sockets) and Control Agent
+          (JSON over RESTful interface). Additional commands and capabilities
+          related to host reservations will be added in the future.
+        </para>
+
+        <para>Currently this library is only available to ISC customers with a
+        support contract.</para>
+        
+        <para>
+          Currently three commands are supported: reservation-add (which adds
+          new host reservation), reservation-get (which returns existing
+          reservation if specified criteria are matched) and reservation-del
+          (which attempts to delete a reservation matching specified
+          criteria). To use commands that change the reservation information
+          (currently these are reservation-add and reservation-del, but this
+          rule applies to other commands that may be implemented in the future),
+          hosts database must be specified (see hosts-database description in
+          <xref linkend="hosts-database-configuration4"/> and <xref
+          linkend="hosts-database-configuration6"/>) and it must not operate in
+          read-only mode. If the hosts-database is not specified or is running
+          in read-only mode, the host_cmds library will load, but any attempts
+          to use reservation-add or reservation-del will fail.
+        </para>
+
+        <para>
+          Additional host reservation commands are planned in the future. For
+          a description of envisaged commands, see
+<ulink url="http://kea.isc.org/wiki/ControlAPIRequirements">Control API
+Requirements </ulink> document.</para>
+
+        <para>
+          All commands are using JSON syntax. They can be issued either using
+          control channel (see <xref linkend="ctrl-channel"/>) or via Control
+          Agent (see <xref linkend="kea-ctrl-agent"/>). 
+        </para>
+
+        <para>
+          The library can be loaded in similar way as other hook libraries. It
+          does not take any parameters. It supports both DHCPv4 and DHCPv6
+          servers.
+<screen>
+"Dhcp6": { <userinput>
+    "hooks-libraries": [
+        {
+            "library": "/path/libdhcp_host_cmds.so"
+        }
+        ...
+    ] </userinput>
+}
+</screen>
+        </para>
+
+        <section>
+          <title>reservation-add command</title>
+        <para>
+          <command>reservation-add</command> allows insertion of a new host.  It
+          takes a set of arguments that vary depending on the nature of the host
+          reservation. Any parameters allowed in the configuration file that
+          pertain to host reservation are permitted here. For details regarding
+          IPv4 reservations, see <xref linkend="host-reservation-v4"/> and <xref
+          linkend="host-reservation-v6"/>. There is one notable addition. A
+          <command>subnet-id</command> must be specified.  This parameter is
+          mandatory, because reservations specified in the configuration file
+          are always defined within a subnet, so the subnet they belong to is
+          clear. This is not the case with reservation-add, therefore the
+          subnet-id must be specified explicitly. An example command can be as
+          simple as:
+<screen>{
+    "command": "reservation-add",
+    "arguments": {
+        <userinput>"reservation": {
+            "subnet-id": 1,
+            "hw-address": "1a:1b:1c:1d:1e:1f",
+            "ip-address": "192.0.2.202"
+        }</userinput>
+    }
+}</screen> but can also take many more parameters, for example:
+
+<screen>
+{
+    "command": "reservation-add",
+    "arguments": {
+        <userinput>"reservation": {
+            {
+                "client-id": "01:0a:0b:0c:0d:0e:0f",
+                "ip-address": "192.0.2.205",
+                "next-server": "192.0.2.1",
+                "server-hostname": "hal9000",
+                "boot-file-name": "/dev/null",
+                "option-data": [
+                    {
+                        "name": "domain-name-servers",
+                        "data": "10.1.1.202,10.1.1.203"
+                    }
+                ],
+                "client-classes": [ "special_snowflake", "office" ]
+            }
+        }</userinput>
+    }
+}</screen>
+    
+Here is an example of complex IPv6 reservation:
+<screen>
+{
+    "command": "reservation-add",
+    "arguments": {
+        <userinput>"reservation": {
+            {
+                "duid": "01:02:03:04:05:06:07:08:09:0A",
+                "ip-addresses": [ "2001:db8:1:cafe::1" ],
+                "prefixes": [ "2001:db8:2:abcd::/64" ],
+                "hostname": "foo.example.com",
+                "option-data": [
+                    {
+                        "name": "vendor-opts",
+                        "data": "4491"
+                    },
+                    {
+                        "name": "tftp-servers",
+                        "space": "vendor-4491",
+                        "data": "3000:1::234"
+                    }
+                ]
+            }
+        }</userinput>
+    }
+}</screen>
+        </para>          
+
+        <para>
+          The command returns a status that indicates either a success (result
+          0) or a failure (result 1). Failed command always includes text
+          parameter that explains the cause of failure. Example results:
+          <screen>{ "result": 0, "text": "Host added." }</screen> Example failure:
+          <screen>{ "result": 1, "text": "Mandatory 'subnet-id' parameter missing." }</screen>
+        </para>
+
+        <para>
+          As <command>reservation-add</command> is expected to store the host,
+          hosts-database parameter must be specified in your configuration and
+          the database must not run in read-only mode. In the future versions
+          it will be possible to modify the reservations read from a
+          configuration file. Please contact ISC if you are interested in this
+          functionality.
+        </para>
+        </section>
+
+        <section>
+          <title>reservation-get command</title>
+          <para><command>reservation-get</command> can be used to query the host
+          database and retrieve existing reservations. There are two types of
+          parameters this command supports: (subnet-id, address) or (subnet-id,
+          identifier-type, identifier). The first type of query is used when the
+          address (either IPv4 or IPv6) is known, but the details of the
+          reservation aren't. One common use case of this type of query is to
+          find out whether a given address is reserved or not. The second query
+          uses identifiers. For maximum flexibility, Kea stores the host
+          identifying information as a pair of values: type and the actual
+          identifier. Currently supported identifiers are "hw-address", "duid",
+          "circuit-id", "client-id" and "flex-id", but additional types may be
+          added in the future. If any new identifier types are defined in the
+          future, reservation-get command will support them
+          automatically.</para>
+
+          <para>
+            An example command for getting a host reservation by (subnet-id,
+            address) pair looks as follows:
+<screen>
+{
+    "command": "reservation-get",
+    "arguments": {
+        "subnet-id": 1,
+        "ip-address": "192.0.2.202"
+    }
+}</screen>
+
+An example query by (subnet-id, identifier-type, identifier) looks as follows:
+<screen>
+{
+    "command": "reservation-get",
+    "arguments":
+        "subnet-id": 4,
+        "identifier-type": "hw-address",
+        "identifier": "01:02:03:04:05:06"
+    }
+}</screen>
+
+          </para>
+          <para><command>reservation-get</command> typically returns result 0
+          when the query was conducted properly. In particular, 0 is returned
+          when the host was not found. If the query was successful a number
+          of host parameters will be returned. An example of a query that
+          did not find the host looks as follows:
+<screen>{ "result": 0, "text": "Host not found." }</screen>
+
+An example result returned when the host was found:
+<screen>{
+  "arguments": {
+    "boot-file-name": "bootfile.efi",
+    "client-classes": [
+      
+    ],
+    "hostname": "somehost.example.org",
+    "hw-address": "01:02:03:04:05:06",
+    "ip-address": "192.0.2.100",
+    "next-server": "192.0.0.2",
+    "option-data": [
+      
+    ],
+    "server-hostname": "server-hostname.example.org"
+  },
+  "result": 0,
+  "text": "Host found."
+}</screen>
+
+An example result returned when the query was malformed:<screen>
+{ "result": 1, "text": "No 'ip-address' provided and 'identifier-type'
+                        is either missing or not a string." }</screen>
+</para>
+            
+        </section>
+
+        <section>
+          <title>reservation-del command</title>
+          <para><command>reservation-del</command> can be used to delete a
+          reservation from the host database. There are two types of parameters
+          this command supports: (subnet-id, address) or (subnet-id,
+          identifier-type, identifier). The first type of query is used when the
+          address (either IPv4 or IPv6) is known, but the details of the
+          reservation aren't. One common use case of this type of query is to
+          remove a reservation (e.g. you want a specific address to no longer be
+          reserved). The second query uses identifiers. For maximum flexibility,
+          Kea stores the host identifying information as a pair of values: type
+          and the actual identifier. Currently supported identifiers are
+          "hw-address", "duid", "circuit-id", "client-id" and "flex-id", but
+          additional types may be added in the future. If any new identifier
+          types are defined in the future, reservation-get command will support
+          them automatically.</para>
+
+          <para>
+            An example command for deleting a host reservation by (subnet-id,
+            address) pair looks as follows:
+<screen>
+{
+    "command": "reservation-del",
+    "arguments": {
+        "subnet-id": 1,
+        "ip-address": "192.0.2.202"
+    }
+}</screen>
+
+An example deletion by (subnet-id, identifier-type, identifier) looks as follows:
+<screen>
+{
+    "command": "reservation-del",
+    "arguments":
+        "subnet-id": 4,
+        "identifier-type": "hw-address",
+        "identifier": "01:02:03:04:05:06"
+    }
+}</screen>
+          </para>
+          <para>
+            <command>reservation-del</command> returns result 0 when the host
+            deletion was successul or 1 if it was not. A descriptive text is
+            provided in case of error. Example results look as follows:
+<screen>
+{
+    "result": 1,
+    "text": "Host not deleted (not found)."
+}</screen>
+
+<screen>          
+{
+    "result": 0,
+    "text": "Host deleted."
+}</screen>
+
+<screen>
+{
+    "result": 1,
+    "text": "Unable to delete a host because there is no hosts-database
+             configured."
+}</screen>
+          </para>
+        </section>
+      </section>
+
+    </section>
+    <section id="user-context">
+      <title>User contexts</title>
+      <para>Hook libraries can have their own configuration parameters. That is
+      convenient if the parameter applies to the whole library. However,
+      sometimes it is very useful if certain configuration entities are extended
+      with additional configuration data. This is where the concept of user
+      contexts comes in. A sysadmin can define an arbitrary set of data and
+      attach it to Kea structures, as long as the data is specified as JSON map.
+      In particular, it is possible to define fields that are integers, strings,
+      boolean, lists and maps. It is possible to define nested structures of
+      arbitrary complexity. Kea does not use that data on its own, simply stores
+      and makes it available for the hook libraries.
+      </para>
+      <para>
+        As of Kea 1.2, the only structures that allow user contexts are address
+        and prefix pools, but it is expected to extend other structures with the
+        user context capability.
+      </para>
     </section>
    </chapter> <!-- hooks-libraries -->

@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+/* Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 
    This Source Code Form is subject to the terms of the Mozilla Public
    License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,6 +8,7 @@
 %require "3.0.0"
 %defines
 %define parser_class_name {EvalParser}
+%define api.prefix {eval}
 %define api.token.constructor
 %define api.value.type variant
 %define api.namespace {isc::eval}
@@ -34,7 +35,7 @@ using namespace isc::eval;
 }
 
 %define api.token.prefix {TOKEN_}
-// Tokens in an order which makes sense and related to the intented use.
+// Tokens in an order which makes sense and related to the intended use.
 %token
   END  0  "end of file"
   LPAREN  "("
@@ -79,6 +80,9 @@ using namespace isc::eval;
   ANY "*"
   DATA "data"
   ENTERPRISE "enterprise"
+
+  TOPLEVEL_BOOL "top-level bool"
+  TOPLEVEL_STRING "top-level string"
 ;
 
 %token <std::string> STRING "constant string"
@@ -105,8 +109,14 @@ using namespace isc::eval;
 
 %%
 
-// The whole grammar starts with an expression.
-%start expression;
+// The whole grammar starts with a 'start' symbol...
+%start start;
+
+// ... that expects either TOPLEVEL_BOOL or TOPLEVEL_STRING. Depending on which
+// token appears first, it will determine what is allowed and what it not.
+start: TOPLEVEL_BOOL expression
+     | TOPLEVEL_STRING string_expr
+;
 
 // Expression can either be a single token or a (something == something) expression
 

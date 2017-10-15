@@ -88,10 +88,11 @@ sbin_PROGRAMS = kea-dhcp-ddns$(EXEEXT)
 @HAVE_PGSQL_TRUE@am__append_5 = $(PGSQL_LIBS)
 @HAVE_CQL_TRUE@am__append_6 = $(CQL_LIBS)
 subdir = src/bin/d2
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/spec_config.h.pre.in $(top_srcdir)/depcomp
+DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am d2_lexer.cc \
+	$(top_srcdir)/depcomp $(top_srcdir)/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -103,15 +104,15 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = spec_config.h.pre
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libd2_la_LIBADD =
-am_libd2_la_OBJECTS = d_controller.lo d_cfg_mgr.lo d2_log.lo \
-	d2_process.lo d2_config.lo d2_cfg_mgr.lo d2_queue_mgr.lo \
-	d2_update_message.lo d2_update_mgr.lo d2_zone.lo dns_client.lo \
-	io_service_signal.lo labeled_value.lo nc_add.lo nc_remove.lo \
-	nc_trans.lo state_model.lo d2_controller.lo
+am_libd2_la_OBJECTS = d2_log.lo d2_process.lo d2_config.lo \
+	d2_cfg_mgr.lo d2_lexer.lo d2_parser.lo d2_queue_mgr.lo \
+	d2_simple_parser.lo d2_update_message.lo d2_update_mgr.lo \
+	d2_zone.lo dns_client.lo nc_add.lo nc_remove.lo nc_trans.lo \
+	d2_controller.lo parser_context.lo
 nodist_libd2_la_OBJECTS = d2_messages.lo
 libd2_la_OBJECTS = $(am_libd2_la_OBJECTS) $(nodist_libd2_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -126,6 +127,7 @@ kea_dhcp_ddns_OBJECTS = $(am_kea_dhcp_ddns_OBJECTS)
 am__DEPENDENCIES_1 =
 kea_dhcp_ddns_DEPENDENCIES = libd2.la \
 	$(top_builddir)/src/lib/cfgrpt/libcfgrpt.la \
+	$(top_builddir)/src/lib/process/libkea-process.la \
 	$(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
 	$(top_builddir)/src/lib/eval/libkea-eval.la \
 	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
@@ -182,6 +184,14 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
+LEXCOMPILE = $(LEX) $(AM_LFLAGS) $(LFLAGS)
+LTLEXCOMPILE = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(LEX) $(AM_LFLAGS) $(LFLAGS)
+AM_V_LEX = $(am__v_LEX_@AM_V@)
+am__v_LEX_ = $(am__v_LEX_@AM_DEFAULT_V@)
+am__v_LEX_0 = @echo "  LEX     " $@;
+am__v_LEX_1 = 
+YLWRAP = $(top_srcdir)/ylwrap
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -396,8 +406,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -468,6 +480,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -480,7 +493,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	$(am__append_3)
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 @USE_STATIC_LINK_TRUE@AM_LDFLAGS = -static
-CLEANFILES = *.gcno *.gcda spec_config.h d2_messages.h d2_messages.cc s-messages
+CLEANFILES = *.gcno *.gcda d2_messages.h d2_messages.cc s-messages
 man_MANS = kea-dhcp-ddns.8
 DISTCLEANFILES = $(man_MANS)
 EXTRA_DIST = $(man_MANS) kea-dhcp-ddns.xml dhcp-ddns.spec d2.dox \
@@ -493,24 +506,25 @@ EXTRA_DIST = $(man_MANS) kea-dhcp-ddns.xml dhcp-ddns.spec d2.dox \
 	images/request_mgt_classes.svg images/state_model_classes.svg \
 	images/trans_classes.svg images/update_exec_classes.svg \
 	d2_messages.mes
-BUILT_SOURCES = spec_config.h d2_messages.h d2_messages.cc
+BUILT_SOURCES = d2_messages.h d2_messages.cc
 
 # convenience archive
 noinst_LTLIBRARIES = libd2.la
-libd2_la_SOURCES = d_process.h d_controller.cc d_controller.h \
-	d_cfg_mgr.cc d_cfg_mgr.h d2_log.cc d2_log.h d2_process.cc \
-	d2_process.h d2_config.cc d2_config.h d2_cfg_mgr.cc \
-	d2_cfg_mgr.h d2_queue_mgr.cc d2_queue_mgr.h \
-	d2_update_message.cc d2_update_message.h d2_update_mgr.cc \
-	d2_update_mgr.h d2_zone.cc d2_zone.h dns_client.cc \
-	dns_client.h io_service_signal.cc io_service_signal.h \
-	labeled_value.cc labeled_value.h nc_add.cc nc_add.h \
-	nc_remove.cc nc_remove.h nc_trans.cc nc_trans.h state_model.cc \
-	state_model.h d2_controller.cc d2_controller.h
+libd2_la_SOURCES = d2_log.cc d2_log.h d2_process.cc d2_process.h \
+	d2_config.cc d2_config.h d2_cfg_mgr.cc d2_cfg_mgr.h \
+	d2_lexer.ll location.hh position.hh stack.hh d2_parser.cc \
+	d2_parser.h d2_queue_mgr.cc d2_queue_mgr.h d2_simple_parser.cc \
+	d2_simple_parser.h d2_update_message.cc d2_update_message.h \
+	d2_update_mgr.cc d2_update_mgr.h d2_zone.cc d2_zone.h \
+	dns_client.cc dns_client.h nc_add.cc nc_add.h nc_remove.cc \
+	nc_remove.h nc_trans.cc nc_trans.h d2_controller.cc \
+	d2_controller.h parser_context.cc parser_context.h \
+	parser_context_decl.h
 nodist_libd2_la_SOURCES = d2_messages.h d2_messages.cc
 kea_dhcp_ddns_SOURCES = main.cc
 kea_dhcp_ddns_LDADD = libd2.la \
 	$(top_builddir)/src/lib/cfgrpt/libcfgrpt.la \
+	$(top_builddir)/src/lib/process/libkea-process.la \
 	$(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
 	$(top_builddir)/src/lib/eval/libkea-eval.la \
 	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
@@ -536,7 +550,7 @@ all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cc .lo .o .obj
+.SUFFIXES: .cc .ll .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -567,8 +581,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-spec_config.h.pre: $(top_builddir)/config.status $(srcdir)/spec_config.h.pre.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-noinstLTLIBRARIES:
 	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
@@ -646,23 +658,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_cfg_mgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_controller.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_lexer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_messages.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_process.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_queue_mgr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_simple_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_update_message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_update_mgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_zone.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d_cfg_mgr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d_controller.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dns_client.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_service_signal.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/labeled_value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nc_add.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nc_remove.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nc_trans.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/state_model.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_context.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -684,6 +695,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+.ll.cc:
+	$(AM_V_LEX)$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -951,6 +965,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-rm -f d2_lexer.cc
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-recursive
 
@@ -1057,14 +1072,32 @@ uninstall-man: uninstall-man8
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Creating dummy $@.  Configure with --enable-generate-docs to enable it.
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Remove this file, configure with --enable-generate-docs, and rebuild Kea > $@
 
-spec_config.h: spec_config.h.pre
-	$(SED) -e "s|@@LOCALSTATEDIR@@|$(localstatedir)|" spec_config.h.pre >$@
-
 d2_messages.h d2_messages.cc: s-messages
 
 s-messages: d2_messages.mes
 	$(top_builddir)/src/lib/log/compiler/kea-msg-compiler $(top_srcdir)/src/bin/d2/d2_messages.mes
 	touch $@
+
+@GENERATE_PARSER_TRUE@parser: d2_lexer.cc location.hh position.hh stack.hh d2_parser.cc d2_parser.h
+@GENERATE_PARSER_TRUE@	@echo "Flex/bison files regenerated"
+
+# --- Flex/Bison stuff below --------------------------------------------------
+# When debugging grammar issues, it's useful to add -v to bison parameters.
+# bison will generate parser.output file that explains the whole grammar.
+# It can be used to manually follow what's going on in the parser.
+# This is especially useful if yydebug_ is set to 1 as that variable
+# will cause parser to print out its internal state.
+# Call flex with -s to check that the default rule can be suppressed
+# Call bison with -W to get warnings like unmarked empty rules
+# Note C++11 deprecated register still used by flex < 2.6.0
+@GENERATE_PARSER_TRUE@location.hh position.hh stack.hh d2_parser.cc d2_parser.h: d2_parser.yy
+@GENERATE_PARSER_TRUE@	$(YACC) --defines=d2_parser.h --report=all --report-file=d2_parser.report -o d2_parser.cc d2_parser.yy
+
+@GENERATE_PARSER_TRUE@d2_lexer.cc: d2_lexer.ll
+@GENERATE_PARSER_TRUE@	$(LEX) --prefix d2_parser_ -o d2_lexer.cc d2_lexer.ll
+
+@GENERATE_PARSER_FALSE@parser location.hh position.hh stack.hh d2_parser.cc d2_parser.h d2_lexer.cc:
+@GENERATE_PARSER_FALSE@	@echo Parser generation disabled. Configure with --enable-generate-parser to enable it.
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

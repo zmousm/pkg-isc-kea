@@ -81,12 +81,14 @@ host_triplet = @host@
 @HAVE_BOTAN_TRUE@am__append_1 = botan_link.cc botan_common.h \
 @HAVE_BOTAN_TRUE@	botan_hash.cc botan_hmac.cc
 @HAVE_OPENSSL_TRUE@am__append_2 = openssl_link.cc openssl_common.h \
-@HAVE_OPENSSL_TRUE@	openssl_hash.cc openssl_hmac.cc
+@HAVE_OPENSSL_TRUE@	openssl_hash.cc openssl_compat.h \
+@HAVE_OPENSSL_TRUE@	openssl_hmac.cc
 subdir = src/lib/cryptolink
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -137,7 +139,7 @@ am__libkea_cryptolink_la_SOURCES_DIST = cryptolink.h cryptolink.cc \
 	crypto_hash.h crypto_hash.cc crypto_hmac.h crypto_hmac.cc \
 	botan_link.cc botan_common.h botan_hash.cc botan_hmac.cc \
 	openssl_link.cc openssl_common.h openssl_hash.cc \
-	openssl_hmac.cc
+	openssl_compat.h openssl_hmac.cc
 @HAVE_BOTAN_TRUE@am__objects_1 = botan_link.lo botan_hash.lo \
 @HAVE_BOTAN_TRUE@	botan_hmac.lo
 @HAVE_OPENSSL_TRUE@am__objects_2 = openssl_link.lo openssl_hash.lo \
@@ -369,8 +371,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -441,6 +445,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -456,7 +461,7 @@ libkea_cryptolink_la_SOURCES = cryptolink.h cryptolink.cc \
 	crypto_hash.h crypto_hash.cc crypto_hmac.h crypto_hmac.cc \
 	$(am__append_1) $(am__append_2)
 libkea_cryptolink_la_LDFLAGS = $(CRYPTO_LDFLAGS) -no-undefined \
-	-version-info 1:0:0
+	-version-info 2:0:0
 libkea_cryptolink_la_LIBADD =  \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(CRYPTO_LIBS)

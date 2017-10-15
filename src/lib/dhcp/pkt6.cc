@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 #include <dhcp/dhcp6.h>
 #include <dhcp/libdhcp++.h>
 #include <dhcp/option.h>
+#include <dhcp/option_space.h>
 #include <dhcp/option_vendor_class.h>
 #include <dhcp/option_vendor.h>
 #include <dhcp/pkt6.h>
@@ -34,6 +35,19 @@ namespace dhcp {
 Pkt6::RelayInfo::RelayInfo()
     :msg_type_(0), hop_count_(0), linkaddr_(DEFAULT_ADDRESS6),
     peeraddr_(DEFAULT_ADDRESS6), relay_msg_len_(0) {
+}
+
+std::string Pkt6::RelayInfo::toText() const {
+    stringstream tmp;
+    tmp << "msg-type=" << static_cast<int>(msg_type_) << "(" << getName(msg_type_)
+        << "), hop-count=" << static_cast<int>(hop_count_)  << "," << endl
+        << "link-address=" << linkaddr_.toText()
+        << ", peer-address=" << peeraddr_.toText() << ", "
+        << options_.size() << " option(s)" << endl;
+    for (auto option = options_.cbegin(); option != options_.cend(); ++option) {
+        tmp << option->second->toText() << endl;
+    }
+    return (tmp.str());
 }
 
 Pkt6::Pkt6(const uint8_t* buf, uint32_t buf_len, DHCPv6Proto proto /* = UDP */)
@@ -313,7 +327,7 @@ Pkt6::packUDP() {
 
         }
 
-        // DHCPv6 header: message-type (1 octect) + transaction id (3 octets)
+        // DHCPv6 header: message-type (1 octet) + transaction id (3 octets)
         buffer_out_.writeUint8(msg_type_);
         // store 3-octet transaction-id
         buffer_out_.writeUint8( (transid_ >> 16) & 0xff );
@@ -403,7 +417,7 @@ Pkt6::unpackMsg(OptionBuffer::const_iterator begin,
 
     // If custom option parsing function has been set, use this function
     // to parse options. Otherwise, use standard function from libdhcp.
-    size_t offset = LibDHCP::unpackOptions6(opt_buffer, "dhcp6", options_);
+    size_t offset = LibDHCP::unpackOptions6(opt_buffer, DHCP6_OPTION_SPACE, options_);
 
     // If offset is not equal to the size, then something is wrong here. We
     // either parsed past input buffer (bug in our code) or we haven't parsed
@@ -453,7 +467,7 @@ Pkt6::unpackRelayMsg() {
 
         // If custom option parsing function has been set, use this function
         // to parse options. Otherwise, use standard function from libdhcp.
-        LibDHCP::unpackOptions6(opt_buffer, "dhcp6", relay.options_,
+        LibDHCP::unpackOptions6(opt_buffer, DHCP6_OPTION_SPACE, relay.options_,
                                 &relay_msg_offset, &relay_msg_len);
 
         /// @todo: check that each option appears at most once
@@ -606,15 +620,30 @@ Pkt6::getLabel() const {
 std::string
 Pkt6::toText() const {
     stringstream tmp;
+
+    // First print the basics
     tmp << "localAddr=[" << local_addr_ << "]:" << local_port_
-        << " remoteAddr=[" << remote_addr_
-        << "]:" << remote_port_ << endl;
-    tmp << "msgtype=" << static_cast<int>(msg_type_) << ", transid=0x" <<
+        << " remoteAddr=[" << remote_addr_ << "]:" << remote_port_ << endl;
+    tmp << "msgtype=" << static_cast<int>(msg_type_) << "(" << getName(msg_type_)
+        << "), transid=0x" <<
         hex << transid_ << dec << endl;
+
+    // Then print the options
     for (isc::dhcp::OptionCollection::const_iterator opt=options_.begin();
          opt != options_.end();
          ++opt) {
         tmp << opt->second->toText() << std::endl;
+    }
+
+    // Finally, print the relay information (if present)
+    if (!relay_info_.empty()) {
+        tmp << relay_info_.size() << " relay(s):" << endl;
+        int cnt = 0;
+        for (auto relay = relay_info_.cbegin(); relay != relay_info_.cend(); ++relay) {
+            tmp << "relay[" << cnt++ << "]: " << relay->toText();
+        }
+    } else {
+        tmp << "No relays traversed." << endl;
     }
     return tmp.str();
 }

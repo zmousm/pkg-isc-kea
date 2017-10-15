@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015,2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 #include <dhcpsrv/cfg_expiration.h>
 #include <dhcpsrv/timer_mgr.h>
 #include <exceptions/exceptions.h>
+#include <testutils/test_to_element.h>
 #include <util/stopwatch.h>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -113,6 +114,19 @@ TEST(CfgExpirationTest, defaults) {
               cfg.getUnwarnedReclaimCycles());
 }
 
+/// @brief Tests that unparse returns an expected value
+TEST(CfgExpirationTest, unparse) {
+    CfgExpiration cfg;
+    std::string defaults = "{\n"
+        "\"reclaim-timer-wait-time\": 10,\n"
+        "\"flush-reclaimed-timer-wait-time\": 25,\n"
+        "\"hold-reclaimed-time\": 3600,\n"
+        "\"max-reclaim-leases\": 100,\n"
+        "\"max-reclaim-time\": 250,\n"
+        "\"unwarned-reclaim-cycles\": 5 }";
+    isc::test::runToElementTest<CfgExpiration>(defaults, cfg);
+}
+
 // Test the {get,set}ReclaimTimerWaitTime.
 TEST(CfgExpirationTest, getReclaimTimerWaitTime) {
     testAccessModify<uint16_t>(CfgExpiration::LIMIT_RECLAIM_TIMER_WAIT_TIME,
@@ -163,14 +177,14 @@ TEST(CfgExpirationTest, getUnwarnedReclaimCycles) {
 /// but instead they record the number of calls to them and the parameters
 /// with which they were executed. This allows for checking if the
 /// @c CfgExpiration object calls the leases reclamation routine with the
-/// appropriate parameteres.
+/// appropriate parameters.
 class LeaseReclamationStub {
 public:
 
     /// @brief Collection of parameters with which the @c reclaimExpiredLeases
     /// method is called.
     ///
-    /// Examination of these values allows for assesment if the @c CfgExpiration
+    /// Examination of these values allows for assessment if the @c CfgExpiration
     /// calls the routine with the appropriate values.
     struct RecordedParams {
         /// @brief Maximum number of leases to be processed.
@@ -233,7 +247,7 @@ public:
     /// expired-reclaimed leases.
     ///
     /// @param secs Specifies the minimum amount of time, expressed in
-    /// seconds, that must elapse before the expired-reclaime lease is
+    /// seconds, that must elapse before the expired-reclaimed lease is
     /// deleted from the database.
     void
     deleteReclaimedLeases(const uint32_t secs) {
@@ -401,7 +415,7 @@ TEST_F(CfgExpirationTimersTest, noLeaseAffinity) {
     EXPECT_EQ(0, stub_->delete_calls_count_);
 }
 
-// This test verfies that lease reclamation may be disabled.
+// This test verifies that lease reclamation may be disabled.
 TEST_F(CfgExpirationTimersTest, noLeaseReclamation) {
     // Disable both timers.
     cfg_.setReclaimTimerWaitTime(0);

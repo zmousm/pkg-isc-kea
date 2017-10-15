@@ -89,9 +89,11 @@ sbin_PROGRAMS = kea-dhcp4$(EXEEXT)
 @HAVE_CQL_TRUE@am__append_6 = $(CQL_LIBS)
 subdir = src/bin/dhcp4
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/spec_config.h.pre.in $(top_srcdir)/depcomp
+	$(srcdir)/spec_config.h.pre.in dhcp4_lexer.cc \
+	$(top_srcdir)/depcomp $(top_srcdir)/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -108,7 +110,8 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libdhcp4_la_LIBADD =
 am_libdhcp4_la_OBJECTS = ctrl_dhcp4_srv.lo json_config_parser.lo \
-	dhcp4_log.lo dhcp4_srv.lo dhcp4to6_ipc.lo kea_controller.lo
+	dhcp4_log.lo dhcp4_srv.lo dhcp4to6_ipc.lo dhcp4_lexer.lo \
+	dhcp4_parser.lo parser_context.lo simple_parser4.lo
 nodist_libdhcp4_la_OBJECTS = dhcp4_messages.lo
 libdhcp4_la_OBJECTS = $(am_libdhcp4_la_OBJECTS) \
 	$(nodist_libdhcp4_la_OBJECTS)
@@ -178,6 +181,14 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
+LEXCOMPILE = $(LEX) $(AM_LFLAGS) $(LFLAGS)
+LTLEXCOMPILE = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(LEX) $(AM_LFLAGS) $(LFLAGS)
+AM_V_LEX = $(am__v_LEX_@AM_V@)
+am__v_LEX_ = $(am__v_LEX_@AM_DEFAULT_V@)
+am__v_LEX_0 = @echo "  LEX     " $@;
+am__v_LEX_1 = 
+YLWRAP = $(top_srcdir)/ylwrap
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -392,8 +403,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -464,6 +477,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -480,7 +494,7 @@ CLEANFILES = *.gcno *.gcda spec_config.h dhcp4_messages.h dhcp4_messages.cc s-me
 man_MANS = kea-dhcp4.8
 DISTCLEANFILES = $(man_MANS)
 EXTRA_DIST = $(man_MANS) kea-dhcp4.xml dhcp4.spec dhcp4.dox \
-	dhcp4_hooks.dox dhcp4o6.dox dhcp4_messages.mes
+	dhcp4_hooks.dox dhcp4o6.dox dhcp4_parser.yy dhcp4_messages.mes
 BUILT_SOURCES = spec_config.h dhcp4_messages.h dhcp4_messages.cc
 
 # convenience archive
@@ -488,7 +502,10 @@ noinst_LTLIBRARIES = libdhcp4.la
 libdhcp4_la_SOURCES = ctrl_dhcp4_srv.cc ctrl_dhcp4_srv.h \
 	json_config_parser.cc json_config_parser.h dhcp4_log.cc \
 	dhcp4_log.h dhcp4_srv.cc dhcp4_srv.h dhcp4to6_ipc.cc \
-	dhcp4to6_ipc.h kea_controller.cc
+	dhcp4to6_ipc.h dhcp4_lexer.ll location.hh position.hh stack.hh \
+	dhcp4_parser.cc dhcp4_parser.h parser_context.cc \
+	parser_context.h parser_context_decl.h simple_parser4.cc \
+	simple_parser4.h
 nodist_libdhcp4_la_SOURCES = dhcp4_messages.h dhcp4_messages.cc
 kea_dhcp4_SOURCES = main.cc
 kea_dhcp4_LDADD = libdhcp4.la \
@@ -517,7 +534,7 @@ all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cc .lo .o .obj
+.SUFFIXES: .cc .ll .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -625,13 +642,16 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ctrl_dhcp4_srv.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_lexer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_messages.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_srv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4to6_ipc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/json_config_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kea_controller.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_context.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_parser4.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -653,6 +673,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+.ll.cc:
+	$(AM_V_LEX)$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -920,6 +943,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-rm -f dhcp4_lexer.cc
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-recursive
 
@@ -1033,6 +1057,27 @@ dhcp4_messages.h dhcp4_messages.cc: s-messages
 s-messages: dhcp4_messages.mes
 	$(top_builddir)/src/lib/log/compiler/kea-msg-compiler $(top_srcdir)/src/bin/dhcp4/dhcp4_messages.mes
 	touch $@
+
+@GENERATE_PARSER_TRUE@parser: dhcp4_lexer.cc location.hh position.hh stack.hh dhcp4_parser.cc dhcp4_parser.h
+@GENERATE_PARSER_TRUE@	@echo "Flex/bison files regenerated"
+
+# --- Flex/Bison stuff below --------------------------------------------------
+# When debugging grammar issues, it's useful to add -v to bison parameters.
+# bison will generate parser.output file that explains the whole grammar.
+# It can be used to manually follow what's going on in the parser.
+# This is especially useful if yydebug_ is set to 1 as that variable
+# will cause parser to print out its internal state.
+# Call flex with -s to check that the default rule can be suppressed
+# Call bison with -W to get warnings like unmarked empty rules
+# Note C++11 deprecated register still used by flex < 2.6.0
+@GENERATE_PARSER_TRUE@location.hh position.hh stack.hh dhcp4_parser.cc dhcp4_parser.h: dhcp4_parser.yy
+@GENERATE_PARSER_TRUE@	$(YACC) --defines=dhcp4_parser.h --report=all --report-file=dhcp4_parser.report -o dhcp4_parser.cc dhcp4_parser.yy
+
+@GENERATE_PARSER_TRUE@dhcp4_lexer.cc: dhcp4_lexer.ll
+@GENERATE_PARSER_TRUE@	$(LEX) --prefix parser4_ -o dhcp4_lexer.cc dhcp4_lexer.ll
+
+@GENERATE_PARSER_FALSE@parser location.hh position.hh stack.hh dhcp4_parser.cc dhcp4_parser.h dhcp4_lexer.cc:
+@GENERATE_PARSER_FALSE@	@echo Parser generation disabled. Configure with --enable-generate-parser to enable it.
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

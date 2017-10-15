@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30,6 +30,7 @@
 #include <dhcpsrv/utils.h>
 #include <util/buffer.h>
 #include <util/range_utilities.h>
+#include <util/encode/hex.h>
 #include <stats/stats_mgr.h>
 
 #include <dhcp6/tests/dhcp6_test_utils.h>
@@ -74,7 +75,7 @@ const char* CONFIGS[] = {
     "        {"
     "          \"name\": \"subscriber-id\","
     "          \"data\": \"1234\","
-    "          \"csv-format\": False"
+    "          \"csv-format\": false"
     "        } ]"
     " } ],"
     "\"valid-lifetime\": 4000 }",
@@ -275,7 +276,7 @@ TEST_F(Dhcpv6SrvTest, DUID) {
     case DUID::DUID_LLT: {
         // DUID must contain at least 6 bytes long MAC
         // + 8 bytes of fixed header
-        EXPECT_GE(14, len);
+        EXPECT_GE(len, 14);
 
         uint16_t hw_type = data.readUint16();
         // there's no real way to find out "correct"
@@ -1681,7 +1682,7 @@ TEST_F(Dhcpv6SrvTest, vendorOptionsDocsisDefinitions) {
         "          \"code\": ";
     string config_postfix = ","
         "          \"data\": \"normal_erouter_v6.cm\","
-        "          \"csv-format\": True"
+        "          \"csv-format\": true"
         "        }],"
         "\"subnet6\": [ { "
         "    \"pools\": [ { \"pool\": \"2001:db8:1::/64\" } ],"
@@ -1703,8 +1704,10 @@ TEST_F(Dhcpv6SrvTest, vendorOptionsDocsisDefinitions) {
     // definition, the config should fail.
     string config_bogus = config_prefix + "99" + config_postfix;
 
-    ElementPtr json_bogus = Element::fromJSON(config_bogus);
-    ElementPtr json_valid = Element::fromJSON(config_valid);
+    ConstElementPtr json_bogus;
+    ASSERT_NO_THROW(json_bogus = parseDHCP6(config_bogus));
+    ConstElementPtr json_valid;
+    ASSERT_NO_THROW(json_valid = parseDHCP6(config_valid));
 
     NakedDhcpv6Srv srv(0);
 
@@ -1838,7 +1841,7 @@ TEST_F(Dhcpv6SrvTest, relayOverride) {
 /// @param payload specified payload (0 = fill payload with repeating option code)
 /// @return RSOO with nested options
 OptionPtr createRSOO(const std::vector<uint16_t>& codes, uint8_t payload = 0) {
-    OptionDefinitionPtr def = LibDHCP::getOptionDef(Option::V6, D6O_RSOO);
+    OptionDefinitionPtr def = LibDHCP::getOptionDef(DHCP6_OPTION_SPACE, D6O_RSOO);
     if (!def) {
         isc_throw(BadValue, "Can't find RSOO definition");
     }
@@ -2027,6 +2030,7 @@ TEST_F(Dhcpv6SrvTest, rsooOverride) {
         "    } ],"
         "    \"option-data\": [ {"
         "      \"code\": 120,"
+        "      \"csv-format\": false,"
         "      \"data\": \"05\""
         "    } ],"
         "    \"preferred-lifetime\": 3000,"

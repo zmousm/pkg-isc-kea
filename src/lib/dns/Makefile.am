@@ -101,7 +101,7 @@ BUILT_SOURCES += rdataclass.h rdataclass.cc
 
 lib_LTLIBRARIES = libkea-dns++.la
 
-libkea_dns___la_LDFLAGS = -no-undefined -version-info 2:0:1
+libkea_dns___la_LDFLAGS = -no-undefined -version-info 1:1:1
 libkea_dns___la_LDFLAGS += $(AM_LDFLAGS) $(CRYPTO_LDFLAGS)
 
 libkea_dns___la_SOURCES =
@@ -176,7 +176,7 @@ s-rdatacode: Makefile $(EXTRA_DIST)
 
 #rrclass.h rrtype.h rrparamregistry.cc rdataclass.h rdataclass.cc: s-rdatacode
 
-libdns___includedir = $(includedir)/$(PACKAGE_NAME)/dns
+libdns___includedir = $(pkgincludedir)/dns
 libdns___include_HEADERS = \
 	edns.h \
 	exceptions.h \

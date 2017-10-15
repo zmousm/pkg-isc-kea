@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2015,2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -184,7 +184,7 @@ CalloutManager::callCallouts(int hook_index, CalloutHandle& callout_handle) {
             .arg(server_hooks_.getName(current_hook_))
             .arg(stopwatch.logFormatTotalDuration());
 
-        // Reset the current hook and library indexs to an invalid value to
+        // Reset the current hook and library indexes to an invalid value to
         // catch any programming errors.
         current_hook_ = -1;
         current_library_ = -1;
@@ -247,7 +247,7 @@ CalloutManager::deregisterAllCallouts(const std::string& name) {
 
     /// Construct a CalloutEntry matching the current library (the callout
     /// pointer is NULL as we are not checking that).
-    CalloutEntry target(current_library_, NULL);
+    CalloutEntry target(current_library_, static_cast<CalloutPtr>(0));
 
     /// To decide if any entries were removed, we'll record the initial size
     /// of the callout vector for the hook, and compare it with the size after

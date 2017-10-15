@@ -91,6 +91,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/test_data_files_config.h.in $(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -107,43 +108,43 @@ CONFIG_CLEAN_VPATH_FILES =
 @HAVE_GTEST_TRUE@am__EXEEXT_1 = d2_unittests$(EXEEXT)
 am__EXEEXT_2 = $(am__EXEEXT_1)
 PROGRAMS = $(noinst_PROGRAMS)
-am__d2_unittests_SOURCES_DIST = d_test_stubs.cc d_test_stubs.h \
-	d2_unittests.cc d2_process_unittests.cc d_cfg_mgr_unittests.cc \
-	d2_cfg_mgr_unittests.cc d2_queue_mgr_unittests.cc \
-	d2_update_message_unittests.cc d2_update_mgr_unittests.cc \
-	d2_zone_unittests.cc dns_client_unittests.cc \
-	io_service_signal_unittests.cc labeled_value_unittests.cc \
-	nc_add_unittests.cc nc_remove_unittests.cc nc_test_utils.cc \
-	nc_test_utils.h nc_trans_unittests.cc state_model_unittests.cc \
-	d2_controller_unittests.cc d_controller_unittests.cc
+am__d2_unittests_SOURCES_DIST = d2_unittests.cc \
+	d2_process_unittests.cc d2_cfg_mgr_unittests.cc \
+	d2_queue_mgr_unittests.cc d2_update_message_unittests.cc \
+	d2_update_mgr_unittests.cc d2_zone_unittests.cc \
+	dns_client_unittests.cc nc_add_unittests.cc \
+	nc_remove_unittests.cc nc_test_utils.cc nc_test_utils.h \
+	nc_trans_unittests.cc d2_controller_unittests.cc \
+	d2_simple_parser_unittest.cc parser_unittest.cc \
+	parser_unittest.h get_config_unittest.cc
 @HAVE_GTEST_TRUE@am_d2_unittests_OBJECTS =  \
-@HAVE_GTEST_TRUE@	d2_unittests-d_test_stubs.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_process_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	d2_unittests-d_cfg_mgr_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_cfg_mgr_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_queue_mgr_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_update_message_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_update_mgr_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_zone_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-dns_client_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	d2_unittests-io_service_signal_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	d2_unittests-labeled_value_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-nc_add_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-nc_remove_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-nc_test_utils.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-nc_trans_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	d2_unittests-state_model_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	d2_unittests-d2_controller_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	d2_unittests-d_controller_unittests.$(OBJEXT)
+@HAVE_GTEST_TRUE@	d2_unittests-d2_simple_parser_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	d2_unittests-parser_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	d2_unittests-get_config_unittest.$(OBJEXT)
 d2_unittests_OBJECTS = $(am_d2_unittests_OBJECTS)
 am__DEPENDENCIES_1 =
 @HAVE_GTEST_TRUE@d2_unittests_DEPENDENCIES =  \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/bin/d2/libd2.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/process/testutils/libprocesstest.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cfgrpt/libcfgrpt.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/process/libkea-process.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcpsrv/testutils/libdhcpsrvtest.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/testutils/libkea-testutils.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiodns/libkea-asiodns.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/stats/libkea-stats.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/config/libkea-cfgclient.la \
@@ -363,8 +364,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -435,6 +438,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -444,12 +448,14 @@ top_srcdir = @top_srcdir@
 # if we are using file based configuration approach.
 SHTESTS = d2_process_tests.sh
 noinst_SCRIPTS = d2_process_tests.sh
-EXTRA_DIST = d2_process_tests.sh.in testdata/d2_cfg_tests.json
+EXTRA_DIST = d2_process_tests.sh.in testdata/d2_cfg_tests.json \
+	testdata/get_config.json
 AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	-I$(top_builddir)/src/bin -I$(top_srcdir)/src/bin \
 	$(BOOST_INCLUDES) \
 	-DTEST_DATA_BUILDDIR=\"$(abs_top_builddir)/src/bin/d2/tests\" \
-	-DINSTALL_PROG=\"$(abs_top_srcdir)/install-sh\"
+	-DINSTALL_PROG=\"$(abs_top_srcdir)/install-sh\" \
+	-DCFG_EXAMPLES=\"$(abs_top_srcdir)/doc/examples/ddns\"
 CLEANFILES = $(builddir)/interfaces.txt $(builddir)/logger_lockfile
 DISTCLEANFILES = d2_process_tests.sh
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
@@ -457,22 +463,20 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 TESTS_ENVIRONMENT = \
         $(LIBTOOL) --mode=execute $(VALGRIND_COMMAND)
 
-@HAVE_GTEST_TRUE@d2_unittests_SOURCES = d_test_stubs.cc d_test_stubs.h \
-@HAVE_GTEST_TRUE@	d2_unittests.cc d2_process_unittests.cc \
-@HAVE_GTEST_TRUE@	d_cfg_mgr_unittests.cc \
+@HAVE_GTEST_TRUE@d2_unittests_SOURCES = d2_unittests.cc \
+@HAVE_GTEST_TRUE@	d2_process_unittests.cc \
 @HAVE_GTEST_TRUE@	d2_cfg_mgr_unittests.cc \
 @HAVE_GTEST_TRUE@	d2_queue_mgr_unittests.cc \
 @HAVE_GTEST_TRUE@	d2_update_message_unittests.cc \
 @HAVE_GTEST_TRUE@	d2_update_mgr_unittests.cc \
 @HAVE_GTEST_TRUE@	d2_zone_unittests.cc dns_client_unittests.cc \
-@HAVE_GTEST_TRUE@	io_service_signal_unittests.cc \
-@HAVE_GTEST_TRUE@	labeled_value_unittests.cc \
 @HAVE_GTEST_TRUE@	nc_add_unittests.cc nc_remove_unittests.cc \
 @HAVE_GTEST_TRUE@	nc_test_utils.cc nc_test_utils.h \
 @HAVE_GTEST_TRUE@	nc_trans_unittests.cc \
-@HAVE_GTEST_TRUE@	state_model_unittests.cc \
 @HAVE_GTEST_TRUE@	d2_controller_unittests.cc \
-@HAVE_GTEST_TRUE@	d_controller_unittests.cc
+@HAVE_GTEST_TRUE@	d2_simple_parser_unittest.cc \
+@HAVE_GTEST_TRUE@	parser_unittest.cc parser_unittest.h \
+@HAVE_GTEST_TRUE@	get_config_unittest.cc
 @HAVE_GTEST_TRUE@d2_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 @HAVE_GTEST_TRUE@d2_unittests_LDFLAGS = $(AM_LDFLAGS) \
 @HAVE_GTEST_TRUE@	$(CRYPTO_LDFLAGS) $(am__append_2) \
@@ -480,10 +484,13 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	$(GTEST_LDFLAGS)
 @HAVE_GTEST_TRUE@d2_unittests_LDADD =  \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/bin/d2/libd2.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/process/testutils/libprocesstest.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cfgrpt/libcfgrpt.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/process/libkea-process.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcpsrv/testutils/libdhcpsrvtest.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/testutils/libkea-testutils.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiodns/libkea-asiodns.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/stats/libkea-stats.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/config/libkea-cfgclient.la \
@@ -561,21 +568,18 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_controller_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_process_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_queue_mgr_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_update_message_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_update_mgr_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d2_zone_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d_controller_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-d_test_stubs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-dns_client_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-io_service_signal_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-labeled_value_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-get_config_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-nc_add_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-nc_remove_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-nc_test_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-nc_trans_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-state_model_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/d2_unittests-parser_unittest.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -597,20 +601,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
-
-d2_unittests-d_test_stubs.o: d_test_stubs.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d_test_stubs.o -MD -MP -MF $(DEPDIR)/d2_unittests-d_test_stubs.Tpo -c -o d2_unittests-d_test_stubs.o `test -f 'd_test_stubs.cc' || echo '$(srcdir)/'`d_test_stubs.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d_test_stubs.Tpo $(DEPDIR)/d2_unittests-d_test_stubs.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d_test_stubs.cc' object='d2_unittests-d_test_stubs.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d_test_stubs.o `test -f 'd_test_stubs.cc' || echo '$(srcdir)/'`d_test_stubs.cc
-
-d2_unittests-d_test_stubs.obj: d_test_stubs.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d_test_stubs.obj -MD -MP -MF $(DEPDIR)/d2_unittests-d_test_stubs.Tpo -c -o d2_unittests-d_test_stubs.obj `if test -f 'd_test_stubs.cc'; then $(CYGPATH_W) 'd_test_stubs.cc'; else $(CYGPATH_W) '$(srcdir)/d_test_stubs.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d_test_stubs.Tpo $(DEPDIR)/d2_unittests-d_test_stubs.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d_test_stubs.cc' object='d2_unittests-d_test_stubs.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d_test_stubs.obj `if test -f 'd_test_stubs.cc'; then $(CYGPATH_W) 'd_test_stubs.cc'; else $(CYGPATH_W) '$(srcdir)/d_test_stubs.cc'; fi`
 
 d2_unittests-d2_unittests.o: d2_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d2_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-d2_unittests.Tpo -c -o d2_unittests-d2_unittests.o `test -f 'd2_unittests.cc' || echo '$(srcdir)/'`d2_unittests.cc
@@ -639,20 +629,6 @@ d2_unittests-d2_process_unittests.obj: d2_process_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d2_process_unittests.cc' object='d2_unittests-d2_process_unittests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d2_process_unittests.obj `if test -f 'd2_process_unittests.cc'; then $(CYGPATH_W) 'd2_process_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/d2_process_unittests.cc'; fi`
-
-d2_unittests-d_cfg_mgr_unittests.o: d_cfg_mgr_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d_cfg_mgr_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Tpo -c -o d2_unittests-d_cfg_mgr_unittests.o `test -f 'd_cfg_mgr_unittests.cc' || echo '$(srcdir)/'`d_cfg_mgr_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Tpo $(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d_cfg_mgr_unittests.cc' object='d2_unittests-d_cfg_mgr_unittests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d_cfg_mgr_unittests.o `test -f 'd_cfg_mgr_unittests.cc' || echo '$(srcdir)/'`d_cfg_mgr_unittests.cc
-
-d2_unittests-d_cfg_mgr_unittests.obj: d_cfg_mgr_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d_cfg_mgr_unittests.obj -MD -MP -MF $(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Tpo -c -o d2_unittests-d_cfg_mgr_unittests.obj `if test -f 'd_cfg_mgr_unittests.cc'; then $(CYGPATH_W) 'd_cfg_mgr_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/d_cfg_mgr_unittests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Tpo $(DEPDIR)/d2_unittests-d_cfg_mgr_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d_cfg_mgr_unittests.cc' object='d2_unittests-d_cfg_mgr_unittests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d_cfg_mgr_unittests.obj `if test -f 'd_cfg_mgr_unittests.cc'; then $(CYGPATH_W) 'd_cfg_mgr_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/d_cfg_mgr_unittests.cc'; fi`
 
 d2_unittests-d2_cfg_mgr_unittests.o: d2_cfg_mgr_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d2_cfg_mgr_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-d2_cfg_mgr_unittests.Tpo -c -o d2_unittests-d2_cfg_mgr_unittests.o `test -f 'd2_cfg_mgr_unittests.cc' || echo '$(srcdir)/'`d2_cfg_mgr_unittests.cc
@@ -738,34 +714,6 @@ d2_unittests-dns_client_unittests.obj: dns_client_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-dns_client_unittests.obj `if test -f 'dns_client_unittests.cc'; then $(CYGPATH_W) 'dns_client_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/dns_client_unittests.cc'; fi`
 
-d2_unittests-io_service_signal_unittests.o: io_service_signal_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-io_service_signal_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-io_service_signal_unittests.Tpo -c -o d2_unittests-io_service_signal_unittests.o `test -f 'io_service_signal_unittests.cc' || echo '$(srcdir)/'`io_service_signal_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-io_service_signal_unittests.Tpo $(DEPDIR)/d2_unittests-io_service_signal_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='io_service_signal_unittests.cc' object='d2_unittests-io_service_signal_unittests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-io_service_signal_unittests.o `test -f 'io_service_signal_unittests.cc' || echo '$(srcdir)/'`io_service_signal_unittests.cc
-
-d2_unittests-io_service_signal_unittests.obj: io_service_signal_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-io_service_signal_unittests.obj -MD -MP -MF $(DEPDIR)/d2_unittests-io_service_signal_unittests.Tpo -c -o d2_unittests-io_service_signal_unittests.obj `if test -f 'io_service_signal_unittests.cc'; then $(CYGPATH_W) 'io_service_signal_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/io_service_signal_unittests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-io_service_signal_unittests.Tpo $(DEPDIR)/d2_unittests-io_service_signal_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='io_service_signal_unittests.cc' object='d2_unittests-io_service_signal_unittests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-io_service_signal_unittests.obj `if test -f 'io_service_signal_unittests.cc'; then $(CYGPATH_W) 'io_service_signal_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/io_service_signal_unittests.cc'; fi`
-
-d2_unittests-labeled_value_unittests.o: labeled_value_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-labeled_value_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-labeled_value_unittests.Tpo -c -o d2_unittests-labeled_value_unittests.o `test -f 'labeled_value_unittests.cc' || echo '$(srcdir)/'`labeled_value_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-labeled_value_unittests.Tpo $(DEPDIR)/d2_unittests-labeled_value_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='labeled_value_unittests.cc' object='d2_unittests-labeled_value_unittests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-labeled_value_unittests.o `test -f 'labeled_value_unittests.cc' || echo '$(srcdir)/'`labeled_value_unittests.cc
-
-d2_unittests-labeled_value_unittests.obj: labeled_value_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-labeled_value_unittests.obj -MD -MP -MF $(DEPDIR)/d2_unittests-labeled_value_unittests.Tpo -c -o d2_unittests-labeled_value_unittests.obj `if test -f 'labeled_value_unittests.cc'; then $(CYGPATH_W) 'labeled_value_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/labeled_value_unittests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-labeled_value_unittests.Tpo $(DEPDIR)/d2_unittests-labeled_value_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='labeled_value_unittests.cc' object='d2_unittests-labeled_value_unittests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-labeled_value_unittests.obj `if test -f 'labeled_value_unittests.cc'; then $(CYGPATH_W) 'labeled_value_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/labeled_value_unittests.cc'; fi`
-
 d2_unittests-nc_add_unittests.o: nc_add_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-nc_add_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-nc_add_unittests.Tpo -c -o d2_unittests-nc_add_unittests.o `test -f 'nc_add_unittests.cc' || echo '$(srcdir)/'`nc_add_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-nc_add_unittests.Tpo $(DEPDIR)/d2_unittests-nc_add_unittests.Po
@@ -822,20 +770,6 @@ d2_unittests-nc_trans_unittests.obj: nc_trans_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-nc_trans_unittests.obj `if test -f 'nc_trans_unittests.cc'; then $(CYGPATH_W) 'nc_trans_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/nc_trans_unittests.cc'; fi`
 
-d2_unittests-state_model_unittests.o: state_model_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-state_model_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-state_model_unittests.Tpo -c -o d2_unittests-state_model_unittests.o `test -f 'state_model_unittests.cc' || echo '$(srcdir)/'`state_model_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-state_model_unittests.Tpo $(DEPDIR)/d2_unittests-state_model_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='state_model_unittests.cc' object='d2_unittests-state_model_unittests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-state_model_unittests.o `test -f 'state_model_unittests.cc' || echo '$(srcdir)/'`state_model_unittests.cc
-
-d2_unittests-state_model_unittests.obj: state_model_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-state_model_unittests.obj -MD -MP -MF $(DEPDIR)/d2_unittests-state_model_unittests.Tpo -c -o d2_unittests-state_model_unittests.obj `if test -f 'state_model_unittests.cc'; then $(CYGPATH_W) 'state_model_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/state_model_unittests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-state_model_unittests.Tpo $(DEPDIR)/d2_unittests-state_model_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='state_model_unittests.cc' object='d2_unittests-state_model_unittests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-state_model_unittests.obj `if test -f 'state_model_unittests.cc'; then $(CYGPATH_W) 'state_model_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/state_model_unittests.cc'; fi`
-
 d2_unittests-d2_controller_unittests.o: d2_controller_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d2_controller_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-d2_controller_unittests.Tpo -c -o d2_unittests-d2_controller_unittests.o `test -f 'd2_controller_unittests.cc' || echo '$(srcdir)/'`d2_controller_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d2_controller_unittests.Tpo $(DEPDIR)/d2_unittests-d2_controller_unittests.Po
@@ -850,19 +784,47 @@ d2_unittests-d2_controller_unittests.obj: d2_controller_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d2_controller_unittests.obj `if test -f 'd2_controller_unittests.cc'; then $(CYGPATH_W) 'd2_controller_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/d2_controller_unittests.cc'; fi`
 
-d2_unittests-d_controller_unittests.o: d_controller_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d_controller_unittests.o -MD -MP -MF $(DEPDIR)/d2_unittests-d_controller_unittests.Tpo -c -o d2_unittests-d_controller_unittests.o `test -f 'd_controller_unittests.cc' || echo '$(srcdir)/'`d_controller_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d_controller_unittests.Tpo $(DEPDIR)/d2_unittests-d_controller_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d_controller_unittests.cc' object='d2_unittests-d_controller_unittests.o' libtool=no @AMDEPBACKSLASH@
+d2_unittests-d2_simple_parser_unittest.o: d2_simple_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d2_simple_parser_unittest.o -MD -MP -MF $(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Tpo -c -o d2_unittests-d2_simple_parser_unittest.o `test -f 'd2_simple_parser_unittest.cc' || echo '$(srcdir)/'`d2_simple_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Tpo $(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d2_simple_parser_unittest.cc' object='d2_unittests-d2_simple_parser_unittest.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d_controller_unittests.o `test -f 'd_controller_unittests.cc' || echo '$(srcdir)/'`d_controller_unittests.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d2_simple_parser_unittest.o `test -f 'd2_simple_parser_unittest.cc' || echo '$(srcdir)/'`d2_simple_parser_unittest.cc
 
-d2_unittests-d_controller_unittests.obj: d_controller_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d_controller_unittests.obj -MD -MP -MF $(DEPDIR)/d2_unittests-d_controller_unittests.Tpo -c -o d2_unittests-d_controller_unittests.obj `if test -f 'd_controller_unittests.cc'; then $(CYGPATH_W) 'd_controller_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/d_controller_unittests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d_controller_unittests.Tpo $(DEPDIR)/d2_unittests-d_controller_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d_controller_unittests.cc' object='d2_unittests-d_controller_unittests.obj' libtool=no @AMDEPBACKSLASH@
+d2_unittests-d2_simple_parser_unittest.obj: d2_simple_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-d2_simple_parser_unittest.obj -MD -MP -MF $(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Tpo -c -o d2_unittests-d2_simple_parser_unittest.obj `if test -f 'd2_simple_parser_unittest.cc'; then $(CYGPATH_W) 'd2_simple_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/d2_simple_parser_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Tpo $(DEPDIR)/d2_unittests-d2_simple_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='d2_simple_parser_unittest.cc' object='d2_unittests-d2_simple_parser_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d_controller_unittests.obj `if test -f 'd_controller_unittests.cc'; then $(CYGPATH_W) 'd_controller_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/d_controller_unittests.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-d2_simple_parser_unittest.obj `if test -f 'd2_simple_parser_unittest.cc'; then $(CYGPATH_W) 'd2_simple_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/d2_simple_parser_unittest.cc'; fi`
+
+d2_unittests-parser_unittest.o: parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-parser_unittest.o -MD -MP -MF $(DEPDIR)/d2_unittests-parser_unittest.Tpo -c -o d2_unittests-parser_unittest.o `test -f 'parser_unittest.cc' || echo '$(srcdir)/'`parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-parser_unittest.Tpo $(DEPDIR)/d2_unittests-parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parser_unittest.cc' object='d2_unittests-parser_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-parser_unittest.o `test -f 'parser_unittest.cc' || echo '$(srcdir)/'`parser_unittest.cc
+
+d2_unittests-parser_unittest.obj: parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-parser_unittest.obj -MD -MP -MF $(DEPDIR)/d2_unittests-parser_unittest.Tpo -c -o d2_unittests-parser_unittest.obj `if test -f 'parser_unittest.cc'; then $(CYGPATH_W) 'parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/parser_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-parser_unittest.Tpo $(DEPDIR)/d2_unittests-parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parser_unittest.cc' object='d2_unittests-parser_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-parser_unittest.obj `if test -f 'parser_unittest.cc'; then $(CYGPATH_W) 'parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/parser_unittest.cc'; fi`
+
+d2_unittests-get_config_unittest.o: get_config_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-get_config_unittest.o -MD -MP -MF $(DEPDIR)/d2_unittests-get_config_unittest.Tpo -c -o d2_unittests-get_config_unittest.o `test -f 'get_config_unittest.cc' || echo '$(srcdir)/'`get_config_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-get_config_unittest.Tpo $(DEPDIR)/d2_unittests-get_config_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='get_config_unittest.cc' object='d2_unittests-get_config_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-get_config_unittest.o `test -f 'get_config_unittest.cc' || echo '$(srcdir)/'`get_config_unittest.cc
+
+d2_unittests-get_config_unittest.obj: get_config_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT d2_unittests-get_config_unittest.obj -MD -MP -MF $(DEPDIR)/d2_unittests-get_config_unittest.Tpo -c -o d2_unittests-get_config_unittest.obj `if test -f 'get_config_unittest.cc'; then $(CYGPATH_W) 'get_config_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/get_config_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/d2_unittests-get_config_unittest.Tpo $(DEPDIR)/d2_unittests-get_config_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='get_config_unittest.cc' object='d2_unittests-get_config_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(d2_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o d2_unittests-get_config_unittest.obj `if test -f 'get_config_unittest.cc'; then $(CYGPATH_W) 'get_config_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/get_config_unittest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

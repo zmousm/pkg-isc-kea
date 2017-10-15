@@ -53,11 +53,17 @@
 /* CQL is present */
 #undef HAVE_CQL
 
+/* Define to 1 if gtest defines edit_distance::CreateUnifiedDiff */
+#undef HAVE_CREATE_UNIFIED_DIFF
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if std::is_base_of is available */
+#undef HAVE_IS_BASE_OF
 
 /* Define to 1 if you have the <log4cplus/logger.h> header file. */
 #undef HAVE_LOG4CPLUS_LOGGER_H
@@ -168,6 +174,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Kea-premium package found */
+#undef PREMIUM
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

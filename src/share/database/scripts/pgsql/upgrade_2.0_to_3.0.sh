@@ -5,7 +5,7 @@
 if [ -e ${prefix}/share/kea/scripts/admin-utils.sh ]; then
     . ${prefix}/share/kea/scripts/admin-utils.sh
 else
-    . /home/wlodek/dev/kea_110_1/src/bin/admin/admin-utils.sh
+    . /home/wlodek/dev/releases/120_3/src/bin/admin/admin-utils.sh
 fi
 
 VERSION=`pgsql_version "$@"`
@@ -47,7 +47,7 @@ INSERT INTO dhcp_option_scope VALUES (3, 'host');
 --
 -- Table structure for table hosts
 --
--- Primary key and unique contraints automatically create indexes
+-- Primary key and unique constraints automatically create indexes
 -- foreign key constraints do not
 CREATE TABLE hosts (
   host_id SERIAL PRIMARY KEY NOT NULL,

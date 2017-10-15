@@ -84,6 +84,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(libkea_cc_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -131,7 +132,8 @@ am__DEPENDENCIES_1 =
 libkea_cc_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(am__DEPENDENCIES_1)
-am_libkea_cc_la_OBJECTS = data.lo command_interpreter.lo
+am_libkea_cc_la_OBJECTS = data.lo command_interpreter.lo \
+	simple_parser.lo
 libkea_cc_la_OBJECTS = $(am_libkea_cc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -357,8 +359,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -429,6 +433,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -439,17 +444,19 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	$(BOOST_INCLUDES)
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 lib_LTLIBRARIES = libkea-cc.la
-libkea_cc_la_SOURCES = data.cc data.h command_interpreter.cc \
-	command_interpreter.h
+libkea_cc_la_SOURCES = data.cc data.h cfg_to_element.h \
+	dhcp_config_error.h command_interpreter.cc \
+	command_interpreter.h simple_parser.cc simple_parser.h
 libkea_cc_la_LIBADD =  \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(BOOST_LIBS)
-libkea_cc_la_LDFLAGS = -no-undefined -version-info 1:0:0
+libkea_cc_la_LDFLAGS = -no-undefined -version-info 2:0:0
 
 # Since data.h is now used in the hooks interface, it needs to be
 # installed on target system.
 libkea_cc_includedir = $(pkgincludedir)/cc
-libkea_cc_include_HEADERS = data.h
+libkea_cc_include_HEADERS = cfg_to_element.h data.h dhcp_config_error.h
+EXTRA_DIST = cc.dox
 CLEANFILES = *.gcno *.gcda
 all: all-recursive
 
@@ -532,6 +539,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_interpreter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_parser.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

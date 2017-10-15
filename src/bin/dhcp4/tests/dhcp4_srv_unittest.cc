@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -402,7 +402,7 @@ TEST_F(Dhcpv4SrvTest, initResponse) {
     // client-id echo is optional
     // rai echo is done in relayAgentInfoEcho
     // Do subnet selection option
-    OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(Option::V4,
+    OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
                                                            DHO_SUBNET_SELECTION);
     ASSERT_TRUE(sbnsel_def);
     OptionCustomPtr sbnsel(new OptionCustom(*sbnsel_def, Option::V4));
@@ -744,7 +744,14 @@ TEST_F(Dhcpv4SrvTest, discoverEchoClientId) {
     checkResponse(offer, DHCPOFFER, 1234);
     checkClientId(offer, clientid);
 
-    CfgMgr::instance().echoClientId(false);
+    ConstSrvConfigPtr cfg = CfgMgr::instance().getCurrentCfg();
+    const Subnet4Collection* subnets = cfg->getCfgSubnets4()->getAll();
+    ASSERT_EQ(1, subnets->size());
+    CfgMgr::instance().clear();
+    CfgMgr::instance().getStagingCfg()->getCfgSubnets4()->add(subnets->at(0));
+    CfgMgr::instance().getStagingCfg()->setEchoClientId(false);
+    CfgMgr::instance().commit();
+    
     offer = srv.processDiscover(dis);
 
     // Check if we get response at all
@@ -812,7 +819,14 @@ TEST_F(Dhcpv4SrvTest, requestEchoClientId) {
     checkResponse(ack, DHCPACK, 1234);
     checkClientId(ack, clientid);
 
-    CfgMgr::instance().echoClientId(false);
+    ConstSrvConfigPtr cfg = CfgMgr::instance().getCurrentCfg();
+    const Subnet4Collection* subnets = cfg->getCfgSubnets4()->getAll();
+    ASSERT_EQ(1, subnets->size());
+    CfgMgr::instance().clear();
+    CfgMgr::instance().getStagingCfg()->getCfgSubnets4()->add(subnets->at(0));
+    CfgMgr::instance().getStagingCfg()->setEchoClientId(false);
+    CfgMgr::instance().commit();
+
     ack = srv.processRequest(dis);
 
     // Check if we get response at all
@@ -1067,7 +1081,7 @@ TEST_F(Dhcpv4SrvTest, vendorOptionsDocsis) {
         "          \"space\": \"vendor-4491\","
         "          \"code\": 2,"
         "          \"data\": \"10.253.175.16\","
-        "          \"csv-format\": True"
+        "          \"csv-format\": true"
         "        }],"
         "\"subnet4\": [ { "
         "    \"pools\": [ { \"pool\": \"10.254.226.0/25\" } ],"
@@ -1079,7 +1093,8 @@ TEST_F(Dhcpv4SrvTest, vendorOptionsDocsis) {
         " } ],"
         "\"valid-lifetime\": 4000 }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -1221,7 +1236,8 @@ TEST_F(Dhcpv4SrvTest, nextServerOverride) {
         "    \"subnet\": \"192.0.2.0/24\" } ],"
         "\"valid-lifetime\": 4000 }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config, true));
 
     EXPECT_NO_THROW(status = configureDhcp4Server(srv, json));
 
@@ -1269,7 +1285,8 @@ TEST_F(Dhcpv4SrvTest, nextServerGlobal) {
         "    \"subnet\": \"192.0.2.0/24\" } ],"
         "\"valid-lifetime\": 4000 }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config, true));
 
     EXPECT_NO_THROW(status = configureDhcp4Server(srv, json));
 
@@ -1358,7 +1375,7 @@ TEST_F(Dhcpv4SrvTest, vendorOptionsORO) {
         "          \"space\": \"vendor-4491\","
         "          \"code\": 2,"
         "          \"data\": \"192.0.2.1, 192.0.2.2\","
-        "          \"csv-format\": True"
+        "          \"csv-format\": true"
         "        }],"
         "\"subnet4\": [ { "
         "    \"pools\": [ { \"pool\": \"192.0.2.0/25\" } ],"
@@ -1370,7 +1387,8 @@ TEST_F(Dhcpv4SrvTest, vendorOptionsORO) {
         " } ],"
         "\"valid-lifetime\": 4000 }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
 
     EXPECT_NO_THROW(x = configureDhcp4Server(srv, json));
     ASSERT_TRUE(x);
@@ -1448,7 +1466,7 @@ TEST_F(Dhcpv4SrvTest, vendorOptionsDocsisDefinitions) {
         "          \"code\": ";
     string config_postfix = ","
         "          \"data\": \"192.0.2.1\","
-        "          \"csv-format\": True"
+        "          \"csv-format\": true"
         "        }],"
         "\"subnet4\": [ { "
         "    \"pools\": [ { \"pool\":  \"192.0.2.1 - 192.0.2.50\" } ],"
@@ -1468,8 +1486,10 @@ TEST_F(Dhcpv4SrvTest, vendorOptionsDocsisDefinitions) {
     // definition, the config should fail.
     string config_bogus = config_prefix + "99" + config_postfix;
 
-    ElementPtr json_bogus = Element::fromJSON(config_bogus);
-    ElementPtr json_valid = Element::fromJSON(config_valid);
+    ConstElementPtr json_bogus;
+    ASSERT_NO_THROW(json_bogus = parseDHCP4(config_bogus));
+    ConstElementPtr json_valid;
+    ASSERT_NO_THROW(json_valid = parseDHCP4(config_valid));
 
     NakedDhcpv4Srv srv(0);
 
@@ -1543,7 +1563,8 @@ TEST_F(Dhcpv4SrvTest, matchClassification) {
         "             \"data\": \"true\" } ], "
         "    \"test\": \"option[12].text == 'foo'\" } ] }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -1629,7 +1650,8 @@ TEST_F(Dhcpv4SrvTest, matchClassificationOptionName) {
         "{   \"name\": \"router\", "
         "    \"test\": \"option[host-name].text == 'foo'\" } ] }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -1679,7 +1701,8 @@ TEST_F(Dhcpv4SrvTest, matchClassificationOptionDef) {
         "    \"code\": 250, "
         "    \"type\": \"string\" } ] }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -1734,7 +1757,8 @@ TEST_F(Dhcpv4SrvTest, subnetClassPriority) {
         "             \"data\": \"true\" } ], "
         "    \"test\": \"option[12].text == 'foo'\" } ] }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -1806,7 +1830,8 @@ TEST_F(Dhcpv4SrvTest, subnetGlobalPriority) {
         "    {    \"name\": \"ip-forwarding\", "
         "         \"data\": \"true\" } ] }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -1877,7 +1902,8 @@ TEST_F(Dhcpv4SrvTest, classGlobalPriority) {
         "             \"data\": \"true\" } ], "
         "    \"test\": \"option[12].text == 'foo'\" } ] }";
 
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -2170,7 +2196,7 @@ TEST_F(Dhcpv4SrvTest, relayLinkSelect) {
     dis->addOption(clientid);
 
     // Let's create a Relay Agent Information option
-    OptionDefinitionPtr rai_def = LibDHCP::getOptionDef(Option::V4,
+    OptionDefinitionPtr rai_def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
                                                         DHO_DHCP_AGENT_OPTIONS);
     ASSERT_TRUE(rai_def);
     OptionCustomPtr rai(new OptionCustom(*rai_def, Option::V4));
@@ -2197,7 +2223,7 @@ TEST_F(Dhcpv4SrvTest, relayLinkSelect) {
     EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
 
     // Subnet select option has a lower precedence
-    OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(Option::V4,
+    OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
                                                            DHO_SUBNET_SELECTION);
     ASSERT_TRUE(sbnsel_def);
     OptionCustomPtr sbnsel(new OptionCustom(*sbnsel_def, Option::V4));
@@ -2280,7 +2306,7 @@ TEST_F(Dhcpv4SrvTest, subnetSelect) {
     dis->addOption(clientid);
 
     // Let's create a Subnet Selection option
-    OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(Option::V4,
+    OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
                                                            DHO_SUBNET_SELECTION);
     ASSERT_TRUE(sbnsel_def);
     OptionCustomPtr sbnsel(new OptionCustom(*sbnsel_def, Option::V4));
@@ -2431,7 +2457,7 @@ TEST_F(Dhcpv4SrvTest, statisticsDecline) {
 }
 
 // Test checks whether statistic is bumped up appropriately when Offer
-// message is received (this should never happen in a sane metwork).
+// message is received (this should never happen in a sane network).
 TEST_F(Dhcpv4SrvTest, statisticsOfferRcvd) {
     NakedDhcpv4Srv srv(0);
 
@@ -2439,7 +2465,7 @@ TEST_F(Dhcpv4SrvTest, statisticsOfferRcvd) {
 }
 
 // Test checks whether statistic is bumped up appropriately when Ack
-// message is received (this should never happen in a sane metwork).
+// message is received (this should never happen in a sane network).
 TEST_F(Dhcpv4SrvTest, statisticsAckRcvd) {
     NakedDhcpv4Srv srv(0);
 
@@ -2447,7 +2473,7 @@ TEST_F(Dhcpv4SrvTest, statisticsAckRcvd) {
 }
 
 // Test checks whether statistic is bumped up appropriately when Nak
-// message is received (this should never happen in a sane metwork).
+// message is received (this should never happen in a sane network).
 TEST_F(Dhcpv4SrvTest, statisticsNakRcvd) {
     NakedDhcpv4Srv srv(0);
 

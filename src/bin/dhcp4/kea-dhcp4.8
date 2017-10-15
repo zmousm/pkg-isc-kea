@@ -31,7 +31,7 @@
 kea-dhcp4 \- DHCPv4 server in Kea
 .SH "SYNOPSIS"
 .HP \w'\fBkea\-dhcp4\fR\ 'u
-\fBkea\-dhcp4\fR [\fB\-v\fR] [\fB\-V\fR] [\fB\-W\fR] [\fB\-d\fR] [\fB\-c\fR\fB\fIconfig\-file\fR\fR] [\fB\-p\fR\fB\fIport\-number\fR\fR]
+\fBkea\-dhcp4\fR [\fB\-v\fR] [\fB\-V\fR] [\fB\-W\fR] [\fB\-d\fR] [\fB\-c\ \fR\fB\fIconfig\-file\fR\fR] [\fB\-t\ \fR\fB\fIconfig\-file\fR\fR] [\fB\-p\ \fR\fB\fIport\-number\fR\fR]
 .SH "DESCRIPTION"
 .PP
 The
@@ -66,6 +66,11 @@ Enable the debug mode with extra verbosity\&.
 Configuration file including the configuration for DHCPv4 server\&. It may also contain configuration entries for other Kea services\&.
 .RE
 .PP
+\fB\-t\fR
+.RS 4
+Check the configuration file and report the first error if any\&. Note that not all parameters are completely checked, in particular, service and control channel sockets are not opened, and hook libraries are not loaded\&.
+.RE
+.PP
 \fB\-p\fR
 .RS 4
 Port number (1\-65535) on which the server listens\&. This is useful for testing purposes only\&.
@@ -93,6 +98,7 @@ In the mid 2014 Kea was decoupled from the BIND10 framework and became a standal
 .PP
 \fBkea-dhcp6\fR(8),
 \fBkea-dhcp-ddns\fR(8),
+\fBkea-ctrl-agent\fR(8),
 \fBkea-admin\fR(8),
 \fBkeactrl\fR(8),
 \fBperfdhcp\fR(8),

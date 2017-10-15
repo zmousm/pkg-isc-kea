@@ -84,6 +84,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/dhcp_test_lib.sh.in $(top_srcdir)/depcomp README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -101,11 +102,12 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 @HAVE_GTEST_TRUE@libkea_testutils_la_DEPENDENCIES = $(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dns/libkea-dns++.la
 am__libkea_testutils_la_SOURCES_DIST = io_utils.cc io_utils.h \
-	log_utils.cc log_utils.h unix_control_client.h \
-	unix_control_client.cc
+	log_utils.cc log_utils.h test_to_element.cc test_to_element.h \
+	unix_control_client.h unix_control_client.cc
 @HAVE_GTEST_TRUE@am_libkea_testutils_la_OBJECTS =  \
 @HAVE_GTEST_TRUE@	libkea_testutils_la-io_utils.lo \
 @HAVE_GTEST_TRUE@	libkea_testutils_la-log_utils.lo \
+@HAVE_GTEST_TRUE@	libkea_testutils_la-test_to_element.lo \
 @HAVE_GTEST_TRUE@	libkea_testutils_la-unix_control_client.lo
 libkea_testutils_la_OBJECTS = $(am_libkea_testutils_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -288,8 +290,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -360,6 +364,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -371,8 +376,9 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 noinst_SCRIPTS = dhcp_test_lib.sh
 @HAVE_GTEST_TRUE@noinst_LTLIBRARIES = libkea-testutils.la
 @HAVE_GTEST_TRUE@libkea_testutils_la_SOURCES = io_utils.cc io_utils.h \
-@HAVE_GTEST_TRUE@	log_utils.cc log_utils.h \
-@HAVE_GTEST_TRUE@	unix_control_client.h unix_control_client.cc
+@HAVE_GTEST_TRUE@	log_utils.cc log_utils.h test_to_element.cc \
+@HAVE_GTEST_TRUE@	test_to_element.h unix_control_client.h \
+@HAVE_GTEST_TRUE@	unix_control_client.cc
 @HAVE_GTEST_TRUE@libkea_testutils_la_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 @HAVE_GTEST_TRUE@libkea_testutils_la_LIBADD = $(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dns/libkea-dns++.la
@@ -440,6 +446,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_testutils_la-io_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_testutils_la-log_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_testutils_la-test_to_element.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_testutils_la-unix_control_client.Plo@am__quote@
 
 .cc.o:
@@ -476,6 +483,13 @@ libkea_testutils_la-log_utils.lo: log_utils.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='log_utils.cc' object='libkea_testutils_la-log_utils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_testutils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libkea_testutils_la-log_utils.lo `test -f 'log_utils.cc' || echo '$(srcdir)/'`log_utils.cc
+
+libkea_testutils_la-test_to_element.lo: test_to_element.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_testutils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libkea_testutils_la-test_to_element.lo -MD -MP -MF $(DEPDIR)/libkea_testutils_la-test_to_element.Tpo -c -o libkea_testutils_la-test_to_element.lo `test -f 'test_to_element.cc' || echo '$(srcdir)/'`test_to_element.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_testutils_la-test_to_element.Tpo $(DEPDIR)/libkea_testutils_la-test_to_element.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_to_element.cc' object='libkea_testutils_la-test_to_element.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_testutils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libkea_testutils_la-test_to_element.lo `test -f 'test_to_element.cc' || echo '$(srcdir)/'`test_to_element.cc
 
 libkea_testutils_la-unix_control_client.lo: unix_control_client.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_testutils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libkea_testutils_la-unix_control_client.lo -MD -MP -MF $(DEPDIR)/libkea_testutils_la-unix_control_client.Tpo -c -o libkea_testutils_la-unix_control_client.lo `test -f 'unix_control_client.cc' || echo '$(srcdir)/'`unix_control_client.cc

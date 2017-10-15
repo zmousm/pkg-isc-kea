@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -99,7 +99,7 @@ public:
         LeaseFileLoader::write<LeaseObjectType, LeaseFileType, StorageType>
             (lease_file, storage);
 
-        // Compare to see if we got what we exepcted.
+        // Compare to see if we got what we expected.
         EXPECT_EQ(compare, io_.readFile());
     }
 
@@ -181,7 +181,7 @@ TEST_F(LeaseFileLoaderTest, loadWrite4) {
                       "100,135,7,0,0,,1\n";
 
     std::string c_1 = "192.0.2.3,,a:11:01:04,"
-                      "200,200,8,1,1,host.example.com,1\n";
+                      "200,200,8,1,1,host.example.com,0\n";
 
     // Create lease file with leases for 192.0.2.1, 192.0.3.15. The lease
     // entry for the 192.0.2.3 is invalid (lacks HW address) and should
@@ -427,7 +427,7 @@ TEST_F(LeaseFileLoaderTest, loadMaxErrors) {
     std::string a_2 = "192.0.2.1,06:07:08:09:0a:bc,,"
                       "200,500,8,1,1,host.example.com,1\n";
 
-    std::string b_1 = "192.0.2.3,,a:11:01:04,200,200,8,1,1,host.example.com,1\n";
+    std::string b_1 = "192.0.2.3,,a:11:01:04,200,200,8,1,1,host.example.com,0\n";
 
     std::string c_1 = "192.0.2.10,01:02:03:04:05:06,,200,300,8,1,1,,1\n";
 

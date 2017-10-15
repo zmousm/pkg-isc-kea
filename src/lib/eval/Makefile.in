@@ -83,6 +83,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -367,8 +368,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -439,6 +442,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -471,7 +475,7 @@ libkea_eval_la_LIBADD = $(top_builddir)/src/lib/dhcp/libkea-dhcp++.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(LOG4CPLUS_LIBS) $(CRYPTO_LIBS)
-libkea_eval_la_LDFLAGS = -no-undefined -version-info 4:0:0 \
+libkea_eval_la_LDFLAGS = -no-undefined -version-info 5:0:0 \
 	$(CRYPTO_LDFLAGS)
 EXTRA_DIST = eval.dox eval_messages.mes lexer.ll parser.yy
 
@@ -974,7 +978,7 @@ parser-clean: maintainer-clean-local
 @GENERATE_PARSER_TRUE@	$(YACC) --defines=parser.h -o parser.cc parser.yy
 
 @GENERATE_PARSER_TRUE@lexer.cc: lexer.ll
-@GENERATE_PARSER_TRUE@	$(LEX) -o lexer.cc lexer.ll
+@GENERATE_PARSER_TRUE@	$(LEX) --prefix eval -o lexer.cc lexer.ll
 
 @GENERATE_PARSER_FALSE@parser location.hh position.hh stack.hh parser.cc parser.h lexer.cc:
 @GENERATE_PARSER_FALSE@	@echo Parser generation disabled. Configure with --enable-generate-parser to enable it.

@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,9 +7,9 @@
 #ifndef D2_PROCESS_H
 #define D2_PROCESS_H
 
-#include <d2/d_process.h>
 #include <d2/d2_queue_mgr.h>
 #include <d2/d2_update_mgr.h>
+#include <process/d_process.h>
 
 namespace isc {
 namespace d2 {
@@ -21,7 +21,7 @@ namespace d2 {
 /// to receive DNS mapping change requests and carry them out.
 /// It implements the DProcessBase interface, which structures it such that it
 /// is a managed "application", controlled by a management layer.
-class D2Process : public DProcessBase {
+class D2Process : public process::DProcessBase {
 public:
 
     /// @brief Defines the shutdown types supported by D2Process
@@ -66,9 +66,9 @@ public:
     /// This is invoked by the controller after command line arguments but
     /// PRIOR to configuration reception.  The base class provides this method
     /// as a place to perform any derivation-specific initialization steps
-    /// that are inapppropriate for the constructor but necessary prior to
+    /// that are inappropriate for the constructor but necessary prior to
     /// launch.  So far, no such steps have been identified for D2, so its
-    /// implementantion is empty but required.
+    /// implementation is empty but required.
     ///
     /// @throw DProcessBaseError if the initialization fails.
     virtual void init();
@@ -153,26 +153,14 @@ public:
     /// is retained and a failure response is returned as described below.
     ///
     /// @param config_set a new configuration (JSON) for the process
+    /// @param check_only true if configuration is to be verified only, not applied
     /// @return an Element that contains the results of configuration composed
     /// of an integer status value (0 means successful, non-zero means failure),
     /// and a string explanation of the outcome.
-    virtual isc::data::ConstElementPtr configure(isc::data::ConstElementPtr
-                                                 config_set);
+    virtual isc::data::ConstElementPtr
+    configure(isc::data::ConstElementPtr config_set,
+              bool check_only = false);
 
-    /// @brief Processes the given command.
-    ///
-    /// This method is called to execute any custom commands supported by the
-    /// process. This method must not throw, it should catch any processing
-    /// errors and return a success or failure answer as described below.
-    ///
-    /// @param command is a string label representing the command to execute.
-    /// @param args is a set of arguments (if any) required for the given
-    /// command. It can be a NULL pointer if no arguments exist for a command.
-    /// @return an Element that contains the results of command composed
-    /// of an integer status value (0 means successful, non-zero means failure),
-    /// and a string explanation of the outcome.
-    virtual isc::data::ConstElementPtr command(const std::string& command,
-                                               isc::data::ConstElementPtr args);
     /// @brief Destructor
     virtual ~D2Process();
 

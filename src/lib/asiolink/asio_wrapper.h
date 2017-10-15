@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2016-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,8 +34,8 @@
 // causes two instances of error_code which should have been equal to
 // to not be equal.
 //
-// The problem disappers if either error handling code is not built header
-// only as this results in a single definiton of system_category() supplied
+// The problem disappears if either error handling code is not built header
+// only as this results in a single definition of system_category() supplied
 // by libboost_system; or the error handling code is not optimized.
 //
 // We're doing the test here, rather than in configure to guard against the

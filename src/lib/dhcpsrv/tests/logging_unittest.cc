@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -44,7 +44,7 @@ TEST_F(LoggingTest, basicSpec) {
     ASSERT_NO_THROW(isc::config::moduleSpecFromFile(specfile));
 }
 
-// Checks that contructor is able to process specified storage properly
+// Checks that the constructor is able to process specified storage properly.
 TEST_F(LoggingTest, constructor) {
 
     SrvConfigPtr null_ptr;
@@ -249,7 +249,7 @@ TEST_F(LoggingTest, multipleLoggingDestinations) {
 /// @todo There is no easy way to test applyConfiguration() and defaultLogging().
 /// To test them, it would require instrumenting log4cplus to actually fake
 /// the logging set up. Alternatively, we could develop set of test suites
-/// that check each logging destination spearately (e.g. configure log file, then
+/// that check each logging destination separately (e.g. configure log file, then
 /// check if the file is indeed created or configure stdout destination, then
 /// swap console file descriptors and check that messages are really logged.
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,7 +22,7 @@ public:
 
     /// @brief writes specified text to a file
     ///
-    /// That is an auxilliary funtion used in fileRead() tests.
+    /// That is an auxilliary function used in fileRead() tests.
     ///
     /// @param content text to be written to disk
     void writeFile(const std::string& content) {

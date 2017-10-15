@@ -87,6 +87,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -108,7 +109,8 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 	io_socket_unittest.cc interval_timer_unittest.cc \
 	tcp_endpoint_unittest.cc tcp_socket_unittest.cc \
 	udp_endpoint_unittest.cc udp_socket_unittest.cc \
-	io_service_unittest.cc dummy_io_callback_unittest.cc
+	io_service_unittest.cc dummy_io_callback_unittest.cc \
+	tcp_acceptor_unittest.cc unix_domain_socket_unittest.cc
 @HAVE_GTEST_TRUE@am_run_unittests_OBJECTS =  \
 @HAVE_GTEST_TRUE@	run_unittests-run_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-io_address_unittest.$(OBJEXT) \
@@ -120,10 +122,13 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	run_unittests-udp_endpoint_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-udp_socket_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-io_service_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	run_unittests-dummy_io_callback_unittest.$(OBJEXT)
+@HAVE_GTEST_TRUE@	run_unittests-dummy_io_callback_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-tcp_acceptor_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-unix_domain_socket_unittest.$(OBJEXT)
 run_unittests_OBJECTS = $(am_run_unittests_OBJECTS)
 am__DEPENDENCIES_1 =
-@HAVE_GTEST_TRUE@run_unittests_DEPENDENCIES = $(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
+@HAVE_GTEST_TRUE@run_unittests_DEPENDENCIES = $(top_builddir)/src/lib/asiolink/testutils/libasiolinktest.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/unittests/libutil_unittests.la \
@@ -317,8 +322,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -389,16 +396,18 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
-	$(BOOST_INCLUDES) -DTEST_DATA_DIR=\"$(srcdir)/testdata\"
+	$(BOOST_INCLUDES) -DTEST_DATA_DIR=\"$(srcdir)/testdata\" \
+	-DTEST_DATA_BUILDDIR=\"$(abs_top_builddir)/src/lib/asiolink/tests\"
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 @USE_STATIC_LINK_TRUE@AM_LDFLAGS = -static
-CLEANFILES = *.gcno *.gcda
+CLEANFILES = *.gcno *.gcda test-socket
 TESTS_ENVIRONMENT = \
 	$(LIBTOOL) --mode=execute $(VALGRIND_COMMAND)
 
@@ -410,9 +419,12 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	tcp_socket_unittest.cc \
 @HAVE_GTEST_TRUE@	udp_endpoint_unittest.cc \
 @HAVE_GTEST_TRUE@	udp_socket_unittest.cc io_service_unittest.cc \
-@HAVE_GTEST_TRUE@	dummy_io_callback_unittest.cc
+@HAVE_GTEST_TRUE@	dummy_io_callback_unittest.cc \
+@HAVE_GTEST_TRUE@	tcp_acceptor_unittest.cc \
+@HAVE_GTEST_TRUE@	unix_domain_socket_unittest.cc
 @HAVE_GTEST_TRUE@run_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
-@HAVE_GTEST_TRUE@run_unittests_LDADD = $(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
+@HAVE_GTEST_TRUE@run_unittests_LDADD = $(top_builddir)/src/lib/asiolink/testutils/libasiolinktest.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/unittests/libutil_unittests.la \
@@ -487,10 +499,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-io_service_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-io_socket_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-run_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-tcp_acceptor_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-tcp_endpoint_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-tcp_socket_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-udp_endpoint_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-udp_socket_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-unix_domain_socket_unittest.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -666,6 +680,34 @@ run_unittests-dummy_io_callback_unittest.obj: dummy_io_callback_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy_io_callback_unittest.cc' object='run_unittests-dummy_io_callback_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-dummy_io_callback_unittest.obj `if test -f 'dummy_io_callback_unittest.cc'; then $(CYGPATH_W) 'dummy_io_callback_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/dummy_io_callback_unittest.cc'; fi`
+
+run_unittests-tcp_acceptor_unittest.o: tcp_acceptor_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-tcp_acceptor_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-tcp_acceptor_unittest.Tpo -c -o run_unittests-tcp_acceptor_unittest.o `test -f 'tcp_acceptor_unittest.cc' || echo '$(srcdir)/'`tcp_acceptor_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-tcp_acceptor_unittest.Tpo $(DEPDIR)/run_unittests-tcp_acceptor_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tcp_acceptor_unittest.cc' object='run_unittests-tcp_acceptor_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-tcp_acceptor_unittest.o `test -f 'tcp_acceptor_unittest.cc' || echo '$(srcdir)/'`tcp_acceptor_unittest.cc
+
+run_unittests-tcp_acceptor_unittest.obj: tcp_acceptor_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-tcp_acceptor_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-tcp_acceptor_unittest.Tpo -c -o run_unittests-tcp_acceptor_unittest.obj `if test -f 'tcp_acceptor_unittest.cc'; then $(CYGPATH_W) 'tcp_acceptor_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/tcp_acceptor_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-tcp_acceptor_unittest.Tpo $(DEPDIR)/run_unittests-tcp_acceptor_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tcp_acceptor_unittest.cc' object='run_unittests-tcp_acceptor_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-tcp_acceptor_unittest.obj `if test -f 'tcp_acceptor_unittest.cc'; then $(CYGPATH_W) 'tcp_acceptor_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/tcp_acceptor_unittest.cc'; fi`
+
+run_unittests-unix_domain_socket_unittest.o: unix_domain_socket_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-unix_domain_socket_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-unix_domain_socket_unittest.Tpo -c -o run_unittests-unix_domain_socket_unittest.o `test -f 'unix_domain_socket_unittest.cc' || echo '$(srcdir)/'`unix_domain_socket_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-unix_domain_socket_unittest.Tpo $(DEPDIR)/run_unittests-unix_domain_socket_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unix_domain_socket_unittest.cc' object='run_unittests-unix_domain_socket_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-unix_domain_socket_unittest.o `test -f 'unix_domain_socket_unittest.cc' || echo '$(srcdir)/'`unix_domain_socket_unittest.cc
+
+run_unittests-unix_domain_socket_unittest.obj: unix_domain_socket_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-unix_domain_socket_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-unix_domain_socket_unittest.Tpo -c -o run_unittests-unix_domain_socket_unittest.obj `if test -f 'unix_domain_socket_unittest.cc'; then $(CYGPATH_W) 'unix_domain_socket_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/unix_domain_socket_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-unix_domain_socket_unittest.Tpo $(DEPDIR)/run_unittests-unix_domain_socket_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unix_domain_socket_unittest.cc' object='run_unittests-unix_domain_socket_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-unix_domain_socket_unittest.obj `if test -f 'unix_domain_socket_unittest.cc'; then $(CYGPATH_W) 'unix_domain_socket_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/unix_domain_socket_unittest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

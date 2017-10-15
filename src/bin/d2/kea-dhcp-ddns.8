@@ -31,7 +31,7 @@
 kea-dhcp-ddns \- DHCP\-DDNS process in Kea
 .SH "SYNOPSIS"
 .HP \w'\fBkea\-dhcp\-ddns\fR\ 'u
-\fBkea\-dhcp\-ddns\fR [\fB\-v\fR] [\fB\-V\fR] [\fB\-W\fR] [\fB\-d\fR] [\fB\-s\fR]
+\fBkea\-dhcp\-ddns\fR [\fB\-v\fR] [\fB\-V\fR] [\fB\-W\fR] [\fB\-d\fR] [\fB\-c\fR\fB\fIconfig\-file\fR\fR] [\fB\-t\fR\fB\fIconfig\-file\fR\fR]
 .SH "DESCRIPTION"
 .PP
 The
@@ -65,6 +65,11 @@ Verbose mode sets the logging level to debug\&. This is primarily for developmen
 .RS 4
 Configuration file including the configuration for DHCP\-DDNS server\&. It may also contain configuration entries for other Kea services\&.
 .RE
+.PP
+\fB\-t\fR
+.RS 4
+Check the syntax of the configuration file and report the first error if any\&. Note that not all parameters are completely checked, in particular, service socket is not opened\&.
+.RE
 .SH "DOCUMENTATION"
 .PP
 Kea comes with an extensive Kea User\*(Aqs Guide documentation that covers all aspects of running the Kea software \- compilation, installation, configuration, configuration examples and many more\&. Kea also features a Kea Messages Manual, which lists all possible messages Kea can print with a brief description for each of them\&. Both documents are typically available in various formats (txt, html, pdf) with your Kea distribution\&. The on\-line version is available at http://kea\&.isc\&.org/docs/\&.
@@ -88,6 +93,7 @@ Kea became a standalone server and the BIND10 framework was removed\&. The DHCP\
 .PP
 \fBkea-dhcp4\fR(8),
 \fBkea-dhcp6\fR(8),
+\fBkea-ctrl-agent\fR(8),
 \fBkea-admin\fR(8),
 \fBkeactrl\fR(8),
 \fBperfdhcp\fR(8),

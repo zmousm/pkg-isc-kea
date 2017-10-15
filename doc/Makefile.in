@@ -83,6 +83,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/version.ent.in $(nobase_dist_doc_DATA)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -301,8 +302,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -373,33 +376,39 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = guide design
-EXTRA_DIST = version.ent.in Doxyfile Doxyfile-xml \
+EXTRA_DIST = version.ent.in Doxyfile Doxyfile-xml devel/bison.dox \
 	devel/config-backend.dox devel/contribute.dox \
-	devel/mainpage.dox devel/unit-tests.dox
-nobase_dist_doc_DATA = examples/ddns/sample1.json \
-	examples/ddns/template.json examples/kea4/backends.json \
-	examples/kea4/classify.json examples/kea4/hooks.json \
+	devel/mainpage.dox devel/terminology.dox devel/unit-tests.dox
+nobase_dist_doc_DATA = examples/agent/simple.json \
+	examples/ddns/sample1.json examples/ddns/template.json \
+	examples/kea4/advanced.json examples/kea4/backends.json \
+	examples/kea4/cassandra.json examples/kea4/classify.json \
+	examples/kea4/dhcpv4-over-dhcpv6.json examples/kea4/hooks.json \
 	examples/kea4/leases-expiration.json \
 	examples/kea4/multiple-options.json \
 	examples/kea4/mysql-reservations.json \
 	examples/kea4/pgsql-reservations.json \
 	examples/kea4/reservations.json \
 	examples/kea4/several-subnets.json \
-	examples/kea4/single-subnet.json examples/kea6/advanced.json \
-	examples/kea6/backends.json examples/kea6/classify.json \
+	examples/kea4/single-subnet.json examples/kea4/with-ddns.json \
+	examples/kea6/advanced.json examples/kea6/backends.json \
+	examples/kea6/cassandra.json examples/kea6/classify.json \
+	examples/kea6/dhcpv4-over-dhcpv6.json examples/kea6/duid.json \
 	examples/kea6/hooks.json examples/kea6/leases-expiration.json \
 	examples/kea6/multiple-options.json \
 	examples/kea6/mysql-reservations.json \
 	examples/kea6/pgsql-reservations.json \
 	examples/kea6/reservations.json \
 	examples/kea6/several-subnets.json examples/kea6/simple.json \
-	examples/kea6/stateless.json examples/kea6/duid.json
+	examples/kea6/softwire46.json examples/kea6/stateless.json \
+	examples/kea6/with-ddns.json
 all: all-recursive
 
 .SUFFIXES:

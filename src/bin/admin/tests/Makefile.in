@@ -83,10 +83,11 @@ host_triplet = @host@
 @HAVE_CQL_TRUE@am__append_3 = cql_tests.sh
 subdir = src/bin/admin/tests
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/memfile_tests.sh.in $(srcdir)/mysql_tests.sh.in \
-	$(srcdir)/pgsql_tests.sh.in $(srcdir)/cql_tests.sh.in
+	$(srcdir)/cql_tests.sh.in $(srcdir)/memfile_tests.sh.in \
+	$(srcdir)/mysql_tests.sh.in $(srcdir)/pgsql_tests.sh.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -98,8 +99,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = memfile_tests.sh mysql_tests.sh pgsql_tests.sh \
-	cql_tests.sh
+CONFIG_CLEAN_FILES = cql_tests.sh memfile_tests.sh mysql_tests.sh \
+	pgsql_tests.sh
 CONFIG_CLEAN_VPATH_FILES =
 SCRIPTS = $(noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -278,8 +279,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -350,6 +353,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -396,13 +400,13 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+cql_tests.sh: $(top_builddir)/config.status $(srcdir)/cql_tests.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 memfile_tests.sh: $(top_builddir)/config.status $(srcdir)/memfile_tests.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 mysql_tests.sh: $(top_builddir)/config.status $(srcdir)/mysql_tests.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 pgsql_tests.sh: $(top_builddir)/config.status $(srcdir)/pgsql_tests.sh.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-cql_tests.sh: $(top_builddir)/config.status $(srcdir)/cql_tests.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:

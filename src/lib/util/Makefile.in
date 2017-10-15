@@ -84,6 +84,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(libkea_util_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -131,9 +132,9 @@ libkea_util_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libkea_util_la_OBJECTS = boost_time_utils.lo csv_file.lo \
-	filename.lo strutil.lo time_utilities.lo \
-	memory_segment_local.lo pid_file.lo process_spawn.lo \
-	signal_set.lo stopwatch.lo stopwatch_impl.lo \
+	filename.lo labeled_value.lo memory_segment_local.lo \
+	pid_file.lo process_spawn.lo signal_set.lo state_model.lo \
+	stopwatch.lo stopwatch_impl.lo strutil.lo time_utilities.lo \
 	versioned_csv_file.lo watch_socket.lo encode/base_n.lo \
 	random/qid_gen.lo
 libkea_util_la_OBJECTS = $(am_libkea_util_la_OBJECTS)
@@ -362,8 +363,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -434,6 +437,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -446,24 +450,34 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 lib_LTLIBRARIES = libkea-util.la
 libkea_util_la_SOURCES = boost_time_utils.h boost_time_utils.cc \
-	csv_file.h csv_file.cc filename.h filename.cc strutil.h \
-	strutil.cc buffer.h io_utilities.h time_utilities.h \
-	time_utilities.cc memory_segment.h memory_segment_local.h \
-	memory_segment_local.cc optional_value.h pid_file.h \
-	pid_file.cc pointer_util.h process_spawn.h process_spawn.cc \
-	range_utilities.h signal_set.cc signal_set.h staged_value.h \
-	stopwatch.cc stopwatch.h stopwatch_impl.cc stopwatch_impl.h \
-	versioned_csv_file.h versioned_csv_file.cc watch_socket.cc \
-	watch_socket.h encode/base16_from_binary.h encode/base32hex.h \
-	encode/base64.h encode/base32hex_from_binary.h \
-	encode/base_n.cc encode/hex.h encode/binary_from_base32hex.h \
-	encode/binary_from_base16.h random/qid_gen.h random/qid_gen.cc \
+	buffer.h io_utilities.h csv_file.h csv_file.cc filename.h \
+	filename.cc labeled_value.h labeled_value.cc memory_segment.h \
+	memory_segment_local.h memory_segment_local.cc \
+	optional_value.h pid_file.h pid_file.cc pointer_util.h \
+	process_spawn.h process_spawn.cc range_utilities.h \
+	signal_set.cc signal_set.h staged_value.h state_model.cc \
+	state_model.h stopwatch.cc stopwatch.h stopwatch_impl.cc \
+	stopwatch_impl.h strutil.h strutil.cc time_utilities.h \
+	time_utilities.cc versioned_csv_file.h versioned_csv_file.cc \
+	watch_socket.cc watch_socket.h encode/base16_from_binary.h \
+	encode/base32hex.h encode/base64.h \
+	encode/base32hex_from_binary.h encode/base_n.cc encode/hex.h \
+	encode/binary_from_base32hex.h encode/binary_from_base16.h \
+	random/qid_gen.h random/qid_gen.cc \
 	random/random_number_generator.h
 libkea_util_la_LIBADD = $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
-libkea_util_la_LDFLAGS = -no-undefined -version-info 2:0:0
+libkea_util_la_LDFLAGS = -no-undefined -version-info 2:1:0
 CLEANFILES = *.gcno *.gcda
-libkea_util_includedir = $(includedir)/$(PACKAGE_NAME)/util
-libkea_util_include_HEADERS = buffer.h io_utilities.h
+libkea_util_includedir = $(pkgincludedir)/util
+libkea_util_include_HEADERS = \
+    buffer.h \
+    io_utilities.h \
+    optional_value.h \
+    pointer_util.h \
+    stopwatch.h \
+    strutil.h \
+    staged_value.h
+
 all: all-recursive
 
 .SUFFIXES:
@@ -566,10 +580,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boost_time_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/csv_file.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filename.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/labeled_value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory_segment_local.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pid_file.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/process_spawn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/signal_set.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/state_model.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stopwatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stopwatch_impl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strutil.Plo@am__quote@

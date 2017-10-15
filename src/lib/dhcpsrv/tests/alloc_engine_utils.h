@@ -1,7 +1,6 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
+// This Source Code Form is subject to the terms of the Mozilla Public // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #ifndef LIBDHCPSRV_ALLOC_ENGINE_UTILS_H
@@ -39,10 +38,12 @@ namespace test {
 ///
 /// @param stat_name Statistic name.
 /// @param exp_value Expected value.
+/// @param subnet_id subnet_id of the desired subnet, if not zero
 ///
 /// @return true if the statistic manager holds a particular value,
 /// false otherwise.
-bool testStatistics(const std::string& stat_name, const int64_t exp_value);
+bool testStatistics(const std::string& stat_name, const int64_t exp_value,
+                    const SubnetID subnet_id = 0);
 
 /// @brief Allocation engine with some internal methods exposed
 class NakedAllocEngine : public AllocEngine {
@@ -67,7 +68,7 @@ public:
     public:
 
         /// @brief constructor
-        /// @param type pool types that will be interated
+        /// @param type pool types that will be iterated through
         NakedIterativeAllocator(Lease::Type type)
             :IterativeAllocator(type) {
         }
@@ -101,9 +102,18 @@ public:
     /// @param subnet Address of a subnet to be configured.
     /// @param pool_start First address in the address pool.
     /// @param pool_end Last address in the address pool.
+    /// @param pd_pool_prefix Prefix for the prefix delegation pool. It
+    /// defaults to 0 which means that PD pool is not specified.
+    /// @param pd_pool_length Length of the PD pool prefix.
+    /// @param pd_delegated_length Delegated prefix length.
     void initSubnet(const asiolink::IOAddress& subnet,
                     const asiolink::IOAddress& pool_start,
-                    const asiolink::IOAddress& pool_end);
+                    const asiolink::IOAddress& pool_end,
+                    const asiolink::IOAddress& pd_pool_prefix =
+                    asiolink::IOAddress::IPV6_ZERO_ADDRESS(),
+                    const uint8_t pd_pool_length = 0,
+                    const uint8_t pd_delegated_length = 0);
+
 
     /// @brief Initializes FQDN data for a test.
     ///
@@ -351,10 +361,24 @@ public:
         host->addReservation(resv);
 
         if (add_to_host_mgr) {
-            CfgMgr::instance().getStagingCfg()->getCfgHosts()->add(host);
-            CfgMgr::instance().commit();
+            addHost(host);
         }
+
         return (host);
+    }
+
+    /// @brief Add a host reservation to the curent configuration
+    ///
+    /// Adds the given host reservation to the current configuration by
+    /// casting it to non-const.  We do it this way rather than adding it to
+    /// staging and then committing as that wipes out the current configuration
+    /// such as subnets.
+    ///
+    /// @param host host reservation to add
+    void
+    addHost(HostPtr& host) {
+        SrvConfigPtr cfg = boost::const_pointer_cast<SrvConfig>(CfgMgr::instance().getCurrentCfg());
+        cfg->getCfgHosts()->add(host);
     }
 
     /// @brief Utility function that creates a host reservation (hwaddr)

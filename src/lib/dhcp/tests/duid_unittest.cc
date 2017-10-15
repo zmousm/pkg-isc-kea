@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2016 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -31,7 +31,7 @@ namespace {
 
 // This is a workaround for strange linking problems with gtest:
 // libdhcp___unittests-duid_unittest.o: In function `Compare<long unsigned int, long unsigned int>':
-// ~/gtest-1.6.0/include/gtest/gtest.h:1353: undefined reference to `isc::dhcp::ClientId::MAX_CLIENT_ID_LE'N
+// ~/gtest-1.6.0/include/gtest/gtest.h:1353: undefined reference to `isc::dhcp::ClientId::MAX_CLIENT_ID_LEN'
 // collect2: ld returned 1 exit status
 
 const size_t MAX_DUID_LEN = DUID::MAX_DUID_LEN;
@@ -160,7 +160,7 @@ TEST(DuidTest, toText) {
 // This test verifies that empty DUID returns proper value
 TEST(DuidTest, empty) {
     DuidPtr empty;
-    EXPECT_NO_THROW(empty = DUID::generateEmpty());
+    EXPECT_NO_THROW(empty.reset(new DUID(DUID::EMPTY())));
 
     // This method must return something
     ASSERT_TRUE(empty);
@@ -168,6 +168,13 @@ TEST(DuidTest, empty) {
     // Ok, technically empty is not really empty, it's just a single
     // byte with value of 0.
     EXPECT_EQ("00", empty->toText());
+
+    EXPECT_TRUE(*empty == DUID::EMPTY());
+
+    uint8_t data1[] = {0, 1, 2, 3, 4, 0xff, 0xfe};
+    DUID duid(data1, sizeof(data1));
+
+    EXPECT_FALSE(duid == DUID::EMPTY());
 }
 
 // This test checks if the comparison operators are sane.

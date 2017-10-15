@@ -3,7 +3,7 @@
 
 { "Dhcp6":
 
-{ 
+{
 # Kea is told to listen on ethX interface only.
   "interfaces-config": {
     "interfaces": [ "ethX" ]
@@ -11,7 +11,10 @@
 
 # Let's use the simplest backend: memfile and use some reasonable values
 # for timers. They are of no concern for the classification demonstration.
-  "lease-database": { "type": "memfile" },
+  "lease-database": {
+      "type": "memfile",
+      "lfc-interval": 3600
+  },
   "renew-timer": 1000,
   "rebind-timer": 2000,
   "preferred-lifetime": 3000,
@@ -40,18 +43,18 @@
 
 # Let's pick cable modems. In this simple example we'll assume the device
 # is a cable modem if it sends a vendor option with enterprise-id equal
-# to 4491.    
+# to 4491.
   {
       "name": "cable-modems",
       "test": "vendor.enterprise == 4491"
-  },
+  }
 
   ],
-    
+
 
 # The following list defines subnets. Each subnet consists of at
 # least subnet and pool entries.
-  "subnet6": [ 
+  "subnet6": [
     {
         "pools": [ { "pool": "2001:db8:1::/80" } ],
         "subnet": "2001:db8:1::/64",
@@ -92,4 +95,3 @@
 }
 
 }
-

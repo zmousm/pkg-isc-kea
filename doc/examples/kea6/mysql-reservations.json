@@ -15,7 +15,8 @@
 # PostgreSQL, Cassandra, and the in-memory database, Memfile.
 # We'll use memfile  because it doesn't require any prior set up.
   "lease-database": {
-    "type": "memfile"
+      "type": "memfile",
+      "lfc-interval": 3600
   },
 
 # This is pretty basic stuff, it has nothing to do with reservations.
@@ -45,7 +46,9 @@
     "name": "kea",
     "user": "kea",
     "password": "kea",
-    "host": "localhost"
+    "host": "localhost",
+    "port": 3306,
+    "readonly": true
   },
 
 # Define a subnet with a pool of dynamic addresses and a pool of dynamic

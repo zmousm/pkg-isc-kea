@@ -90,6 +90,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(libkea_dhcp___include_HEADERS) README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -143,28 +144,29 @@ libkea_dhcp___la_DEPENDENCIES =  \
 	$(am__DEPENDENCIES_1)
 am__libkea_dhcp___la_SOURCES_DIST = classify.cc classify.h dhcp6.h \
 	dhcp4.h duid.cc duid.h duid_factory.cc duid_factory.h \
-	hwaddr.cc hwaddr.h iface_mgr.cc iface_mgr.h iface_mgr_bsd.cc \
-	iface_mgr_error_handler.h iface_mgr_linux.cc iface_mgr_sun.cc \
-	libdhcp++.cc libdhcp++.h opaque_data_tuple.cc \
-	opaque_data_tuple.h option4_addrlst.cc option4_addrlst.h \
-	option4_client_fqdn.cc option4_client_fqdn.h option6_ia.cc \
-	option6_ia.h option6_iaaddr.cc option6_iaaddr.h \
-	option6_iaprefix.cc option6_iaprefix.h option6_addrlst.cc \
-	option6_addrlst.h option6_client_fqdn.cc option6_client_fqdn.h \
-	option6_status_code.cc option6_status_code.h option_vendor.cc \
-	option_vendor.h option_vendor_class.cc option_vendor_class.h \
-	option_int.h option_int_array.h option.cc option.h \
-	option_custom.cc option_custom.h option_data_types.cc \
+	docsis3_option_defs.h hwaddr.cc hwaddr.h iface_mgr.cc \
+	iface_mgr.h iface_mgr_bsd.cc iface_mgr_error_handler.h \
+	iface_mgr_linux.cc iface_mgr_sun.cc libdhcp++.cc libdhcp++.h \
+	opaque_data_tuple.cc opaque_data_tuple.h option4_addrlst.cc \
+	option4_addrlst.h option4_client_fqdn.cc option4_client_fqdn.h \
+	option6_addrlst.cc option6_addrlst.h option6_client_fqdn.cc \
+	option6_client_fqdn.h option6_ia.cc option6_ia.h \
+	option6_iaaddr.cc option6_iaaddr.h option6_iaprefix.cc \
+	option6_iaprefix.h option6_pdexclude.cc option6_pdexclude.h \
+	option6_status_code.cc option6_status_code.h option.cc \
+	option.h option_custom.cc option_custom.h option_data_types.cc \
 	option_data_types.h option_definition.cc option_definition.h \
-	option_opaque_data_tuples.cc option_opaque_data_tuples.h \
-	option_space.cc option_space.h option_space_container.h \
-	option_string.cc option_string.h protocol_util.cc \
-	protocol_util.h pkt.cc pkt.h pkt6.cc pkt6.h pkt4.cc pkt4.h \
-	pkt4o6.cc pkt4o6.h pkt_filter.h pkt_filter.cc pkt_filter6.h \
-	pkt_filter6.cc pkt_filter_inet.cc pkt_filter_inet.h \
-	pkt_filter_inet6.cc pkt_filter_inet6.h pkt_filter_lpf.cc \
-	pkt_filter_lpf.h pkt_filter_bpf.cc pkt_filter_bpf.h \
-	std_option_defs.h docsis3_option_defs.h
+	option_int.h option_int_array.h option_opaque_data_tuples.cc \
+	option_opaque_data_tuples.h option_space.cc option_space.h \
+	option_space_container.h option_string.cc option_string.h \
+	option_vendor.cc option_vendor.h option_vendor_class.cc \
+	option_vendor_class.h pkt.cc pkt.h pkt4.cc pkt4.h pkt4o6.cc \
+	pkt4o6.h pkt6.cc pkt6.h pkt_filter.h pkt_filter.cc \
+	pkt_filter6.h pkt_filter6.cc pkt_filter_inet.cc \
+	pkt_filter_inet.h pkt_filter_inet6.cc pkt_filter_inet6.h \
+	pkt_filter_lpf.cc pkt_filter_lpf.h pkt_filter_bpf.cc \
+	pkt_filter_bpf.h protocol_util.cc protocol_util.h \
+	std_option_defs.h
 @OS_LINUX_TRUE@am__objects_1 = libkea_dhcp___la-pkt_filter_lpf.lo
 @OS_BSD_TRUE@am__objects_2 = libkea_dhcp___la-pkt_filter_bpf.lo
 am_libkea_dhcp___la_OBJECTS = libkea_dhcp___la-classify.lo \
@@ -177,27 +179,27 @@ am_libkea_dhcp___la_OBJECTS = libkea_dhcp___la-classify.lo \
 	libkea_dhcp___la-opaque_data_tuple.lo \
 	libkea_dhcp___la-option4_addrlst.lo \
 	libkea_dhcp___la-option4_client_fqdn.lo \
+	libkea_dhcp___la-option6_addrlst.lo \
+	libkea_dhcp___la-option6_client_fqdn.lo \
 	libkea_dhcp___la-option6_ia.lo \
 	libkea_dhcp___la-option6_iaaddr.lo \
 	libkea_dhcp___la-option6_iaprefix.lo \
-	libkea_dhcp___la-option6_addrlst.lo \
-	libkea_dhcp___la-option6_client_fqdn.lo \
+	libkea_dhcp___la-option6_pdexclude.lo \
 	libkea_dhcp___la-option6_status_code.lo \
-	libkea_dhcp___la-option_vendor.lo \
-	libkea_dhcp___la-option_vendor_class.lo \
 	libkea_dhcp___la-option.lo libkea_dhcp___la-option_custom.lo \
 	libkea_dhcp___la-option_data_types.lo \
 	libkea_dhcp___la-option_definition.lo \
 	libkea_dhcp___la-option_opaque_data_tuples.lo \
 	libkea_dhcp___la-option_space.lo \
 	libkea_dhcp___la-option_string.lo \
-	libkea_dhcp___la-protocol_util.lo libkea_dhcp___la-pkt.lo \
-	libkea_dhcp___la-pkt6.lo libkea_dhcp___la-pkt4.lo \
-	libkea_dhcp___la-pkt4o6.lo libkea_dhcp___la-pkt_filter.lo \
-	libkea_dhcp___la-pkt_filter6.lo \
+	libkea_dhcp___la-option_vendor.lo \
+	libkea_dhcp___la-option_vendor_class.lo \
+	libkea_dhcp___la-pkt.lo libkea_dhcp___la-pkt4.lo \
+	libkea_dhcp___la-pkt4o6.lo libkea_dhcp___la-pkt6.lo \
+	libkea_dhcp___la-pkt_filter.lo libkea_dhcp___la-pkt_filter6.lo \
 	libkea_dhcp___la-pkt_filter_inet.lo \
 	libkea_dhcp___la-pkt_filter_inet6.lo $(am__objects_1) \
-	$(am__objects_2)
+	$(am__objects_2) libkea_dhcp___la-protocol_util.lo
 libkea_dhcp___la_OBJECTS = $(am_libkea_dhcp___la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -424,8 +426,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -496,6 +500,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -508,28 +513,29 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 CLEANFILES = *.gcno *.gcda
 lib_LTLIBRARIES = libkea-dhcp++.la
 libkea_dhcp___la_SOURCES = classify.cc classify.h dhcp6.h dhcp4.h \
-	duid.cc duid.h duid_factory.cc duid_factory.h hwaddr.cc \
-	hwaddr.h iface_mgr.cc iface_mgr.h iface_mgr_bsd.cc \
-	iface_mgr_error_handler.h iface_mgr_linux.cc iface_mgr_sun.cc \
-	libdhcp++.cc libdhcp++.h opaque_data_tuple.cc \
-	opaque_data_tuple.h option4_addrlst.cc option4_addrlst.h \
-	option4_client_fqdn.cc option4_client_fqdn.h option6_ia.cc \
-	option6_ia.h option6_iaaddr.cc option6_iaaddr.h \
-	option6_iaprefix.cc option6_iaprefix.h option6_addrlst.cc \
-	option6_addrlst.h option6_client_fqdn.cc option6_client_fqdn.h \
-	option6_status_code.cc option6_status_code.h option_vendor.cc \
-	option_vendor.h option_vendor_class.cc option_vendor_class.h \
-	option_int.h option_int_array.h option.cc option.h \
-	option_custom.cc option_custom.h option_data_types.cc \
+	duid.cc duid.h duid_factory.cc duid_factory.h \
+	docsis3_option_defs.h hwaddr.cc hwaddr.h iface_mgr.cc \
+	iface_mgr.h iface_mgr_bsd.cc iface_mgr_error_handler.h \
+	iface_mgr_linux.cc iface_mgr_sun.cc libdhcp++.cc libdhcp++.h \
+	opaque_data_tuple.cc opaque_data_tuple.h option4_addrlst.cc \
+	option4_addrlst.h option4_client_fqdn.cc option4_client_fqdn.h \
+	option6_addrlst.cc option6_addrlst.h option6_client_fqdn.cc \
+	option6_client_fqdn.h option6_ia.cc option6_ia.h \
+	option6_iaaddr.cc option6_iaaddr.h option6_iaprefix.cc \
+	option6_iaprefix.h option6_pdexclude.cc option6_pdexclude.h \
+	option6_status_code.cc option6_status_code.h option.cc \
+	option.h option_custom.cc option_custom.h option_data_types.cc \
 	option_data_types.h option_definition.cc option_definition.h \
-	option_opaque_data_tuples.cc option_opaque_data_tuples.h \
-	option_space.cc option_space.h option_space_container.h \
-	option_string.cc option_string.h protocol_util.cc \
-	protocol_util.h pkt.cc pkt.h pkt6.cc pkt6.h pkt4.cc pkt4.h \
-	pkt4o6.cc pkt4o6.h pkt_filter.h pkt_filter.cc pkt_filter6.h \
-	pkt_filter6.cc pkt_filter_inet.cc pkt_filter_inet.h \
-	pkt_filter_inet6.cc pkt_filter_inet6.h $(am__append_1) \
-	$(am__append_2) std_option_defs.h docsis3_option_defs.h
+	option_int.h option_int_array.h option_opaque_data_tuples.cc \
+	option_opaque_data_tuples.h option_space.cc option_space.h \
+	option_space_container.h option_string.cc option_string.h \
+	option_vendor.cc option_vendor.h option_vendor_class.cc \
+	option_vendor_class.h pkt.cc pkt.h pkt4.cc pkt4.h pkt4o6.cc \
+	pkt4o6.h pkt6.cc pkt6.h pkt_filter.h pkt_filter.cc \
+	pkt_filter6.h pkt_filter6.cc pkt_filter_inet.cc \
+	pkt_filter_inet.h pkt_filter_inet6.cc pkt_filter_inet6.h \
+	$(am__append_1) $(am__append_2) protocol_util.cc \
+	protocol_util.h std_option_defs.h
 libkea_dhcp___la_CXXFLAGS = $(AM_CXXFLAGS)
 libkea_dhcp___la_CPPFLAGS = $(AM_CPPFLAGS)
 libkea_dhcp___la_LIBADD =  \
@@ -539,7 +545,7 @@ libkea_dhcp___la_LIBADD =  \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(CRYPTO_LIBS)
-libkea_dhcp___la_LDFLAGS = -no-undefined -version-info 4:1:0 \
+libkea_dhcp___la_LDFLAGS = -no-undefined -version-info 5:0:0 \
 	$(CRYPTO_LDFLAGS)
 EXTRA_DIST = README libdhcp++.dox
 
@@ -550,27 +556,43 @@ libkea_dhcp___include_HEADERS = \
     classify.h \
     dhcp4.h \
     dhcp6.h \
+    docsis3_option_defs.h \
     duid.h \
+    duid_factory.h \
     hwaddr.h \
     iface_mgr.h \
+    iface_mgr_error_handler.h \
     libdhcp++.h \
-    option.h \
+    opaque_data_tuple.h \
     option4_addrlst.h \
+    option4_client_fqdn.h \
     option6_addrlst.h \
+    option6_client_fqdn.h \
     option6_ia.h \
     option6_iaaddr.h \
+    option6_iaprefix.h \
+    option6_status_code.h \
+    option.h \
     option_custom.h \
     option_data_types.h \
     option_definition.h \
     option_int.h \
     option_int_array.h \
+    option_opaque_data_tuples.h \
     option_space.h \
+    option_space_container.h \
     option_string.h \
+    option_vendor.h \
+    option_vendor_class.h \
     pkt.h \
     pkt4.h \
+    pkt4o6.h \
     pkt6.h \
     pkt_filter.h \
+    pkt_filter6.h \
+    pkt_filter_bpf.h \
     pkt_filter_inet.h \
+    pkt_filter_inet6.h \
     pkt_filter_lpf.h \
     protocol_util.h \
     std_option_defs.h
@@ -672,6 +694,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option6_ia.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option6_iaaddr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option6_iaprefix.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option6_pdexclude.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option6_status_code.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option_custom.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcp___la-option_data_types.Plo@am__quote@
@@ -798,6 +821,20 @@ libkea_dhcp___la-option4_client_fqdn.lo: option4_client_fqdn.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option4_client_fqdn.lo `test -f 'option4_client_fqdn.cc' || echo '$(srcdir)/'`option4_client_fqdn.cc
 
+libkea_dhcp___la-option6_addrlst.lo: option6_addrlst.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_addrlst.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_addrlst.Tpo -c -o libkea_dhcp___la-option6_addrlst.lo `test -f 'option6_addrlst.cc' || echo '$(srcdir)/'`option6_addrlst.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option6_addrlst.Tpo $(DEPDIR)/libkea_dhcp___la-option6_addrlst.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option6_addrlst.cc' object='libkea_dhcp___la-option6_addrlst.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_addrlst.lo `test -f 'option6_addrlst.cc' || echo '$(srcdir)/'`option6_addrlst.cc
+
+libkea_dhcp___la-option6_client_fqdn.lo: option6_client_fqdn.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_client_fqdn.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_client_fqdn.Tpo -c -o libkea_dhcp___la-option6_client_fqdn.lo `test -f 'option6_client_fqdn.cc' || echo '$(srcdir)/'`option6_client_fqdn.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option6_client_fqdn.Tpo $(DEPDIR)/libkea_dhcp___la-option6_client_fqdn.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option6_client_fqdn.cc' object='libkea_dhcp___la-option6_client_fqdn.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_client_fqdn.lo `test -f 'option6_client_fqdn.cc' || echo '$(srcdir)/'`option6_client_fqdn.cc
+
 libkea_dhcp___la-option6_ia.lo: option6_ia.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_ia.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_ia.Tpo -c -o libkea_dhcp___la-option6_ia.lo `test -f 'option6_ia.cc' || echo '$(srcdir)/'`option6_ia.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option6_ia.Tpo $(DEPDIR)/libkea_dhcp___la-option6_ia.Plo
@@ -819,19 +856,12 @@ libkea_dhcp___la-option6_iaprefix.lo: option6_iaprefix.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_iaprefix.lo `test -f 'option6_iaprefix.cc' || echo '$(srcdir)/'`option6_iaprefix.cc
 
-libkea_dhcp___la-option6_addrlst.lo: option6_addrlst.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_addrlst.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_addrlst.Tpo -c -o libkea_dhcp___la-option6_addrlst.lo `test -f 'option6_addrlst.cc' || echo '$(srcdir)/'`option6_addrlst.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option6_addrlst.Tpo $(DEPDIR)/libkea_dhcp___la-option6_addrlst.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option6_addrlst.cc' object='libkea_dhcp___la-option6_addrlst.lo' libtool=yes @AMDEPBACKSLASH@
+libkea_dhcp___la-option6_pdexclude.lo: option6_pdexclude.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_pdexclude.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_pdexclude.Tpo -c -o libkea_dhcp___la-option6_pdexclude.lo `test -f 'option6_pdexclude.cc' || echo '$(srcdir)/'`option6_pdexclude.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option6_pdexclude.Tpo $(DEPDIR)/libkea_dhcp___la-option6_pdexclude.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option6_pdexclude.cc' object='libkea_dhcp___la-option6_pdexclude.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_addrlst.lo `test -f 'option6_addrlst.cc' || echo '$(srcdir)/'`option6_addrlst.cc
-
-libkea_dhcp___la-option6_client_fqdn.lo: option6_client_fqdn.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_client_fqdn.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_client_fqdn.Tpo -c -o libkea_dhcp___la-option6_client_fqdn.lo `test -f 'option6_client_fqdn.cc' || echo '$(srcdir)/'`option6_client_fqdn.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option6_client_fqdn.Tpo $(DEPDIR)/libkea_dhcp___la-option6_client_fqdn.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option6_client_fqdn.cc' object='libkea_dhcp___la-option6_client_fqdn.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_client_fqdn.lo `test -f 'option6_client_fqdn.cc' || echo '$(srcdir)/'`option6_client_fqdn.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_pdexclude.lo `test -f 'option6_pdexclude.cc' || echo '$(srcdir)/'`option6_pdexclude.cc
 
 libkea_dhcp___la-option6_status_code.lo: option6_status_code.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option6_status_code.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option6_status_code.Tpo -c -o libkea_dhcp___la-option6_status_code.lo `test -f 'option6_status_code.cc' || echo '$(srcdir)/'`option6_status_code.cc
@@ -839,20 +869,6 @@ libkea_dhcp___la-option6_status_code.lo: option6_status_code.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option6_status_code.cc' object='libkea_dhcp___la-option6_status_code.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option6_status_code.lo `test -f 'option6_status_code.cc' || echo '$(srcdir)/'`option6_status_code.cc
-
-libkea_dhcp___la-option_vendor.lo: option_vendor.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option_vendor.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option_vendor.Tpo -c -o libkea_dhcp___la-option_vendor.lo `test -f 'option_vendor.cc' || echo '$(srcdir)/'`option_vendor.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option_vendor.Tpo $(DEPDIR)/libkea_dhcp___la-option_vendor.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option_vendor.cc' object='libkea_dhcp___la-option_vendor.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option_vendor.lo `test -f 'option_vendor.cc' || echo '$(srcdir)/'`option_vendor.cc
-
-libkea_dhcp___la-option_vendor_class.lo: option_vendor_class.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option_vendor_class.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option_vendor_class.Tpo -c -o libkea_dhcp___la-option_vendor_class.lo `test -f 'option_vendor_class.cc' || echo '$(srcdir)/'`option_vendor_class.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option_vendor_class.Tpo $(DEPDIR)/libkea_dhcp___la-option_vendor_class.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option_vendor_class.cc' object='libkea_dhcp___la-option_vendor_class.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option_vendor_class.lo `test -f 'option_vendor_class.cc' || echo '$(srcdir)/'`option_vendor_class.cc
 
 libkea_dhcp___la-option.lo: option.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option.Tpo -c -o libkea_dhcp___la-option.lo `test -f 'option.cc' || echo '$(srcdir)/'`option.cc
@@ -903,12 +919,19 @@ libkea_dhcp___la-option_string.lo: option_string.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option_string.lo `test -f 'option_string.cc' || echo '$(srcdir)/'`option_string.cc
 
-libkea_dhcp___la-protocol_util.lo: protocol_util.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-protocol_util.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-protocol_util.Tpo -c -o libkea_dhcp___la-protocol_util.lo `test -f 'protocol_util.cc' || echo '$(srcdir)/'`protocol_util.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-protocol_util.Tpo $(DEPDIR)/libkea_dhcp___la-protocol_util.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='protocol_util.cc' object='libkea_dhcp___la-protocol_util.lo' libtool=yes @AMDEPBACKSLASH@
+libkea_dhcp___la-option_vendor.lo: option_vendor.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option_vendor.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option_vendor.Tpo -c -o libkea_dhcp___la-option_vendor.lo `test -f 'option_vendor.cc' || echo '$(srcdir)/'`option_vendor.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option_vendor.Tpo $(DEPDIR)/libkea_dhcp___la-option_vendor.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option_vendor.cc' object='libkea_dhcp___la-option_vendor.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-protocol_util.lo `test -f 'protocol_util.cc' || echo '$(srcdir)/'`protocol_util.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option_vendor.lo `test -f 'option_vendor.cc' || echo '$(srcdir)/'`option_vendor.cc
+
+libkea_dhcp___la-option_vendor_class.lo: option_vendor_class.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-option_vendor_class.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-option_vendor_class.Tpo -c -o libkea_dhcp___la-option_vendor_class.lo `test -f 'option_vendor_class.cc' || echo '$(srcdir)/'`option_vendor_class.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-option_vendor_class.Tpo $(DEPDIR)/libkea_dhcp___la-option_vendor_class.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='option_vendor_class.cc' object='libkea_dhcp___la-option_vendor_class.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-option_vendor_class.lo `test -f 'option_vendor_class.cc' || echo '$(srcdir)/'`option_vendor_class.cc
 
 libkea_dhcp___la-pkt.lo: pkt.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-pkt.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-pkt.Tpo -c -o libkea_dhcp___la-pkt.lo `test -f 'pkt.cc' || echo '$(srcdir)/'`pkt.cc
@@ -916,13 +939,6 @@ libkea_dhcp___la-pkt.lo: pkt.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pkt.cc' object='libkea_dhcp___la-pkt.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-pkt.lo `test -f 'pkt.cc' || echo '$(srcdir)/'`pkt.cc
-
-libkea_dhcp___la-pkt6.lo: pkt6.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-pkt6.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-pkt6.Tpo -c -o libkea_dhcp___la-pkt6.lo `test -f 'pkt6.cc' || echo '$(srcdir)/'`pkt6.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-pkt6.Tpo $(DEPDIR)/libkea_dhcp___la-pkt6.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pkt6.cc' object='libkea_dhcp___la-pkt6.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-pkt6.lo `test -f 'pkt6.cc' || echo '$(srcdir)/'`pkt6.cc
 
 libkea_dhcp___la-pkt4.lo: pkt4.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-pkt4.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-pkt4.Tpo -c -o libkea_dhcp___la-pkt4.lo `test -f 'pkt4.cc' || echo '$(srcdir)/'`pkt4.cc
@@ -937,6 +953,13 @@ libkea_dhcp___la-pkt4o6.lo: pkt4o6.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pkt4o6.cc' object='libkea_dhcp___la-pkt4o6.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-pkt4o6.lo `test -f 'pkt4o6.cc' || echo '$(srcdir)/'`pkt4o6.cc
+
+libkea_dhcp___la-pkt6.lo: pkt6.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-pkt6.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-pkt6.Tpo -c -o libkea_dhcp___la-pkt6.lo `test -f 'pkt6.cc' || echo '$(srcdir)/'`pkt6.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-pkt6.Tpo $(DEPDIR)/libkea_dhcp___la-pkt6.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pkt6.cc' object='libkea_dhcp___la-pkt6.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-pkt6.lo `test -f 'pkt6.cc' || echo '$(srcdir)/'`pkt6.cc
 
 libkea_dhcp___la-pkt_filter.lo: pkt_filter.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-pkt_filter.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-pkt_filter.Tpo -c -o libkea_dhcp___la-pkt_filter.lo `test -f 'pkt_filter.cc' || echo '$(srcdir)/'`pkt_filter.cc
@@ -979,6 +1002,13 @@ libkea_dhcp___la-pkt_filter_bpf.lo: pkt_filter_bpf.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pkt_filter_bpf.cc' object='libkea_dhcp___la-pkt_filter_bpf.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-pkt_filter_bpf.lo `test -f 'pkt_filter_bpf.cc' || echo '$(srcdir)/'`pkt_filter_bpf.cc
+
+libkea_dhcp___la-protocol_util.lo: protocol_util.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcp___la-protocol_util.lo -MD -MP -MF $(DEPDIR)/libkea_dhcp___la-protocol_util.Tpo -c -o libkea_dhcp___la-protocol_util.lo `test -f 'protocol_util.cc' || echo '$(srcdir)/'`protocol_util.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcp___la-protocol_util.Tpo $(DEPDIR)/libkea_dhcp___la-protocol_util.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='protocol_util.cc' object='libkea_dhcp___la-protocol_util.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcp___la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcp___la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcp___la-protocol_util.lo `test -f 'protocol_util.cc' || echo '$(srcdir)/'`protocol_util.cc
 
 mostlyclean-libtool:
 	-rm -f *.lo

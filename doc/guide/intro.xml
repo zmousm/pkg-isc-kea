@@ -31,7 +31,7 @@
         Kea is officially supported on Red Hat Enterprise Linux,
 	    CentOS, Fedora and FreeBSD systems. It is also likely to work on many
 	    other platforms: Kea 1.1.0 builds have been tested on (in no
-        particular order) Red Hat Enteprise Linux 6.4, Debian GNU/Linux 7,
+        particular order) Red Hat Enterprise Linux 6.4, Debian GNU/Linux 7,
         Ubuntu 12.04, Ubuntu 14.04, Ubuntu 16.04, Fedora Linux 19,
         Fedora 20, Fedora 22, CentOS Linux 7, NetBSD 6, FreeBSD 10.3,
         OpenBSD 5.7, OpenBSD 6.0, OS X 10.10, OS X 10.11.
@@ -55,13 +55,12 @@
 
         <listitem>
             <simpara>
-        Kea supports two cryptographic libraries: Botan and OpenSSL. Only one of
-        them is required to be installed during compilation. If using Botan, Kea
-        requires the Botan cryptographic library for C++ (<ulink
-        url="http://botan.randombit.net/"/>), version 1.8, 1.9 or 1.10. If
-        OpenSSL is used, (<ulink url="http://www.openssl.org/"/>), then Kea
-        requires the OpenSSL C++ library version 1.0.*. Support for later
-        versions of Botan and OpenSSL will be added in future releases of Kea.
+        Kea supports two crypto libraries: Botan and OpenSSL. Only one of them
+        is required to be installed during compilation. Kea uses the Botan
+        crypto library for C++ (<ulink url="http://botan.randombit.net/"/>),
+        version 1.8 or later. As an alternative to Botan, Kea can use the
+        OpenSSL crypto library (<ulink url="http://www.openssl.org/"/>),
+        version 1.0.1 or later.
             </simpara>
         </listitem>
 

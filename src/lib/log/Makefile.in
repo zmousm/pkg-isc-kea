@@ -79,12 +79,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_GXX_TRUE@am__append_1 = -Wno-unused-parameter
+@USE_GXX_TRUE@am__append_1 = -Wno-unused-parameter -Wno-deprecated-declarations
 subdir = src/lib/log
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(libkea_log_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -135,8 +136,9 @@ libkea_log_la_DEPENDENCIES = $(top_builddir)/src/lib/log/interprocess/libkea-log
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(am__DEPENDENCIES_1)
 am_libkea_log_la_OBJECTS = libkea_log_la-logimpl_messages.lo \
-	libkea_log_la-log_formatter.lo libkea_log_la-logger.lo \
-	libkea_log_la-logger_impl.lo libkea_log_la-logger_level.lo \
+	libkea_log_la-log_dbglevels.lo libkea_log_la-log_formatter.lo \
+	libkea_log_la-logger.lo libkea_log_la-logger_impl.lo \
+	libkea_log_la-logger_level.lo \
 	libkea_log_la-logger_level_impl.lo \
 	libkea_log_la-logger_manager.lo \
 	libkea_log_la-logger_manager_impl.lo \
@@ -373,8 +375,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -445,6 +449,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -456,13 +461,13 @@ AM_CPPFLAGS = -I$(top_builddir)/src/lib -I$(top_srcdir)/src/lib \
 CLEANFILES = *.gcno *.gcda
 lib_LTLIBRARIES = libkea-log.la
 libkea_log_la_SOURCES = logimpl_messages.cc logimpl_messages.h \
-	log_dbglevels.h log_formatter.h log_formatter.cc logger.cc \
-	logger.h logger_impl.cc logger_impl.h logger_level.h \
-	logger_level.cc logger_level.h logger_level_impl.cc \
-	logger_level_impl.h logger_manager.cc logger_manager.h \
-	logger_manager_impl.cc logger_manager_impl.h logger_name.cc \
-	logger_name.h logger_specification.h logger_support.cc \
-	logger_support.h logger_unittest_support.cc \
+	log_dbglevels.cc log_dbglevels.h log_formatter.h \
+	log_formatter.cc logger.cc logger.h logger_impl.cc \
+	logger_impl.h logger_level.h logger_level.cc logger_level.h \
+	logger_level_impl.cc logger_level_impl.h logger_manager.cc \
+	logger_manager.h logger_manager_impl.cc logger_manager_impl.h \
+	logger_name.cc logger_name.h logger_specification.h \
+	logger_support.cc logger_support.h logger_unittest_support.cc \
 	logger_unittest_support.h log_messages.cc log_messages.h \
 	macros.h message_dictionary.cc message_dictionary.h \
 	message_exception.h message_initializer.cc \
@@ -480,7 +485,7 @@ libkea_log_la_LIBADD = $(top_builddir)/src/lib/log/interprocess/libkea-log_inter
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(LOG4CPLUS_LIBS)
-libkea_log_la_LDFLAGS = -no-undefined -version-info 2:0:0
+libkea_log_la_LDFLAGS = -no-undefined -version-info 3:0:0
 
 # Specify the headers for copying into the installation directory tree. User-
 # written libraries only need the definitions for logger.h and dependencies.
@@ -574,6 +579,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_log_la-buffer_appender_impl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_log_la-log_dbglevels.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_log_la-log_formatter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_log_la-log_messages.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_log_la-logger.Plo@am__quote@
@@ -618,6 +624,13 @@ libkea_log_la-logimpl_messages.lo: logimpl_messages.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='logimpl_messages.cc' object='libkea_log_la-logimpl_messages.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_log_la_CPPFLAGS) $(CPPFLAGS) $(libkea_log_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_log_la-logimpl_messages.lo `test -f 'logimpl_messages.cc' || echo '$(srcdir)/'`logimpl_messages.cc
+
+libkea_log_la-log_dbglevels.lo: log_dbglevels.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_log_la_CPPFLAGS) $(CPPFLAGS) $(libkea_log_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_log_la-log_dbglevels.lo -MD -MP -MF $(DEPDIR)/libkea_log_la-log_dbglevels.Tpo -c -o libkea_log_la-log_dbglevels.lo `test -f 'log_dbglevels.cc' || echo '$(srcdir)/'`log_dbglevels.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_log_la-log_dbglevels.Tpo $(DEPDIR)/libkea_log_la-log_dbglevels.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='log_dbglevels.cc' object='libkea_log_la-log_dbglevels.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_log_la_CPPFLAGS) $(CPPFLAGS) $(libkea_log_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_log_la-log_dbglevels.lo `test -f 'log_dbglevels.cc' || echo '$(srcdir)/'`log_dbglevels.cc
 
 libkea_log_la-log_formatter.lo: log_formatter.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_log_la_CPPFLAGS) $(CPPFLAGS) $(libkea_log_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_log_la-log_formatter.lo -MD -MP -MF $(DEPDIR)/libkea_log_la-log_formatter.Tpo -c -o libkea_log_la-log_formatter.lo `test -f 'log_formatter.cc' || echo '$(srcdir)/'`log_formatter.cc

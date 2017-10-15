@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2016-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,7 +28,7 @@ namespace {
 
 /// @brief Simple RAII object setting value to true while in scope.
 ///
-/// This class is useful to temporarly set the value to true and
+/// This class is useful to temporarily set the value to true and
 /// automatically reset it to false when the object is destroyed
 /// as a result of return or exception.
 class ScopedTrue {

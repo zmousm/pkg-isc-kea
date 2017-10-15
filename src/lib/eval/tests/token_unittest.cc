@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -221,7 +221,7 @@ public:
     /// stack then executes the eval and checks the results.
     ///
     /// @param test_string The string to operate on
-    /// @param test_start The postion to start when getting a substring
+    /// @param test_start The position to start when getting a substring
     /// @param test_length The length of the substring to get
     /// @param result_string The expected result of the eval
     /// @param should_throw The eval will throw
@@ -301,7 +301,7 @@ public:
             OpaqueDataTuple tuple(len);
             tuple.assign(string(content[i]));
             if (u == Option::V4 && i == 0) {
-                // vendor-clas for v4 has a pecurilar quirk. The first tuple is being
+                // vendor-class for v4 has a peculiar quirk. The first tuple is being
                 // added, even if there's no data at all.
                 vendor_class_->setTuple(0, tuple);
             } else {
@@ -1546,7 +1546,7 @@ TEST_F(TokenTest, optionEqualFalse) {
     EXPECT_NO_THROW(t_->evaluate(*pkt4_, values_));
 
     // After evaluation there should be a single value that represents
-    // result of "foo" == "bar" comparision.
+    // result of "foo" == "bar" comparison.
     ASSERT_EQ(1, values_.size());
     EXPECT_EQ("false", values_.top());
 
@@ -1569,7 +1569,7 @@ TEST_F(TokenTest, optionEqualTrue) {
     EXPECT_NO_THROW(t_->evaluate(*pkt4_, values_));
 
     // After evaluation there should be a single value that represents
-    // result of "foo" == "foo" comparision.
+    // result of "foo" == "foo" comparison.
     ASSERT_EQ(1, values_.size());
     EXPECT_EQ("true", values_.top());
 
@@ -1748,7 +1748,7 @@ TEST_F(TokenTest, substringLength) {
     EXPECT_TRUE(checkFile());
 }
 
-// Test that we get nothing if the starting postion is out of the string
+// Test that we get nothing if the starting position is out of the string
 TEST_F(TokenTest, substringStartingPosition) {
     // Off the front
     verifySubstringEval("foobar", "-7", "1", "");
@@ -2026,7 +2026,7 @@ TEST_F(TokenTest, operatorAndTrue) {
 }
 
 // This test checks if a token representing an or is able to
-// combinate two values (with incorrectly built stack).
+// combine two values (with incorrectly built stack).
 TEST_F(TokenTest, operatorOrInvalid) {
 
     ASSERT_NO_THROW(t_.reset(new TokenOr()));
@@ -2134,7 +2134,7 @@ TEST_F(TokenTest, vendor6SpecificVendorExists) {
     // Case 2: option present, but uses different enterprise-id, should fail
     testVendorExists(Option::V6, 4491, 1234, "false");
 
-    // Case 3: option present and has matchin enterprise-id, should suceed
+    // Case 3: option present and has matchin enterprise-id, should succeed
     testVendorExists(Option::V6, 4491, 4491, "true");
 
     // Check if the logged messages are correct.

@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18,7 +18,6 @@
 #include <dns/name.h>
 #include <exceptions/exceptions.h>
 #include <util/buffer.h>
-#include <util/encode/hex.h>
 #include <util/time_utilities.h>
 
 #include <time.h>
@@ -34,7 +33,7 @@ public:
         isc::Exception(file, line, what) { };
 };
 
-/// @brief Exception thrown when there is an error occured during computation
+/// @brief Exception thrown when there is an error occurred during computation
 /// of the DHCID.
 class DhcidRdataComputeError : public isc::Exception {
 public:
@@ -181,14 +180,14 @@ public:
         return (this->bytes_ != other.bytes_);
     }
 
-    /// @brief Compares two D2Dhcids lexcially
+    /// @brief Compares two D2Dhcids lexically
     bool operator<(const D2Dhcid& other) const {
         return (this->bytes_ < other.bytes_);
     }
 
 private:
 
-    /// @brief Creates the DHCID using specified indetifier.
+    /// @brief Creates the DHCID using specified identifier.
     ///
     /// This function creates the DHCID RDATA as specified in RFC4701,
     /// section 3.5.

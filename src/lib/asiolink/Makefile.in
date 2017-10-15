@@ -85,6 +85,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -136,7 +137,8 @@ am_libkea_asiolink_la_OBJECTS = libkea_asiolink_la-interval_timer.lo \
 	libkea_asiolink_la-io_address.lo \
 	libkea_asiolink_la-io_endpoint.lo \
 	libkea_asiolink_la-io_service.lo \
-	libkea_asiolink_la-io_socket.lo
+	libkea_asiolink_la-io_socket.lo \
+	libkea_asiolink_la-unix_domain_socket.lo
 libkea_asiolink_la_OBJECTS = $(am_libkea_asiolink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -363,8 +365,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -435,12 +439,13 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = . tests
+SUBDIRS = . testutils tests
 AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	$(BOOST_INCLUDES)
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
@@ -452,12 +457,13 @@ CLEANFILES = *.gcno *.gcda
 # gcc's unused-parameter warning, which would make the build fail
 # with -Werror (our default setting).
 lib_LTLIBRARIES = libkea-asiolink.la
-libkea_asiolink_la_LDFLAGS = -no-undefined -version-info 3:0:0
+libkea_asiolink_la_LDFLAGS = -no-undefined -version-info 4:0:0
 libkea_asiolink_la_SOURCES = asiolink.h asio_wrapper.h dummy_io_cb.h \
 	interval_timer.cc interval_timer.h io_address.cc io_address.h \
 	io_asio_socket.h io_endpoint.cc io_endpoint.h io_error.h \
 	io_service.h io_service.cc io_socket.h io_socket.cc \
-	tcp_endpoint.h tcp_socket.h udp_endpoint.h udp_socket.h
+	tcp_acceptor.h tcp_endpoint.h tcp_socket.h udp_endpoint.h \
+	udp_socket.h unix_domain_socket.cc unix_domain_socket.h
 
 # Note: the ordering matters: -Wno-... must follow -Wextra (defined in
 # KEA_CXXFLAGS)
@@ -469,7 +475,21 @@ libkea_asiolink_la_LIBADD =  \
 
 # IOAddress is sometimes used in user-library code
 libkea_asiolink_includedir = $(pkgincludedir)/asiolink
-libkea_asiolink_include_HEADERS = io_address.h
+libkea_asiolink_include_HEADERS = \
+    asiolink.h \
+    asio_wrapper.h \
+	interval_timer.h \
+    io_address.h \
+	io_asio_socket.h \
+	io_endpoint.h \
+	io_error.h \
+	io_service.h \
+	io_socket.h \
+	tcp_endpoint.h \
+    tcp_socket.h \
+	udp_endpoint.h \
+    udp_socket.h
+
 all: all-recursive
 
 .SUFFIXES:
@@ -554,6 +574,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_asiolink_la-io_endpoint.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_asiolink_la-io_service.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_asiolink_la-io_socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_asiolink_la-unix_domain_socket.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -610,6 +631,13 @@ libkea_asiolink_la-io_socket.lo: io_socket.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='io_socket.cc' object='libkea_asiolink_la-io_socket.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_asiolink_la_CPPFLAGS) $(CPPFLAGS) $(libkea_asiolink_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_asiolink_la-io_socket.lo `test -f 'io_socket.cc' || echo '$(srcdir)/'`io_socket.cc
+
+libkea_asiolink_la-unix_domain_socket.lo: unix_domain_socket.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_asiolink_la_CPPFLAGS) $(CPPFLAGS) $(libkea_asiolink_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_asiolink_la-unix_domain_socket.lo -MD -MP -MF $(DEPDIR)/libkea_asiolink_la-unix_domain_socket.Tpo -c -o libkea_asiolink_la-unix_domain_socket.lo `test -f 'unix_domain_socket.cc' || echo '$(srcdir)/'`unix_domain_socket.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_asiolink_la-unix_domain_socket.Tpo $(DEPDIR)/libkea_asiolink_la-unix_domain_socket.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='unix_domain_socket.cc' object='libkea_asiolink_la-unix_domain_socket.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_asiolink_la_CPPFLAGS) $(CPPFLAGS) $(libkea_asiolink_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_asiolink_la-unix_domain_socket.lo `test -f 'unix_domain_socket.cc' || echo '$(srcdir)/'`unix_domain_socket.cc
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,11 +8,13 @@
 #define OPTION_DATA_TYPES_H
 
 #include <asiolink/io_address.h>
+#include <dhcp/opaque_data_tuple.h>
 #include <dhcp/option.h>
 #include <exceptions/exceptions.h>
 #include <util/io_utilities.h>
 
 #include <stdint.h>
+#include <utility>
 
 namespace isc {
 namespace dhcp {
@@ -53,10 +55,32 @@ enum OptionDataType {
     OPT_ANY_ADDRESS_TYPE,
     OPT_IPV4_ADDRESS_TYPE,
     OPT_IPV6_ADDRESS_TYPE,
+    OPT_IPV6_PREFIX_TYPE,
+    OPT_PSID_TYPE,
     OPT_STRING_TYPE,
+    OPT_TUPLE_TYPE,
     OPT_FQDN_TYPE,
     OPT_RECORD_TYPE,
     OPT_UNKNOWN_TYPE
+};
+
+/// @brief Parameters being used to make up an option definition.
+struct OptionDefParams {
+    const char*             name;           // option name
+    uint16_t                code;           // option code
+    OptionDataType          type;           // data type
+    bool                    array;          // is array
+    const OptionDataType*   records;        // record fields
+    size_t                  records_size;   // number of fields in a record
+    const char*             encapsulates;   // option space encapsulated by the
+                                            // particular option.
+};
+
+/// @brief Encapsulation of option definition parameters and the structure size.
+struct OptionDefParamsEncapsulation {
+    const struct OptionDefParams*   optionDefParams;    // parameters structure
+    const int                       size;               // structure size
+    const char*                     space;              // option space
 };
 
 /// @brief Trait class for data types supported in DHCP option definitions.
@@ -173,6 +197,123 @@ struct OptionDataTypeTraits<std::string> {
     static const OptionDataType type = OPT_STRING_TYPE;
 };
 
+/// @brief Encapsulates PSID length.
+class PSIDLen {
+public:
+
+    /// @brief Default constructor.
+    PSIDLen() : psid_len_(0) { }
+
+    /// @brief Constructor.
+    ///
+    /// It checks that the specified value is not greater than
+    /// 16, which is a maximum value for the PSID length.
+    ///
+    /// @param psid_len PSID length.
+    /// @throw isc::OutOfRange If specified PSID length is greater than 16.
+    explicit PSIDLen(const uint8_t psid_len)
+        : psid_len_(psid_len) {
+        if (psid_len_ > sizeof(uint16_t) * 8) {
+            isc_throw(isc::OutOfRange, "invalid value "
+                      << asUnsigned() << " of PSID length");
+        }
+    }
+
+    /// @brief Returns PSID length as uint8_t value.
+    uint8_t asUint8() const {
+        return (psid_len_);
+    }
+
+    /// @brief Returns PSID length as unsigned int.
+    ///
+    /// This is useful to convert the value to a numeric type which
+    /// can be logged directly. Note that the uint8_t value has to
+    /// be cast to an integer value to be logged as a number. This
+    /// is because the uint8_t is often implemented as char, in which
+    /// case directly logging an uint8_t value prints a character rather
+    /// than a number.
+    unsigned int asUnsigned() const {
+        return (static_cast<unsigned>(psid_len_));
+    }
+
+private:
+
+    /// @brief PSID length.
+    uint8_t psid_len_;
+};
+
+/// @brief Encapsulates PSID value.
+class PSID {
+public:
+
+    /// @brief Default constructor.
+    PSID() : psid_(0) { }
+
+    /// @brief Constructor.
+    ///
+    /// This constructor doesn't perform any checks on the input data.
+    ///
+    /// @param psid PSID value.
+    explicit PSID(const uint16_t psid)
+        : psid_(psid) {
+    }
+
+    /// @brief Returns PSID value as a number.
+    uint16_t asUint16() const {
+        return (psid_);
+    }
+
+private:
+
+    /// @brief PSID value.
+    uint16_t psid_;
+
+};
+
+/// @brief Defines a pair of PSID length / value.
+typedef std::pair<PSIDLen, PSID> PSIDTuple;
+
+/// @brief Encapsulates prefix length.
+class PrefixLen {
+public:
+
+    /// @brief Default constructor.
+    PrefixLen() : prefix_len_(0) { }
+
+    /// @brief Constructor.
+    ///
+    /// This constructor checks if the specified prefix length is
+    /// in the range of 0 to 128.
+    ///
+    /// @param prefix_len Prefix length value.
+    /// @throw isc::OutOfRange If specified prefix length is greater than 128.
+    explicit PrefixLen(const uint8_t prefix_len)
+        : prefix_len_(prefix_len) {
+    }
+
+    /// @brief Returns prefix length as uint8_t value.
+    uint8_t asUint8() const {
+        return (prefix_len_);
+    }
+
+    /// @brief Returns prefix length as unsigned int.
+    ///
+    /// This is useful to convert the value to a numeric type which
+    /// can be logged directly. See @ref PSIDLen::asUnsigned for the
+    /// use cases of this accessor.
+    unsigned int asUnsigned() const {
+        return (static_cast<unsigned>(prefix_len_));
+    }
+
+private:
+
+    /// @brief Prefix length.
+    uint8_t prefix_len_;
+};
+
+/// @brief Defines a pair of prefix length / value.
+typedef std::pair<PrefixLen, asiolink::IOAddress> PrefixTuple;
+
 /// @brief Utility class for option data types.
 ///
 /// This class provides a set of utility functions to operate on
@@ -202,7 +343,7 @@ public:
     /// @brief Get data type buffer length.
     ///
     /// This function returns the size of a particular data type.
-    /// Values retured by this function correspond to the data type
+    /// Values returned by this function correspond to the data type
     /// sizes defined in OptionDataTypeTraits (IPV4_ADDRESS_TYPE and
     /// IPV6_ADDRESS_TYPE are exceptions here) so they rather indicate
     /// the fixed length of the data being written into the buffer,
@@ -221,7 +362,7 @@ public:
     ///
     /// @param buf input buffer.
     /// @param family address family: AF_INET or AF_INET6.
-    /// 
+    ///
     /// @throw isc::dhcp::BadDataTypeCast when the data being read
     /// is truncated.
     /// @return address being read.
@@ -242,6 +383,42 @@ public:
     /// @param [out] buf output buffer.
     static void writeBinary(const std::string& hex_str,
                             std::vector<uint8_t>& buf);
+
+    /// @brief Read length and string tuple from a buffer.
+    ///
+    /// @param buf input buffer.
+    /// @param lengthfieldtype LENGTH_1_BYTE (DHCPv4) or LENGTH_2_BYTES (DHCPv6)
+    /// @throw isc::dhcp::BadDataTypeCast when the data being read
+    /// is truncated.
+    /// @return string being read.
+    static std::string readTuple(const std::vector<uint8_t>& buf,
+                                 OpaqueDataTuple::LengthFieldType lengthfieldtype);
+
+    /// @brief Read length and string tuple from a buffer.
+    ///
+    /// @param buf input buffer.
+    /// @param tuple reference of the tuple to read into
+    /// @throw isc::dhcp::BadDataTypeCast when the data being read
+    /// is truncated.
+    /// @return tuple being read.
+    static void readTuple(const std::vector<uint8_t>& buf,
+                          OpaqueDataTuple& tuple);
+
+    /// @brief Append length and string tuple to a buffer
+    ///
+    /// @param value length and string tuple
+    /// @param lengthfieldtype LENGTH_1_BYTE (DHCPv4) or LENGTH_2_BYTES (DHCPv6)
+    /// @param [out] buf output buffer.
+    static void writeTuple(const std::string& value,
+                           OpaqueDataTuple::LengthFieldType lengthfieldtype,
+                           std::vector<uint8_t>& buf);
+
+    /// @brief Append length and string tuple to a buffer
+    ///
+    /// @param tuple length and string tuple
+    /// @param [out] buf output buffer.
+    static void writeTuple(const OpaqueDataTuple& tuple,
+                           std::vector<uint8_t>& buf);
 
     /// @brief Read boolean value from a buffer.
     ///
@@ -377,6 +554,59 @@ public:
     /// name string is empty.
     /// @throw isc::dhcp::BadDataTypeCast if provided name is malformed.
     static unsigned int getLabelCount(const std::string& text_name);
+
+    /// @brief Read prefix from a buffer.
+    ///
+    /// This method reads prefix length and a prefix value from a buffer.
+    /// The prefix value has variable length and this length is determined
+    /// from the first byte of the buffer. If the length is not divisible
+    /// by 8, the prefix is padded with zeros to the next byte boundary.
+    ///
+    /// @param buf input buffer holding a prefix length / prefix tuple.
+    ///
+    /// @return Prefix length and value.
+    static PrefixTuple readPrefix(const std::vector<uint8_t>& buf);
+
+    /// @brief Append prefix into a buffer.
+    ///
+    /// This method writes prefix length (1 byte) followed by a variable
+    /// length prefix.
+    ///
+    /// @param prefix_len Prefix length in bits (0 to 128).
+    /// @param prefix Prefix value.
+    /// @param [out] buf Output buffer.
+    static void writePrefix(const PrefixLen& prefix_len,
+                            const asiolink::IOAddress& prefix,
+                            std::vector<uint8_t>& buf);
+
+    /// @brief Read PSID length / value tuple from a buffer.
+    ///
+    /// This method reads three bytes from a buffer. The first byte
+    /// holds a PSID length value. The remaining two bytes contain a
+    /// zero padded PSID value.
+    ///
+    /// @return PSID length / value tuple.
+    /// @throw isc::dhcp::BadDataTypeCast if PSID length or value held
+    /// in the buffer is incorrect or the buffer is truncated.
+    static PSIDTuple readPsid(const std::vector<uint8_t>& buf);
+
+    /// @brief Append PSID length/value into a buffer.
+    ///
+    /// This method appends 1 byte of PSID length and 2 bytes of PSID
+    /// value into a buffer. The PSID value contains a PSID length
+    /// number of significant bits, followed by 16 - PSID length
+    /// zero bits.
+    ///
+    /// @param psid_len PSID length in the range of 0 to 16 holding the
+    /// number of significant bits within the PSID value.
+    /// @param psid PSID value, where the lowest value is 0, and the
+    /// highest value is 2^(PSID length)-1.
+    /// @param [out] buf output buffer.
+    ///
+    /// @throw isc::dhcp::BadDataTypeCast if specified psid_len or
+    /// psid value is incorrect.
+    static void writePsid(const PSIDLen& psid_len, const PSID& psid,
+                          std::vector<uint8_t>& buf);
 
     /// @brief Read string value from a buffer.
     ///

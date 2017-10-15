@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,6 +8,7 @@
 #include <dhcp/option.h>
 #include <dhcp/option_definition.h>
 #include <dhcp/libdhcp++.h>
+#include <dhcp/option_space.h>
 #include <eval/eval_context.h>
 #include <eval/parser.h>
 #include <exceptions/exceptions.h>
@@ -26,11 +27,11 @@ EvalContext::~EvalContext()
 }
 
 bool
-EvalContext::parseString(const std::string& str)
+EvalContext::parseString(const std::string& str, ParserType type)
 {
     file_ = "<string>";
     string_ = str;
-    scanStringBegin();
+    scanStringBegin(type);
     isc::eval::EvalParser parser(*this);
     parser.set_debug_level(trace_parsing_);
     int res = parser.parse();
@@ -79,11 +80,12 @@ uint16_t
 EvalContext::convertOptionName(const std::string& option_name,
                                const isc::eval::location& loc)
 {
-    OptionDefinitionPtr option_def = LibDHCP::getOptionDef(option_universe_,
+    const std::string global_space = (option_universe_ == Option::V4) ?
+        DHCP4_OPTION_SPACE : DHCP6_OPTION_SPACE;
+
+    OptionDefinitionPtr option_def = LibDHCP::getOptionDef(global_space,
                                                            option_name);
     if (!option_def) {
-        const std::string global_space =
-            (option_universe_ == Option::V4) ? "dhcp4" : "dhcp6";
         option_def = LibDHCP::getRuntimeOptionDef(global_space, option_name);
     }
 

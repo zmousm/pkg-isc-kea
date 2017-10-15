@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -127,6 +127,14 @@ public:
     using LibraryManager::runUnload;
 };
 
+
+// Check that LibraryManager constructor requires a not null manager
+
+TEST_F(LibraryManagerTest, NullManager) {
+    boost::shared_ptr<CalloutManager> null_manager;
+    EXPECT_THROW(PublicLibraryManager(std::string("foo"), 0, null_manager),
+                 NoCalloutManager);
+}
 
 // Check that openLibrary() reports an error when it can't find the specified
 // library.
@@ -572,7 +580,7 @@ TEST_F(LibraryManagerTest, libraryLoggerSetup) {
     EXPECT_TRUE(lib_manager.loadLibrary());
 
     // After loading the library, the global logging dictionary should
-    // contain log messages registerd for this library.
+    // contain log messages registered for this library.
     const MessageDictionaryPtr& dict = MessageDictionary::globalDictionary();
     EXPECT_EQ("basic callout load %1", dict->getText("BCL_LOAD_START"));
     EXPECT_EQ("basic callout load end", dict->getText("BCL_LOAD_END"));

@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,7 +10,8 @@
 #include <cc/command_interpreter.h>
 #include <d2/d2_process.h>
 #include <dhcp_ddns/ncr_io.h>
-#include <d_test_stubs.h>
+#include <process/testutils/d_test_stubs.h>
+#include <d2/tests/nc_test_utils.h>
 
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -22,6 +23,7 @@ using namespace std;
 using namespace isc;
 using namespace isc::config;
 using namespace isc::d2;
+using namespace isc::process;
 using namespace boost::posix_time;
 
 namespace {
@@ -31,21 +33,21 @@ const char* bad_ip_d2_config = "{ "
                         "\"ip-address\" : \"1.1.1.1\" , "
                         "\"port\" : 5031, "
                         "\"tsig-keys\": ["
-                        "{ \"name\": \"d2_key.tmark.org\" , "
+                        "{ \"name\": \"d2_key.example.com\" , "
                         "   \"algorithm\": \"HMAC-MD5\" ,"
                         "   \"secret\": \"LSWXnfkKZjdPJI5QxlpnfQ==\" "
                         "} ],"
                         "\"forward-ddns\" : {"
                         "\"ddns-domains\": [ "
-                        "{ \"name\": \"tmark.org\" , "
-                        "  \"key-name\": \"d2_key.tmark.org\" , "
+                        "{ \"name\": \"example.com\" , "
+                        "  \"key-name\": \"d2_key.example.com\" , "
                         "  \"dns-servers\" : [ "
                         "  { \"ip-address\": \"127.0.0.101\" } "
                         "] } ] }, "
                         "\"reverse-ddns\" : {"
                         "\"ddns-domains\": [ "
                         "{ \"name\": \" 0.168.192.in.addr.arpa.\" , "
-                        "  \"key-name\": \"d2_key.tmark.org\" , "
+                        "  \"key-name\": \"d2_key.example.com\" , "
                         "  \"dns-servers\" : [ "
                         "  { \"ip-address\": \"127.0.0.101\" , "
                         "    \"port\": 100 } ] } "
@@ -93,7 +95,7 @@ public:
             return res;
         }
 
-        isc::data::ConstElementPtr answer = configure(config_set_);
+        isc::data::ConstElementPtr answer = configure(config_set_, false);
         isc::data::ConstElementPtr comment;
         comment = isc::config::parseAnswer(rcode, answer);
 
@@ -180,7 +182,7 @@ TEST_F(D2ProcessTest, configure) {
     ASSERT_TRUE(fromJSON(valid_d2_config));
 
     // Invoke configure() with a valid D2 configuration.
-    isc::data::ConstElementPtr answer = configure(config_set_);
+    isc::data::ConstElementPtr answer = configure(config_set_, false);
 
     // Verify that configure result is success and reconfigure queue manager
     // flag is true.
@@ -198,7 +200,7 @@ TEST_F(D2ProcessTest, configure) {
     ASSERT_TRUE(fromJSON("{ \"bogus\": 1000 } "));
 
     // Invoke configure() with the invalid configuration.
-    answer = configure(config_set_);
+    answer = configure(config_set_, false);
 
     // Verify that configure result is failure, the reconfigure flag is
     // false, and that the queue manager is still running.
@@ -359,7 +361,7 @@ TEST_F(D2ProcessTest, badConfigureRecovery) {
 
     // Invoke configure() with a valid config that contains an unusable IP
     ASSERT_TRUE(fromJSON(bad_ip_d2_config));
-    isc::data::ConstElementPtr answer = configure(config_set_);
+    isc::data::ConstElementPtr answer = configure(config_set_, false);
 
     // Verify that configure result is success and reconfigure queue manager
     // flag is true.
@@ -376,7 +378,7 @@ TEST_F(D2ProcessTest, badConfigureRecovery) {
 
     // Verify we can recover given a valid config with an usable IP address.
     ASSERT_TRUE(fromJSON(valid_d2_config));
-    answer = configure(config_set_);
+    answer = configure(config_set_, false);
 
     // Verify that configure result is success and reconfigure queue manager
     // flag is true.
@@ -390,20 +392,6 @@ TEST_F(D2ProcessTest, badConfigureRecovery) {
     // flag is false.
     EXPECT_EQ(D2QueueMgr::RUNNING, queue_mgr->getMgrState());
     EXPECT_FALSE(getReconfQueueFlag());
-}
-
-/// @brief Verifies basic command method behavior.
-/// @TODO IF the D2Process is extended to support extra commands this testing
-/// will need to augmented accordingly.
-TEST_F(D2ProcessTest, command) {
-    // Verify that the process will process unsupported command and
-    // return a failure response.
-    int rcode = -1;
-    string args = "{ \"arg1\": 77 } ";
-    isc::data::ElementPtr json = isc::data::Element::fromJSON(args);
-    isc::data::ConstElementPtr answer = command("bogus_command", json);
-    parseAnswer(rcode, answer);
-    EXPECT_EQ(COMMAND_INVALID, rcode);
 }
 
 /// @brief Tests shutdown command argument parsing
@@ -510,7 +498,7 @@ TEST_F(D2ProcessTest, canShutdown) {
         " \"change-type\" : 0 , "
         " \"forward-change\" : true , "
         " \"reverse-change\" : false , "
-        " \"fqdn\" : \"fish.tmark.org\" , "
+        " \"fqdn\" : \"fish.example.com\" , "
         " \"ip-address\" : \"192.168.2.1\" , "
         " \"dhcid\" : \"010203040A7F8E3D\" , "
         " \"lease-expires-on\" : \"20130121132405\" , "

@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18,6 +18,7 @@
 #include <dhcp/option6_ia.h>
 #include <dhcp/option6_iaaddr.h>
 #include <dhcp/option6_iaprefix.h>
+#include <dhcp/option6_pdexclude.h>
 #include <dhcp/option6_status_code.h>
 #include <dhcp/option_custom.h>
 #include <dhcp/option_int.h>
@@ -101,8 +102,8 @@ public:
                                    const std::type_info& expected_type,
                                    const std::string& encapsulates = "") {
         // Use V4 universe.
-        testStdOptionDefs(Option::V4, code, begin, end, expected_type,
-                          encapsulates);
+        testStdOptionDefs(Option::V4, DHCP4_OPTION_SPACE, code, begin, end,
+                          expected_type, encapsulates);
     }
 
     /// @brief Test DHCPv6 option definition.
@@ -125,8 +126,33 @@ public:
                                    const std::type_info& expected_type,
                                    const std::string& encapsulates = "") {
         // Use V6 universe.
-        testStdOptionDefs(Option::V6, code, begin, end, expected_type,
-                          encapsulates);
+        testStdOptionDefs(Option::V6, DHCP6_OPTION_SPACE, code, begin,
+                          end, expected_type, encapsulates);
+    }
+
+    /// @brief Test DHCPv6 option definition in a given option space.
+    ///
+    /// This function tests if option definition for an option from a
+    /// given option space has been initialized correctly.
+    ///
+    /// @param option_space option space.
+    /// @param code option code.
+    /// @param begin iterator pointing at beginning of a buffer to
+    /// be used to create option instance.
+    /// @param end iterator pointing at end of a buffer to be
+    /// used to create option instance.
+    /// @param expected_type type of the option created by the
+    /// factory function returned by the option definition.
+    /// @param encapsulates name of the option space being encapsulated
+    /// by the option.
+    static void testOptionDefs6(const std::string& option_space,
+                                const uint16_t code,
+                                const OptionBufferConstIter begin,
+                                const OptionBufferConstIter end,
+                                const std::type_info& expected_type,
+                                const std::string& encapsulates = "") {
+        testStdOptionDefs(Option::V6, option_space, code, begin,
+                          end, expected_type, encapsulates);
     }
 
     /// @brief Create a sample DHCPv4 option 43 with suboptions.
@@ -216,6 +242,7 @@ private:
     /// This function tests if option definition for standard
     /// option has been initialized correctly.
     ///
+    /// @param option_space option space.
     /// @param code option code.
     /// @param begin iterator pointing at beginning of a buffer to
     /// be used to create option instance.
@@ -225,7 +252,8 @@ private:
     /// factory function returned by the option definition.
     /// @param encapsulates name of the option space being encapsulated
     /// by the option.
-    static void testStdOptionDefs(const Option::Universe u,
+    static void testStdOptionDefs(const Option::Universe& u,
+                                  const std::string& option_space,
                                   const uint16_t code,
                                   const OptionBufferConstIter begin,
                                   const OptionBufferConstIter end,
@@ -235,7 +263,7 @@ private:
         // the definition for a particular option code.
         // We don't have to initialize option definitions here because they
         // are initialized in the class's constructor.
-        OptionDefContainerPtr options = LibDHCP::getOptionDefs(u);
+        OptionDefContainerPtr options = LibDHCP::getOptionDefs(option_space);
         // Get the container index #1. This one allows for searching
         // option definitions using option code.
         const OptionDefContainerTypeIndex& idx = options->get<1>();
@@ -462,7 +490,7 @@ TEST_F(LibDhcpTest, unpackOptions6) {
     ASSERT_TRUE(opt_oro);
     // Get set of uint16_t values.
     std::vector<uint16_t> opts = opt_oro->getValues();
-    // Prepare the refrence data.
+    // Prepare the reference data.
     std::vector<uint16_t> expected_opts;
     expected_opts.push_back(0x6C6D); // equivalent to: 108, 109
     expected_opts.push_back(0x6E6F); // equivalent to 110, 111
@@ -680,7 +708,7 @@ TEST_F(LibDhcpTest, packOptions4) {
     // Get the option definition for RAI option. This option is represented
     // by OptionCustom which requires a definition to be passed to
     // the constructor.
-    OptionDefinitionPtr rai_def = LibDHCP::getOptionDef(Option::V4,
+    OptionDefinitionPtr rai_def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
                                                         DHO_DHCP_AGENT_OPTIONS);
     ASSERT_TRUE(rai_def);
     // Create RAI option.
@@ -690,7 +718,7 @@ TEST_F(LibDhcpTest, packOptions4) {
     // we want to use this buffer as a reference to verify that produced
     // option in on-wire format is correct.
 
-    // Create Ciruit ID sub-option and add to RAI.
+    // Create Circuit ID sub-option and add to RAI.
     OptionPtr circuit_id(new Option(Option::V4, RAI_OPTION_AGENT_CIRCUIT_ID,
                                     OptionBuffer(v4_opts + 46,
                                                  v4_opts + 50)));
@@ -708,7 +736,7 @@ TEST_F(LibDhcpTest, packOptions4) {
 
     isc::dhcp::OptionCollection opts; // list of options
     // Note that we insert each option under the same option code into
-    // the map. This gurantees that options are packed in the same order
+    // the map. This guarantees that options are packed in the same order
     // they were added. Otherwise, options would get sorted by code and
     // the resulting buffer wouldn't match with the reference buffer.
     opts.insert(make_pair(opt1->getType(), opt1));
@@ -1012,69 +1040,6 @@ TEST_F(LibDhcpTest, unpackSubOptions4) {
     EXPECT_EQ(0x0, option_bar->getValue());
 }
 
-TEST_F(LibDhcpTest, isStandardOption4) {
-    // Get all option codes that are not occupied by standard options.
-    const uint16_t unassigned_codes[] = { 84, 96, 102, 103, 104, 105, 106, 107, 108,
-                                          109, 110, 111, 115, 126, 127, 147, 148, 149,
-                                          178, 179, 180, 181, 182, 183, 184, 185, 186,
-                                          187, 188, 189, 190, 191, 192, 193, 194, 195,
-                                          196, 197, 198, 199, 200, 201, 202, 203, 204,
-                                          205, 206, 207, 214, 215, 216, 217, 218, 219,
-                                          222, 223, 224, 225, 226, 227, 228, 229, 230,
-                                          231, 232, 233, 234, 235, 236, 237, 238, 239,
-                                          240, 241, 242, 243, 244, 245, 246, 247, 248,
-                                          249, 250, 251, 252, 253, 254 };
-    const size_t unassigned_num = sizeof(unassigned_codes) / sizeof(unassigned_codes[0]);
-
-    // Try all possible option codes.
-    for (size_t i = 0; i < 256; ++i) {
-        // Some ranges of option codes are unassigned and thus the isStandardOption
-        // should return false for them.
-        bool check_unassigned = false;
-        // Check the array of unassigned options to find out whether option code
-        // is assigned to standard option or unassigned.
-        for (size_t j = 0; j < unassigned_num; ++j) {
-            // If option code is found within the array of unassigned options
-            // we the isStandardOption function should return false.
-            if (unassigned_codes[j] == i) {
-                check_unassigned = true;
-                EXPECT_FALSE(LibDHCP::isStandardOption(Option::V4,
-                                                       unassigned_codes[j]))
-                    << "Test failed for option code " << unassigned_codes[j];
-                break;
-            }
-        }
-        // If the option code belongs to the standard option then the
-        // isStandardOption should return true.
-        if (!check_unassigned) {
-            EXPECT_TRUE(LibDHCP::isStandardOption(Option::V4, i))
-                << "Test failed for the option code " << i;
-        }
-    }
-}
-
-TEST_F(LibDhcpTest, isStandardOption6) {
-    // All option codes in the range from 0 to 78 (except 10 and 35)
-    // identify the standard options.
-    for (uint16_t code = 0; code < 79; ++code) {
-        if (code != 10 && code != 35) {
-            EXPECT_TRUE(LibDHCP::isStandardOption(Option::V6, code))
-                << "Test failed for option code " << code;
-        }
-    }
-
-    // Check the option codes 10 and 35. They are unassigned.
-    EXPECT_FALSE(LibDHCP::isStandardOption(Option::V6, 10));
-    EXPECT_FALSE(LibDHCP::isStandardOption(Option::V6, 35));
-
-    // Check a range of option codes above 78. Those are option codes
-    // identifying non-standard options.
-    for (uint16_t code = 79; code < 512; ++code) {
-        EXPECT_FALSE(LibDHCP::isStandardOption(Option::V6, code))
-            << "Test failed for option code " << code;
-    }
-}
-
 TEST_F(LibDhcpTest, stdOptionDefs4) {
 
     // Create a buffer that holds dummy option data.
@@ -1354,8 +1319,21 @@ TEST_F(LibDhcpTest, stdOptionDefs4) {
     LibDhcpTest::testStdOptionDefs4(DHO_UUID_GUID, begin, begin + 17,
                                     typeid(OptionCustom));
 
-    LibDhcpTest::testStdOptionDefs4(DHO_DOMAIN_SEARCH, begin, end,
-                                    typeid(Option));
+    // Prepare buffer holding an array of FQDNs.
+    const char fqdn_data[] = {
+        8, 109, 121, 100, 111, 109, 97, 105, 110, // "mydomain"
+        7, 101, 120, 97, 109, 112, 108, 101,      // "example"
+        3, 99, 111, 109,                          // "com"
+        0,
+        7, 101, 120, 97, 109, 112, 108, 101,      // "example"
+        3, 99, 111, 109,                          // "com"
+        0
+    };
+    // Initialize a vector with the FQDN data.
+    std::vector<uint8_t> fqdn_buf(fqdn_data, fqdn_data + sizeof(fqdn_data));
+
+    LibDhcpTest::testStdOptionDefs4(DHO_DOMAIN_SEARCH, fqdn_buf.begin(),
+                                    fqdn_buf.end(), typeid(OptionCustom));
 
     // V-I Vendor option requires specially crafted data.
     const char vivco_data[] = {
@@ -1598,6 +1576,9 @@ TEST_F(LibDhcpTest, stdOptionDefs6) {
                                     typeid(OptionCustom),
                                     "rsoo-opts");
 
+    LibDhcpTest::testStdOptionDefs6(D6O_PD_EXCLUDE, begin, end,
+                                    typeid(Option6PDExclude));
+
     LibDhcpTest::testStdOptionDefs6(D6O_ERP_LOCAL_DOMAIN_NAME,
                                     fqdn_buf.begin(), fqdn_buf.end(),
                                     typeid(OptionCustom));
@@ -1619,18 +1600,20 @@ TEST_F(LibDhcpTest, stdOptionDefs6) {
 
     LibDhcpTest::testStdOptionDefs6(D6O_TIMESTAMP, begin, begin + 8,
                                     typeid(Option));
+
+
 }
 
 // This test checks if the DHCPv6 option definition can be searched by
 // an option name.
 TEST_F(LibDhcpTest, getOptionDefByName6) {
     // Get all definitions.
-    const OptionDefContainerPtr defs = LibDHCP::getOptionDefs(Option::V6);
+    const OptionDefContainerPtr defs = LibDHCP::getOptionDefs(DHCP6_OPTION_SPACE);
     // For each definition try to find it using option name.
     for (OptionDefContainer::const_iterator def = defs->begin();
          def != defs->end(); ++def) {
         OptionDefinitionPtr def_by_name =
-            LibDHCP::getOptionDef(Option::V6, (*def)->getName());
+            LibDHCP::getOptionDef(DHCP6_OPTION_SPACE, (*def)->getName());
         ASSERT_TRUE(def_by_name);
         ASSERT_TRUE(**def == *def_by_name);
     }
@@ -1641,12 +1624,12 @@ TEST_F(LibDhcpTest, getOptionDefByName6) {
 // an option name.
 TEST_F(LibDhcpTest, getOptionDefByName4) {
     // Get all definitions.
-    const OptionDefContainerPtr defs = LibDHCP::getOptionDefs(Option::V4);
+    const OptionDefContainerPtr defs = LibDHCP::getOptionDefs(DHCP4_OPTION_SPACE);
     // For each definition try to find it using option name.
     for (OptionDefContainer::const_iterator def = defs->begin();
          def != defs->end(); ++def) {
         OptionDefinitionPtr def_by_name =
-            LibDHCP::getOptionDef(Option::V4, (*def)->getName());
+            LibDHCP::getOptionDef(DHCP4_OPTION_SPACE, (*def)->getName());
         ASSERT_TRUE(def_by_name);
         ASSERT_TRUE(**def == *def_by_name);
     }
@@ -1682,6 +1665,124 @@ TEST_F(LibDhcpTest, getVendorOptionDefByName4) {
         ASSERT_TRUE(def_by_name);
         ASSERT_TRUE(**def == *def_by_name);
     }
+}
+
+// This test checks handling of uncompressed FQDN list.
+TEST_F(LibDhcpTest, fqdnList) {
+    OptionDefinitionPtr def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
+                                                    DHO_DOMAIN_SEARCH);
+    ASSERT_TRUE(def);
+
+    // Prepare buffer holding an array of FQDNs.
+    const uint8_t fqdn[] = {
+        8, 109, 121, 100, 111, 109, 97, 105, 110, // "mydomain"
+        7, 101, 120, 97, 109, 112, 108, 101,      // "example"
+        3, 99, 111, 109,                          // "com"
+        0,
+        7, 101, 120, 97, 109, 112, 108, 101,      // "example"
+        3, 99, 111, 109,                          // "com"
+        0,
+        3, 99, 111, 109,                          // "com"
+        0
+    };
+    /* This size is used later so protect ourselves against changes */
+    static_assert(sizeof(fqdn) == 40,
+                  "incorrect uncompressed domain list size");
+    // Initialize a vector with the FQDN data.
+    std::vector<uint8_t> fqdn_buf(fqdn, fqdn + sizeof(fqdn));
+
+    OptionPtr option;
+    ASSERT_NO_THROW(option = def->optionFactory(Option::V4,
+                                                DHO_DOMAIN_SEARCH,
+                                                fqdn_buf.begin(),
+                                                fqdn_buf.end()));
+    ASSERT_TRUE(option);
+    OptionCustomPtr names = boost::dynamic_pointer_cast<OptionCustom>(option);
+    ASSERT_TRUE(names);
+    EXPECT_EQ(sizeof(fqdn), names->len() - names->getHeaderLen());
+    ASSERT_EQ(3, names->getDataFieldsNum());
+    EXPECT_EQ("mydomain.example.com.", names->readFqdn(0));
+    EXPECT_EQ("example.com.", names->readFqdn(1));
+    EXPECT_EQ("com.", names->readFqdn(2));
+
+    LibDhcpTest::testStdOptionDefs4(DHO_DOMAIN_SEARCH, fqdn_buf.begin(),
+                                    fqdn_buf.end(), typeid(OptionCustom));
+}
+
+// This test checks handling of compressed FQDN list.
+// See RFC3397, section 2 (and 4.1.4 of RFC1035 for the actual
+// compression algorithm).
+TEST_F(LibDhcpTest, fqdnListCompressed) {
+    OptionDefinitionPtr def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
+                                                    DHO_DOMAIN_SEARCH);
+    ASSERT_TRUE(def);
+
+    const uint8_t compressed[] = {
+        8, 109, 121, 100, 111, 109, 97, 105, 110, // "mydomain"
+        7, 101, 120, 97, 109, 112, 108, 101,      // "example"
+        3, 99, 111, 109,                          // "com"
+        0,
+        192, 9,                                   // pointer to example.com
+        192, 17                                   // pointer to com
+    };
+    std::vector<uint8_t> compressed_buf(compressed,
+                                        compressed + sizeof(compressed));
+    OptionPtr option;
+    ASSERT_NO_THROW(option = def->optionFactory(Option::V4,
+                                                DHO_DOMAIN_SEARCH,
+                                                compressed_buf.begin(),
+                                                compressed_buf.end()));
+    ASSERT_TRUE(option);
+    OptionCustomPtr names = boost::dynamic_pointer_cast<OptionCustom>(option);
+    ASSERT_TRUE(names);
+    /* Use the uncompress length here (cf fqdnList) */
+    EXPECT_EQ(40, names->len() - names->getHeaderLen());
+    ASSERT_EQ(3, names->getDataFieldsNum());
+    EXPECT_EQ("mydomain.example.com.", names->readFqdn(0));
+    EXPECT_EQ("example.com.", names->readFqdn(1));
+    EXPECT_EQ("com.", names->readFqdn(2));
+}
+
+// Check that incorrect FQDN list compression is rejected.
+// See RFC3397, section 2 (and 4.1.4 of RFC1035 for the actual
+// compression algorithm).
+TEST_F(LibDhcpTest, fqdnListBad) {
+    OptionDefinitionPtr def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
+                                                    DHO_DOMAIN_SEARCH);
+    ASSERT_TRUE(def);
+
+    const uint8_t bad[] = {
+        8, 109, 121, 100, 111, 109, 97, 105, 110, // "mydomain"
+        7, 101, 120, 97, 109, 112, 108, 101,      // "example"
+        3, 99, 111, 109,                          // "com"
+        0,
+        192, 80,                                  // too big/forward pointer
+        192, 11                                   // pointer to com
+    };
+    std::vector<uint8_t> bad_buf(bad, bad + sizeof(bad));
+
+    OptionPtr option;
+    EXPECT_THROW(option = def->optionFactory(Option::V4,
+                                             DHO_DOMAIN_SEARCH,
+                                             bad_buf.begin(),
+                                             bad_buf.end()),
+                 InvalidOptionValue);
+}
+
+// Check that empty (truncated) option is rejected.
+TEST_F(LibDhcpTest, fqdnListTrunc) {
+    OptionDefinitionPtr def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
+                                                    DHO_DOMAIN_SEARCH);
+    ASSERT_TRUE(def);
+
+    std::vector<uint8_t> empty;
+
+    OptionPtr option;
+    EXPECT_THROW(option = def->optionFactory(Option::V4,
+                                             DHO_DOMAIN_SEARCH,
+                                             empty.begin(),
+                                             empty.end()),
+                 InvalidOptionValue);
 }
 
 // tests whether v6 vendor-class option can be parsed properly.

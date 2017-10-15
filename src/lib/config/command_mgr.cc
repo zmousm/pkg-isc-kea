@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,15 +11,15 @@
 #include <dhcp/iface_mgr.h>
 #include <config/config_log.h>
 #include <boost/bind.hpp>
+#include <unistd.h>
 
 using namespace isc::data;
 
 namespace isc {
 namespace config {
 
-CommandMgr::CommandMgr() {
-    registerCommand("list-commands",
-        boost::bind(&CommandMgr::listCommandsHandler, this, _1, _2));
+CommandMgr::CommandMgr()
+    : HookedCommandMgr() {
 }
 
 CommandSocketPtr
@@ -76,48 +76,6 @@ CommandMgr::instance() {
     return (cmd_mgr);
 }
 
-void CommandMgr::registerCommand(const std::string& cmd, CommandHandler handler) {
-
-    if (!handler) {
-        isc_throw(InvalidCommandHandler, "Specified command handler is NULL");
-    }
-
-    HandlerContainer::const_iterator it = handlers_.find(cmd);
-    if (it != handlers_.end()) {
-        isc_throw(InvalidCommandName, "Handler for command '" << cmd
-                  << "' is already installed.");
-    }
-
-    handlers_.insert(make_pair(cmd, handler));
-
-    LOG_DEBUG(command_logger, DBG_COMMAND, COMMAND_REGISTERED).arg(cmd);
-}
-
-void CommandMgr::deregisterCommand(const std::string& cmd) {
-    if (cmd == "list-commands") {
-        isc_throw(InvalidCommandName,
-                  "Can't uninstall internal command 'list-commands'");
-    }
-
-    HandlerContainer::iterator it = handlers_.find(cmd);
-    if (it == handlers_.end()) {
-        isc_throw(InvalidCommandName, "Handler for command '" << cmd
-                  << "' not found.");
-    }
-    handlers_.erase(it);
-
-    LOG_DEBUG(command_logger, DBG_COMMAND, COMMAND_DEREGISTERED).arg(cmd);
-}
-
-void CommandMgr::deregisterAll() {
-
-    // No need to log anything here. deregisterAll is not used in production
-    // code, just in tests.
-    handlers_.clear();
-    registerCommand("list-commands",
-        boost::bind(&CommandMgr::listCommandsHandler, this, _1, _2));
-}
-
 void
 CommandMgr::commandReader(int sockfd) {
 
@@ -145,6 +103,19 @@ CommandMgr::commandReader(int sockfd) {
         return;
     }
 
+    // Duplicate the connection's socket in the event, the command causes the
+    // channel to close (like a reconfig).  This permits us to always have
+    // a socket on which to respond. If for some reason  we can't fall back
+    // to the connection socket.
+    int rsp_fd = dup(sockfd);
+    if (rsp_fd < 0 ) {
+        // Highly unlikely
+        const char* errmsg = strerror(errno);
+        LOG_DEBUG(command_logger, DBG_COMMAND, COMMAND_SOCKET_DUP_WARN)
+                  .arg(errmsg);
+        rsp_fd = sockfd;
+    }
+
     LOG_DEBUG(command_logger, DBG_COMMAND, COMMAND_SOCKET_READ).arg(rval).arg(sockfd);
 
     // Ok, we received something. Let's see if we can make any sense of it.
@@ -163,6 +134,11 @@ CommandMgr::commandReader(int sockfd) {
 
     if (!rsp) {
         LOG_WARN(command_logger, COMMAND_RESPONSE_ERROR);
+        // Only close the duped socket if it's different (should be)
+        if (rsp_fd != sockfd) {
+            close(rsp_fd);
+        }
+
         return;
     }
 
@@ -179,7 +155,8 @@ CommandMgr::commandReader(int sockfd) {
     }
 
     // Send the data back over socket.
-    rval = write(sockfd, txt.c_str(), len);
+    rval = write(rsp_fd, txt.c_str(), len);
+    int saverr = errno;
 
     LOG_DEBUG(command_logger, DBG_COMMAND, COMMAND_SOCKET_WRITE).arg(len).arg(sockfd);
 
@@ -187,51 +164,14 @@ CommandMgr::commandReader(int sockfd) {
         // Response transmission failed. Since the response failed, it doesn't
         // make sense to send any status codes. Let's log it and be done with
         // it.
-        LOG_ERROR(command_logger, COMMAND_SOCKET_WRITE_FAIL).arg(len).arg(sockfd);
-    }
-}
-
-isc::data::ConstElementPtr
-CommandMgr::processCommand(const isc::data::ConstElementPtr& cmd) {
-    if (!cmd) {
-        return (createAnswer(CONTROL_RESULT_ERROR,
-                             "Command processing failed: NULL command parameter"));
+        LOG_ERROR(command_logger, COMMAND_SOCKET_WRITE_FAIL)
+                  .arg(len).arg(sockfd).arg(strerror(saverr));
     }
 
-    try {
-        ConstElementPtr arg;
-        std::string name = parseCommand(arg, cmd);
-
-        LOG_INFO(command_logger, COMMAND_RECEIVED).arg(name);
-
-        HandlerContainer::const_iterator it = handlers_.find(name);
-        if (it == handlers_.end()) {
-            // Ok, there's no such command.
-            return (createAnswer(CONTROL_RESULT_ERROR,
-                                 "'" + name + "' command not supported."));
-        }
-
-        // Call the actual handler and return whatever it returned
-        return (it->second(name, arg));
-
-    } catch (const Exception& e) {
-        LOG_WARN(command_logger, COMMAND_PROCESS_ERROR2).arg(e.what());
-        return (createAnswer(CONTROL_RESULT_ERROR,
-                             std::string("Error during command processing:")
-                             + e.what()));
+    // Only close the duped socket if it's different (should be)
+    if (rsp_fd != sockfd) {
+        close(rsp_fd);
     }
-}
-
-isc::data::ConstElementPtr
-CommandMgr::listCommandsHandler(const std::string& name,
-                                const isc::data::ConstElementPtr& params) {
-    using namespace isc::data;
-    ElementPtr commands = Element::createList();
-    for (HandlerContainer::const_iterator it = handlers_.begin();
-         it != handlers_.end(); ++it) {
-        commands->add(Element::create(it->first));
-    }
-    return (createAnswer(CONTROL_RESULT_SUCCESS, commands));
 }
 
 }; // end of isc::config

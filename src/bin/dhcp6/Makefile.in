@@ -89,9 +89,11 @@ sbin_PROGRAMS = kea-dhcp6$(EXEEXT)
 @HAVE_CQL_TRUE@am__append_6 = $(CQL_LIBS)
 subdir = src/bin/dhcp6
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/spec_config.h.pre.in $(top_srcdir)/depcomp
+	$(srcdir)/spec_config.h.pre.in dhcp6_lexer.cc \
+	$(top_srcdir)/depcomp $(top_srcdir)/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -108,7 +110,8 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libdhcp6_la_LIBADD =
 am_libdhcp6_la_OBJECTS = dhcp6_log.lo dhcp6_srv.lo ctrl_dhcp6_srv.lo \
-	json_config_parser.lo dhcp6to4_ipc.lo kea_controller.lo
+	json_config_parser.lo dhcp6to4_ipc.lo dhcp6_lexer.lo \
+	dhcp6_parser.lo parser_context.lo simple_parser6.lo
 nodist_libdhcp6_la_OBJECTS = dhcp6_messages.lo
 libdhcp6_la_OBJECTS = $(am_libdhcp6_la_OBJECTS) \
 	$(nodist_libdhcp6_la_OBJECTS)
@@ -124,8 +127,8 @@ kea_dhcp6_OBJECTS = $(am_kea_dhcp6_OBJECTS)
 am__DEPENDENCIES_1 =
 kea_dhcp6_DEPENDENCIES = libdhcp6.la \
 	$(top_builddir)/src/lib/cfgrpt/libcfgrpt.la \
-	$(top_builddir)/src/lib/eval/libkea-eval.la \
 	$(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
+	$(top_builddir)/src/lib/eval/libkea-eval.la \
 	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
 	$(top_builddir)/src/lib/stats/libkea-stats.la \
 	$(top_builddir)/src/lib/config/libkea-cfgclient.la \
@@ -178,6 +181,14 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
+LEXCOMPILE = $(LEX) $(AM_LFLAGS) $(LFLAGS)
+LTLEXCOMPILE = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(LEX) $(AM_LFLAGS) $(LFLAGS)
+AM_V_LEX = $(am__v_LEX_@AM_V@)
+am__v_LEX_ = $(am__v_LEX_@AM_DEFAULT_V@)
+am__v_LEX_0 = @echo "  LEX     " $@;
+am__v_LEX_1 = 
+YLWRAP = $(top_srcdir)/ylwrap
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -392,8 +403,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -464,6 +477,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -480,7 +494,7 @@ CLEANFILES = spec_config.h dhcp6_messages.h dhcp6_messages.cc s-messages
 man_MANS = kea-dhcp6.8
 DISTCLEANFILES = $(man_MANS)
 EXTRA_DIST = $(man_MANS) kea-dhcp6.xml dhcp6.spec dhcp6.dox \
-	dhcp6_hooks.dox dhcp4o6.dox dhcp6_messages.mes
+	dhcp6_hooks.dox dhcp4o6.dox dhcp6_parser.yy dhcp6_messages.mes
 BUILT_SOURCES = spec_config.h dhcp6_messages.h dhcp6_messages.cc
 
 # convenience archive
@@ -488,13 +502,16 @@ noinst_LTLIBRARIES = libdhcp6.la
 libdhcp6_la_SOURCES = dhcp6_log.cc dhcp6_log.h dhcp6_srv.cc \
 	dhcp6_srv.h ctrl_dhcp6_srv.cc ctrl_dhcp6_srv.h \
 	json_config_parser.cc json_config_parser.h dhcp6to4_ipc.cc \
-	dhcp6to4_ipc.h kea_controller.cc
+	dhcp6to4_ipc.h dhcp6_lexer.ll location.hh position.hh stack.hh \
+	dhcp6_parser.cc dhcp6_parser.h parser_context.cc \
+	parser_context.h parser_context_decl.h simple_parser6.cc \
+	simple_parser6.h
 nodist_libdhcp6_la_SOURCES = dhcp6_messages.h dhcp6_messages.cc
 kea_dhcp6_SOURCES = main.cc
 kea_dhcp6_LDADD = libdhcp6.la \
 	$(top_builddir)/src/lib/cfgrpt/libcfgrpt.la \
-	$(top_builddir)/src/lib/eval/libkea-eval.la \
 	$(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
+	$(top_builddir)/src/lib/eval/libkea-eval.la \
 	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
 	$(top_builddir)/src/lib/stats/libkea-stats.la \
 	$(top_builddir)/src/lib/config/libkea-cfgclient.la \
@@ -517,7 +534,7 @@ all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cc .lo .o .obj
+.SUFFIXES: .cc .ll .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -625,13 +642,16 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ctrl_dhcp6_srv.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp6_lexer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp6_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp6_messages.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp6_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp6_srv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp6to4_ipc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/json_config_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kea_controller.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_context.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_parser6.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -653,6 +673,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+.ll.cc:
+	$(AM_V_LEX)$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -920,6 +943,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-rm -f dhcp6_lexer.cc
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-recursive
 
@@ -1018,8 +1042,8 @@ uninstall-man: uninstall-man8
 
 @GENERATE_DOCS_TRUE@kea-dhcp6.8: kea-dhcp6.xml
 @GENERATE_DOCS_TRUE@	@XSLTPROC@ --novalid --xinclude --nonet -o $@ \
-@GENERATE_DOCS_TRUE@        http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl \
-@GENERATE_DOCS_TRUE@        $(srcdir)/kea-dhcp6.xml
+@GENERATE_DOCS_TRUE@	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl \
+@GENERATE_DOCS_TRUE@	$(srcdir)/kea-dhcp6.xml
 
 @GENERATE_DOCS_FALSE@$(man_MANS):
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Creating dummy $@.  Configure with --enable-generate-docs to enable it.
@@ -1033,6 +1057,27 @@ dhcp6_messages.h dhcp6_messages.cc: s-messages
 s-messages: dhcp6_messages.mes
 	$(top_builddir)/src/lib/log/compiler/kea-msg-compiler $(top_srcdir)/src/bin/dhcp6/dhcp6_messages.mes
 	touch $@
+
+@GENERATE_PARSER_TRUE@parser: dhcp6_lexer.cc location.hh position.hh stack.hh dhcp6_parser.cc dhcp6_parser.h
+@GENERATE_PARSER_TRUE@	@echo "Flex/bison files regenerated"
+
+# --- Flex/Bison stuff below --------------------------------------------------
+# When debugging grammar issues, it's useful to add -v to bison parameters.
+# bison will generate parser.output file that explains the whole grammar.
+# It can be used to manually follow what's going on in the parser.
+# This is especially useful if yydebug_ is set to 1 as that variable
+# will cause parser to print out its internal state.
+# Call flex with -s to check that the default rule can be suppressed
+# Call bison with -W to get warnings like unmarked empty rules
+# Note C++11 deprecated register still used by flex < 2.6.0
+@GENERATE_PARSER_TRUE@location.hh position.hh stack.hh dhcp6_parser.cc dhcp6_parser.h: dhcp6_parser.yy
+@GENERATE_PARSER_TRUE@	$(YACC) --defines=dhcp6_parser.h --report=all --report-file=dhcp6_parser.report -o dhcp6_parser.cc dhcp6_parser.yy
+
+@GENERATE_PARSER_TRUE@dhcp6_lexer.cc: dhcp6_lexer.ll
+@GENERATE_PARSER_TRUE@	$(LEX) --prefix parser6_ -o dhcp6_lexer.cc dhcp6_lexer.ll
+
+@GENERATE_PARSER_FALSE@parser location.hh position.hh stack.hh dhcp6_parser.cc dhcp6_parser.h dhcp6_lexer.cc:
+@GENERATE_PARSER_FALSE@	@echo Parser generation disabled. Configure with --enable-generate-parser to enable it.
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -232,7 +232,7 @@ typedef Lease6Storage::index<ExpirationIndexTag>::type Lease6StorageExpirationIn
 /// @brief DHCPv4 lease storage index by address.
 typedef Lease4Storage::index<AddressIndexTag>::type Lease4StorageAddressIndex;
 
-/// @brief DHCPv4 lease storage index by exiration time.
+/// @brief DHCPv4 lease storage index by expiration time.
 typedef Lease4Storage::index<ExpirationIndexTag>::type Lease4StorageExpirationIndex;
 
 /// @brief DHCPv4 lease storage index by HW address and subnet identifier.

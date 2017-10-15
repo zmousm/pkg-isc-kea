@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2015,2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 
 #include <asiolink/io_address.h>
 #include <dhcp/option.h>
+#include <cc/cfg_to_element.h>
 #include <dhcpsrv/subnet.h>
 #include <dhcpsrv/subnet_selector.h>
 #include <util/optional_value.h>
@@ -26,7 +27,7 @@ namespace dhcp {
 ///
 /// See @c CfgSubnets6::selectSubnet documentation for more details on how the subnet
 /// is selected for the client.
-class CfgSubnets6 {
+class CfgSubnets6 : public isc::data::CfgToElement {
 public:
 
     /// @brief Adds new subnet to the configuration.
@@ -129,7 +130,7 @@ public:
     /// This method updates statistics that are affected by the newly committed
     /// configuration. In particular, it updates the number of available addresses
     /// and prefixes in each subnet. Other statistics may be added in the future. In
-    /// general, these are statistics that are dependant only on configuration, so
+    /// general, these are statistics that are dependent only on configuration, so
     /// they are not expected to change until the next reconfiguration event.
     void updateStatistics();
 
@@ -140,6 +141,11 @@ public:
     /// anything related to subnets, as there may be fewer subnets in the new
     /// configuration and also subnet-ids may change.
     void removeStatistics();
+
+    /// @brief Unparse a configuration object
+    ///
+    /// @return a pointer to unparsed configuration
+    virtual isc::data::ElementPtr toElement() const;
 
 private:
 

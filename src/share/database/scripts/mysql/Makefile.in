@@ -84,9 +84,11 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/upgrade_2.0_to_3.0.sh.in \
 	$(srcdir)/upgrade_3.0_to_4.0.sh.in \
 	$(srcdir)/upgrade_4.0_to_4.1.sh.in \
-	$(srcdir)/upgrade_4.1_to_5.0.sh.in
+	$(srcdir)/upgrade_4.1_to_5.0.sh.in \
+	$(srcdir)/upgrade_5.0_to_5.1.sh.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
+	$(top_srcdir)/m4macros/ax_cpp11.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -100,7 +102,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = upgrade_1.0_to_2.0.sh upgrade_2.0_to_3.0.sh \
 	upgrade_3.0_to_4.0.sh upgrade_4.0_to_4.1.sh \
-	upgrade_4.1_to_5.0.sh
+	upgrade_4.1_to_5.0.sh upgrade_5.0_to_5.1.sh
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -307,8 +309,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 PGSQL_CPPFLAGS = @PGSQL_CPPFLAGS@
 PGSQL_LIBS = @PGSQL_LIBS@
+PKGPYTHONDIR = @PKGPYTHONDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PLANTUML = @PLANTUML@
+PREMIUM_DIR = @PREMIUM_DIR@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -379,6 +383,7 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -433,6 +438,8 @@ upgrade_3.0_to_4.0.sh: $(top_builddir)/config.status $(srcdir)/upgrade_3.0_to_4.
 upgrade_4.0_to_4.1.sh: $(top_builddir)/config.status $(srcdir)/upgrade_4.0_to_4.1.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 upgrade_4.1_to_5.0.sh: $(top_builddir)/config.status $(srcdir)/upgrade_4.1_to_5.0.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+upgrade_5.0_to_5.1.sh: $(top_builddir)/config.status $(srcdir)/upgrade_5.0_to_5.1.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:

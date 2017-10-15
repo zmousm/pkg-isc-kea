@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,10 +19,12 @@
 #include <dhcp/iface_mgr.h>
 #include <dhcp/tests/iface_mgr_test_config.h>
 #include <dhcp/tests/pkt_captures.h>
+#include <dhcpsrv/cfg_db_access.h>
 #include <dhcpsrv/cfgmgr.h>
 #include <dhcpsrv/lease.h>
 #include <dhcpsrv/lease_mgr.h>
 #include <dhcpsrv/lease_mgr_factory.h>
+#include <log/logger_support.h>
 #include <stats/stats_mgr.h>
 
 using namespace std;
@@ -46,6 +48,9 @@ BaseServerTest::~BaseServerTest() {
 
     // Revert to original data directory.
     CfgMgr::instance().setDataDir(original_datadir_);
+
+    // Revert to unit test logging, in case the test reconfigured it.
+    isc::log::initLogger();
 }
 
 Dhcpv4SrvTest::Dhcpv4SrvTest()
@@ -62,9 +67,10 @@ Dhcpv4SrvTest::Dhcpv4SrvTest()
     // Add Router option.
     Option4AddrLstPtr opt_routers(new Option4AddrLst(DHO_ROUTERS));
     opt_routers->setAddress(IOAddress("192.0.2.2"));
-    subnet_->getCfgOption()->add(opt_routers, false, "dhcp4");
+    subnet_->getCfgOption()->add(opt_routers, false, DHCP4_OPTION_SPACE);
 
     CfgMgr::instance().clear();
+    CfgMgr::instance().setFamily(AF_INET);
     CfgMgr::instance().getStagingCfg()->getCfgSubnets4()->add(subnet_);
     CfgMgr::instance().commit();
 
@@ -78,7 +84,6 @@ Dhcpv4SrvTest::~Dhcpv4SrvTest() {
 
     // Make sure that we revert to default value
     CfgMgr::instance().clear();
-    CfgMgr::instance().echoClientId(true);
 
     LibDHCP::clearRuntimeOptionDefs();
 
@@ -110,24 +115,24 @@ void Dhcpv4SrvTest::configureRequestedOptions() {
         option_dns_servers(new Option4AddrLst(DHO_DOMAIN_NAME_SERVERS));
     option_dns_servers->addAddress(IOAddress("192.0.2.1"));
     option_dns_servers->addAddress(IOAddress("192.0.2.100"));
-    ASSERT_NO_THROW(subnet_->getCfgOption()->add(option_dns_servers, false, "dhcp4"));
+    ASSERT_NO_THROW(subnet_->getCfgOption()->add(option_dns_servers, false, DHCP4_OPTION_SPACE));
 
     // domain-name
     OptionDefinition def("domain-name", DHO_DOMAIN_NAME, OPT_FQDN_TYPE);
     OptionCustomPtr option_domain_name(new OptionCustom(def, Option::V4));
     option_domain_name->writeFqdn("example.com");
-    subnet_->getCfgOption()->add(option_domain_name, false, "dhcp4");
+    subnet_->getCfgOption()->add(option_domain_name, false, DHCP4_OPTION_SPACE);
 
     // log-servers
     Option4AddrLstPtr option_log_servers(new Option4AddrLst(DHO_LOG_SERVERS));
     option_log_servers->addAddress(IOAddress("192.0.2.2"));
     option_log_servers->addAddress(IOAddress("192.0.2.10"));
-    ASSERT_NO_THROW(subnet_->getCfgOption()->add(option_log_servers, false, "dhcp4"));
+    ASSERT_NO_THROW(subnet_->getCfgOption()->add(option_log_servers, false, DHCP4_OPTION_SPACE));
 
     // cookie-servers
     Option4AddrLstPtr option_cookie_servers(new Option4AddrLst(DHO_COOKIE_SERVERS));
     option_cookie_servers->addAddress(IOAddress("192.0.2.1"));
-    ASSERT_NO_THROW(subnet_->getCfgOption()->add(option_cookie_servers, false, "dhcp4"));
+    ASSERT_NO_THROW(subnet_->getCfgOption()->add(option_cookie_servers, false, DHCP4_OPTION_SPACE));
 }
 
 void Dhcpv4SrvTest::messageCheck(const Pkt4Ptr& q, const Pkt4Ptr& a) {
@@ -355,7 +360,8 @@ void Dhcpv4SrvTest::checkServerId(const Pkt4Ptr& rsp, const OptionPtr& expected_
 
 void Dhcpv4SrvTest::checkClientId(const Pkt4Ptr& rsp, const OptionPtr& expected_clientid) {
 
-    bool include_clientid = CfgMgr::instance().echoClientId();
+    bool include_clientid =
+        CfgMgr::instance().getCurrentCfg()->getEchoClientId();
 
     // check that server included our own client-id
     OptionPtr opt = rsp->getOption(DHO_DHCP_CLIENT_IDENTIFIER);
@@ -598,7 +604,8 @@ Dhcpv4SrvTest::configure(const std::string& config, const bool commit) {
 void
 Dhcpv4SrvTest::configure(const std::string& config, NakedDhcpv4Srv& srv,
                          const bool commit) {
-    ElementPtr json = Element::fromJSON(config);
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseJSON(config));
     ConstElementPtr status;
 
     // Configure the server and make sure the config is accepted
@@ -607,6 +614,13 @@ Dhcpv4SrvTest::configure(const std::string& config, NakedDhcpv4Srv& srv,
     int rcode;
     ConstElementPtr comment = config::parseAnswer(rcode, status);
     ASSERT_EQ(0, rcode);
+
+    // Use specified lease database backend.
+    ASSERT_NO_THROW( {
+        CfgDbAccessPtr cfg_db = CfgMgr::instance().getStagingCfg()->getCfgDbAccess();
+        cfg_db->setAppendedParameters("universe=4");
+        cfg_db->createManagers();
+    } );
 
     if (commit) {
         CfgMgr::instance().commit();
@@ -654,7 +668,7 @@ Dhcpv4SrvTest::pretendReceivingPkt(NakedDhcpv4Srv& srv, const std::string& confi
     ObservationPtr pkt4_rcvd = mgr.getObservation("pkt4-received");
     ObservationPtr tested_stat = mgr.getObservation(stat_name);
 
-    // All expected statstics must be present.
+    // All expected statistics must be present.
     ASSERT_TRUE(pkt4_rcvd);
     ASSERT_TRUE(tested_stat);
 

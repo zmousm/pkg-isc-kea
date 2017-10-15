@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2015,2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -35,7 +35,7 @@ public:
 /// implementations should derive from it.
 ///
 /// Methods are not pure virtual, as we need to instantiate basic daemons (e.g.
-/// Dhcpv6Srv) in tests, without going through the hassles of implemeting stub
+/// Dhcpv6Srv) in tests, without going through the hassles of implementing stub
 /// methods.
 ///
 /// Classes derived from @c Daemon may install custom signal handlers using
@@ -55,7 +55,7 @@ public:
     /// process to NULL.
     Daemon();
 
-    /// @brief Desctructor
+    /// @brief Destructor
     ///
     /// Having virtual destructor ensures that all derived classes will have
     /// virtual destructor as well.
@@ -135,6 +135,20 @@ public:
     ///
     /// @param config_file pathname of the configuration file
     void setConfigFile(const std::string& config_file);
+
+    /// @brief Writes current configuration to specified file
+    ///
+    /// This method writes the current configuration to specified file.
+    /// @todo: this logically more belongs to CPL process file. Once
+    /// Daemon is merged with CPL architecture, it will be a better
+    /// fit.
+    ///
+    /// @param config_file name of the file to write the configuration to
+    /// @return number of files written
+    /// @throw Unexpected if CfgMgr can't retrieve configuation or file cannot
+    ///                   be written
+    virtual size_t
+    writeConfigFile(const std::string& config_file) const;
 
     /// @brief returns the process name
     /// This value is used as when forming the default PID file name

@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,6 +12,8 @@
 #include <openssl/evp.h>
 
 #include <cryptolink/openssl_common.h>
+#define KEA_HASH
+#include <cryptolink/openssl_compat.h>
 
 #include <cstring>
 
@@ -54,7 +56,8 @@ public:
     /// @brief Constructor for specific hash algorithm
     ///
     /// @param hash_algorithm The hash algorithm
-    explicit HashImpl(const HashAlgorithm hash_algorithm) {
+    explicit HashImpl(const HashAlgorithm hash_algorithm)
+    : hash_algorithm_(hash_algorithm), md_(0) {
         const EVP_MD* algo = ossl::getHashAlgorithm(hash_algorithm);
         if (algo == 0) {
             isc_throw(isc::cryptolink::UnsupportedAlgorithm,
@@ -62,32 +65,40 @@ public:
                       static_cast<int>(hash_algorithm));
         }
 
-        md_.reset(new EVP_MD_CTX);
+        md_ = EVP_MD_CTX_new();
+        if (md_ == 0) {
+            isc_throw(isc::cryptolink::LibraryError,
+                      "OpenSSL EVP_MD_CTX_new() failed");
+        }
 
-        EVP_MD_CTX_init(md_.get());
-
-        EVP_DigestInit_ex(md_.get(), algo, NULL);
+        EVP_DigestInit_ex(md_, algo, NULL);
     }
 
     /// @brief Destructor
     ~HashImpl() {
         if (md_) {
-            EVP_MD_CTX_cleanup(md_.get());
+            EVP_MD_CTX_free(md_);
         }
+        md_ = 0;
+    }
+
+    /// @brief Returns the HashAlgorithm of the object
+    HashAlgorithm getHashAlgorithm() const {
+        return (hash_algorithm_);
     }
 
     /// @brief Returns the output size of the digest
     ///
     /// @return output size of the digest
     size_t getOutputLength() const {
-        return (EVP_MD_CTX_size(md_.get()));
+        return (EVP_MD_CTX_size(md_));
     }
 
     /// @brief Adds data to the digest
     ///
     /// See @ref isc::cryptolink::Hash::update() for details.
     void update(const void* data, const size_t len) {
-        EVP_DigestUpdate(md_.get(), data, len);
+        EVP_DigestUpdate(md_, data, len);
     }
 
     /// @brief Calculate the final digest
@@ -96,7 +107,7 @@ public:
     void final(isc::util::OutputBuffer& result, size_t len) {
         size_t size = getOutputLength();
         std::vector<unsigned char> digest(size);
-        EVP_DigestFinal_ex(md_.get(), &digest[0], NULL);
+        EVP_DigestFinal_ex(md_, &digest[0], NULL);
         if (len > size) {
              len = size;
         }
@@ -109,7 +120,7 @@ public:
     void final(void* result, size_t len) {
         size_t size = getOutputLength();
         std::vector<unsigned char> digest(size);
-        EVP_DigestFinal_ex(md_.get(), &digest[0], NULL);
+        EVP_DigestFinal_ex(md_, &digest[0], NULL);
         if (len > size) {
              len = size;
         }
@@ -122,7 +133,7 @@ public:
     std::vector<uint8_t> final(size_t len) {
         size_t size = getOutputLength();
         std::vector<unsigned char> digest(size);
-        EVP_DigestFinal_ex(md_.get(), &digest[0], NULL);
+        EVP_DigestFinal_ex(md_, &digest[0], NULL);
         if (len < size) {
             digest.resize(len);
         }
@@ -130,8 +141,11 @@ public:
     }
 
 private:
-    /// @brief The protected pointer to the OpenSSL EVP_MD_CTX structure
-    boost::scoped_ptr<EVP_MD_CTX> md_;
+    /// @brief The hash algorithm
+    HashAlgorithm hash_algorithm_;
+
+    /// @brief The pointer to the OpenSSL EVP_MD_CTX structure
+    EVP_MD_CTX* md_;
 };
 
 Hash::Hash(const HashAlgorithm hash_algorithm)
@@ -141,6 +155,11 @@ Hash::Hash(const HashAlgorithm hash_algorithm)
 
 Hash::~Hash() {
     delete impl_;
+}
+
+HashAlgorithm
+Hash::getHashAlgorithm() const {
+    return (impl_->getHashAlgorithm());
 }
 
 size_t

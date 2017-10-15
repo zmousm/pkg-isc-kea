@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -342,7 +342,7 @@ protected:
 class TokenRelay6Option : public TokenOption {
 public:
     /// @brief Constructor that takes a nesting level and an option
-    /// code as paramaters.
+    /// code as parameters.
     ///
     /// @param nest_level the nesting for which relay to examine.
     /// @param option_code code of the option.
@@ -398,10 +398,10 @@ public:
 
     /// @brief Gets a value from the specified packet.
     ///
-    /// Evaluation uses metadatas available in the packet. It does not
+    /// Evaluation uses metadata available in the packet. It does not
     /// require any values to be present on the stack.
     ///
-    /// @param pkt - metadatas will be extracted from here
+    /// @param pkt - metadata will be extracted from here
     /// @param values - stack of values (1 result will be pushed)
     void evaluate(Pkt& pkt, ValueStack& values);
 
@@ -499,7 +499,7 @@ public:
 
     /// @brief Gets a value of the specified packet.
     ///
-    /// The evaluation uses fields that are availabe in the packet.  It does not
+    /// The evaluation uses fields that are available in the packet.  It does not
     /// require any values to be present on the stack.
     ///
     /// @throw EvalTypeError when called for a DHCPv4 packet
@@ -635,7 +635,7 @@ public:
     /// str is the string to extract a substring from.  If it is empty, an empty
     /// string is pushed onto the value stack.
     ///
-    /// start is the postion from which the code starts extracting the substring.
+    /// start is the position from which the code starts extracting the substring.
     /// 0 is the first character and a negative number starts from the end, with
     /// -1 being the last character.  If the starting point is outside of the
     /// original string an empty string is pushed onto the value stack.

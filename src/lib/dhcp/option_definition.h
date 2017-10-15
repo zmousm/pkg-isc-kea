@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,6 +17,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/shared_ptr.hpp>
 #include <map>
+#include <string>
 
 namespace isc {
 namespace dhcp {
@@ -84,7 +85,9 @@ class OptionIntArray;
 /// value. For example, DHCPv6 option 8 comprises a two-byte option code, a
 /// two-byte option length and two-byte field that carries a uint16 value
 /// (RFC 3315 - http://ietf.org/rfc/rfc3315.txt).  In such a case, the option
-/// type is defined as "uint16".
+/// type is defined as "uint16". Length and string tuples are a length
+/// on one (DHCPv4) or two (DHCPv6) bytes followed by a string of
+/// the given length.
 ///
 /// When the option has a more complex structure, the option type may be
 /// defined as "array", "record" or even "array of records".
@@ -101,7 +104,7 @@ class OptionIntArray;
 /// option type is used. In such cases the data field types within the record
 /// are specified using \ref OptionDefinition::addRecordField.
 ///
-/// When the OptionDefinition object has been sucessfully created, it can be
+/// When the OptionDefinition object has been successfully created, it can be
 /// queried to return the appropriate option factory function for the specified
 /// specified option format. There are a number of "standard" factory functions
 /// that cover well known (common) formats.  If the particular format does not
@@ -117,9 +120,12 @@ class OptionIntArray;
 /// - "uint16"
 /// - "uint32"
 /// - "ipv4-address" (IPv4 Address)
-/// - "ipv6-address" (IPV6 Address)
+/// - "ipv6-address" (IPv6 Address)
+/// - "ipv6-prefix" (IPv6 variable length prefix)
+/// - "psid" (PSID length / value)
 /// - "string"
 /// - "fqdn" (fully qualified name)
+/// - "tuple" (length and string)
 /// - "record" (set of data fields of different types)
 ///
 /// @todo Extend the comment to describe "generic factories".
@@ -368,6 +374,9 @@ public:
     /// @return true if option has the format of OpaqueDataTuples type options.
     bool haveOpaqueDataTuplesFormat() const;
 
+    /// @brief Check if the option has format of CompressedFqdnList options.
+    bool haveCompressedFqdnListFormat() const;
+
     /// @brief Option factory.
     ///
     /// This function creates an instance of DHCP option using
@@ -515,6 +524,21 @@ public:
                                       OptionBufferConstIter begin,
                                       OptionBufferConstIter end);
 
+    /// @brief Factory to create option with tuple list.
+    ///
+    /// @param u option universe (V4 or V6).
+    /// @param type option type.
+    /// @param begin iterator pointing to the beginning of the buffer
+    /// with a list of tuples.
+    /// @param end iterator pointing to the end of the buffer with
+    /// a list of tuples.
+    ///
+    /// @return instance of the DHCP option.
+    static OptionPtr factoryOpaqueDataTuples(Option::Universe u,
+                                             uint16_t type,
+                                             OptionBufferConstIter begin,
+                                             OptionBufferConstIter end);
+
     /// @brief Factory function to create option with integer value.
     ///
     /// @param u universe (V4 or V6).
@@ -557,6 +581,19 @@ public:
     }
 
 private:
+
+    /// @brief Factory function to create option with a compressed FQDN list.
+    ///
+    /// @param u universe (V4 or V6).
+    /// @param type option type.
+    /// @param begin iterator pointing to the beginning of the buffer.
+    /// @param end iterator pointing to the end of the buffer.
+    ///
+    /// @return instance of the DHCP option where FQDNs are uncompressed.
+    /// @throw InvalidOptionValue if data for the option is invalid.
+    OptionPtr factoryFqdnList(Option::Universe u,
+                              OptionBufferConstIter begin,
+                              OptionBufferConstIter end) const;
 
     /// @brief Creates an instance of an option having special format.
     ///
@@ -621,7 +658,7 @@ private:
     /// This function performs lexical cast of a string value to integer
     /// value and checks if the resulting value is within a range of a
     /// target type. The target type should be one of the supported
-    /// integer types.
+    /// integer types. Hexadecimal input is supported.
     ///
     /// @param value_str input value given as string.
     /// @tparam T target integer type for lexical cast.
@@ -641,13 +678,14 @@ private:
     /// if it is successful it will store the data in the buffer
     /// in a binary format.
     ///
+    /// @param u option universe (V4 or V6).
     /// @param value string representation of the value to be written.
     /// @param type the actual data type to be stored.
     /// @param [in, out] buf buffer where the value is to be stored.
     ///
     /// @throw BadDataTypeCast if data write was unsuccessful.
-    void writeToBuffer(const std::string& value, const OptionDataType type,
-                       OptionBuffer& buf) const;
+    void writeToBuffer(Option::Universe u, const std::string& value,
+                       const OptionDataType type, OptionBuffer& buf) const;
 
     /// Option name.
     std::string name_;
@@ -716,6 +754,9 @@ typedef boost::multi_index_container<
 
 /// Pointer to an option definition container.
 typedef boost::shared_ptr<OptionDefContainer> OptionDefContainerPtr;
+
+/// Container that holds option definitions for various option spaces.
+typedef std::map<std::string, OptionDefContainerPtr> OptionDefContainers;
 
 /// Container that holds various vendor option containers
 typedef std::map<uint32_t, OptionDefContainerPtr> VendorOptionDefContainers;
