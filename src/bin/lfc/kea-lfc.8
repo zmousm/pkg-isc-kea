@@ -1,0 +1,163 @@
+'\" t
+.\"     Title: kea-lfc
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: Sep. 28, 2016
+.\"    Manual: Kea
+.\"    Source: ISC Kea 1.1.0
+.\"  Language: English
+.\"
+.TH "KEA\-LFC" "8" "Sep\&. 28, 2016" "ISC Kea 1.1.0" "Kea"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+kea-lfc \- Lease File Cleanup process in Kea
+.SH "SYNOPSIS"
+.HP \w'\fBkea\-lfc\fR\ 'u
+\fBkea\-lfc\fR [\fB\-4|\-6\fR] [\fB\-c\ \fR\fB\fIconfig\-file\fR\fR] [\fB\-p\ \fR\fB\fIpid\-file\fR\fR] [\fB\-x\ \fR\fB\fIprevious\-file\fR\fR] [\fB\-i\ \fR\fB\fIcopy\-file\fR\fR] [\fB\-o\ \fR\fB\fIoutput\-file\fR\fR] [\fB\-f\ \fR\fB\fIfinish\-file\fR\fR] [\fB\-v\fR] [\fB\-V\fR] [\fB\-W\fR] [\fB\-d\fR] [\fB\-h\fR]
+.SH "DESCRIPTION"
+.PP
+The
+\fBkea\-lfc\fR
+service process removes redundant information from the files used to provide persistent storage for the memfile data base backend\&. The service is written to run as a stand alone process\&. While it can be started externally, there is usually no need to do this\&. It will be run on a periodic basis by the Kea DHCP servers\&.
+.SH "ARGUMENTS"
+.PP
+The arguments are as follows:
+.PP
+\fB\-d\fR
+.RS 4
+Verbose mode sets the logging level to debug\&. This is primarily for development purposes in stand\-alone mode\&.
+.RE
+.PP
+\fB\-v\fR
+.RS 4
+version causes the version stamp to be printed\&.
+.RE
+.PP
+\fB\-V\fR
+.RS 4
+Version causes a longer form of the version stamp to be printed\&.
+.RE
+.PP
+\fB\-W\fR
+.RS 4
+Display the configuration report\&.
+.RE
+.PP
+\fB\-h\fR
+.RS 4
+Help causes the usage string to be printed\&.
+.RE
+.PP
+\fB\-4 | \-6\fR
+.RS 4
+The protocol version of the lease files, must be one of 4 or 6\&.
+.RE
+.PP
+\fB\-c\fR
+.RS 4
+Configuration file including the configuration for
+\fBkea\-lfc\fR
+process\&. It may also contain configuration entries for other Kea services\&. Currently
+\fBkea\-lfc\fR
+gets all of its arguments from the command line, in the future it will be extended to get some arguments from the config file\&.
+.RE
+.PP
+\fB\-p\fR
+.RS 4
+PID file \- When the
+\fBkea\-lfc\fR
+process starts it attempts to determine if another instance of the process is already running by examining the pid file\&. If one is already running the new process is terminated\&. If one isn\*(Aqt running it writes its pid into the pid file\&.
+.RE
+.PP
+\fB\-x\fR
+.RS 4
+Previous or ex lease file \- When
+\fBkea\-lfc\fR
+starts this is the result of any previous run of
+\fBkea\-lfc\fR\&. When
+\fBkea\-lfc\fR
+finishes it is the result of this run\&. If
+\fBkea\-lfc\fR
+is interrupted before completing, this file may not exist\&.
+.RE
+.PP
+\fB\-i\fR
+.RS 4
+Input or copy of lease file \- Before the DHCP server invokes
+\fBkea\-lfc\fR
+it will move the current lease file here and then call
+\fBkea\-lfc\fR
+with this file\&.
+.RE
+.PP
+\fB\-o\fR
+.RS 4
+Output lease file \- The temporary file
+\fBkea\-lfc\fR
+should use to write the leases\&. Upon completion of writing this this file it will be moved to the finish file (see below)\&.
+.RE
+.PP
+\fB\-f\fR
+.RS 4
+Finish or completion file \- Another temporary file
+\fBkea\-lfc\fR
+uses for bookkeeping\&. When
+\fBkea\-lfc\fR
+completes writing the output file it moves it to this file name\&. After
+\fBkea\-lfc\fR
+finishes deleting the other files (previous and input) it moves this file to previous lease file\&. By moving the files in this fashion the
+\fBkea\-lfc\fR
+and the DHCP server processes can determine the correct file to use even if one of the processes was interrupted before completing its task\&.
+.RE
+.SH "DOCUMENTATION"
+.PP
+Kea comes with an extensive Kea User\*(Aqs Guide documentation that covers all aspects of running the Kea software \- compilation, installation, configuration, configuration examples and many more\&. Kea also features a Kea Messages Manual, which lists all possible messages Kea can print with a brief description for each of them\&. Both documents are typically available in various formats (txt, html, pdf) with your Kea distribution\&. The on\-line version is available at http://kea\&.isc\&.org/docs/\&.
+.PP
+Kea source code is documented in the Kea Developer\*(Aqs Guide\&. It\*(Aqs on\-line version is available at http://kea\&.isc\&.org\&. Please follow Developer\*(Aqs Guide link\&.
+.PP
+Kea project website is available at: http://kea\&.isc\&.org\&.
+.SH "MAILING LISTS AND SUPPORT"
+.PP
+There are two mailing lists available for Kea project\&. kea\-users (kea\-users at lists\&.isc\&.org) is intended for Kea users, while kea\-dev (kea\-dev at lists\&.isc\&.org) is intended for Kea developers, prospective contributors and other advanced users\&. Both lists are available at http://lists\&.isc\&.org\&. The community provides best effort type of support on both of those lists\&.
+.PP
+ISC provides professional support for Kea services\&. See https://www\&.isc\&.org/kea/ for details\&.
+.SH "HISTORY"
+.PP
+The
+\fBkea\-lfc\fR
+process was first coded in January 2015 by the ISC Kea/DHCP team\&.
+.SH "SEE ALSO"
+.PP
+\fBkea-dhcp4\fR(8),
+\fBkea-dhcp6\fR(8),
+\fBkea-dhcp-ddns\fR(8),
+\fBkea-admin\fR(8),
+\fBkeactrl\fR(8),
+\fBperfdhcp\fR(8),
+Kea Administrator\*(Aqs Guide\&.
+.SH "AUTHOR"
+.br
+.PP
+The Kea software has been written by a number of engineers working for ISC: Tomek Mrugalski, Stephen Morris, Marcin Siodelski, Thomas Markwalder, Francis Dupont, Jeremy C\&. Reed, Wlodek Wencel and Shawn Routhier\&. That list is roughly in the chronological order in which the authors made their first contribution\&. For a complete list of authors and contributors, see AUTHORS file\&.
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2015 Internet Systems Consortium, Inc. ("ISC")
+.br

@@ -1,0 +1,490 @@
+#!/bin/sh
+
+# Copyright (C) 2014-2016 Internet Systems Consortium, Inc. ("ISC")
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Include common test library.
+. @abs_top_builddir@/src/lib/testutils/dhcp_test_lib.sh
+
+# Include admin utilities
+. @abs_top_srcdir@/src/bin/admin/admin-utils.sh
+
+# Set path to the production schema scripts
+db_scripts_dir=@abs_top_srcdir@/src/share/database/scripts
+
+db_user="keatest"
+db_password="keatest"
+db_name="keatest"
+
+# Set location of the kea-admin.
+keaadmin=@abs_top_builddir@/src/bin/admin/kea-admin
+
+# Wipe all tables from the DB:
+mysql_wipe() {
+    printf "Wiping whole database %s\n" $db_name
+
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 < $db_scripts_dir/mysql/dhcpdb_drop.mysql
+    ERRCODE=$?
+
+    assert_eq 0 $ERRCODE "mysql-wipe: drop table sql failed, exit code %d, expected %d"
+}
+
+mysql_lease_init_test() {
+    test_start "mysql.lease-init"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    # Ok, now let's initalize the database
+    ${keaadmin} lease-init mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir
+    ERRCODE=$?
+
+    assert_eq 0 $ERRCODE "kea-admin lease-init mysql returned non-zero status code %d, expected %d"
+
+    # Ok, now let's check if the tables are indeed there.
+    # First table: schema_version. Should have 2 columns: version and minor.
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT version, minor FROM schema_version;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "schema_version table is missing or broken. (expected status code %d, returned %d)"
+
+    # Second table: lease4
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT address, hwaddr, client_id, valid_lifetime, expire, subnet_id, fqdn_fwd, fqdn_rev, hostname FROM lease4;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease4 table is missing or broken. (expected status code %d, returned %d)"
+
+    # Third table: lease6
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT address, duid, valid_lifetime, expire, subnet_id, pref_lifetime, lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, hwaddr, hwtype, hwaddr_source FROM lease6;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease6 table is missing or broken. (expected status code %d, returned %d)"
+
+    # Fourth table: lease6_types
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT lease_type, name FROM lease6_types;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease6_types table is missing or broken. (expected status code %d, returned %d)"
+
+    # Fifth table: lease_hwaddr_source
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT hwaddr_source, name FROM lease_hwaddr_source;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease_hwaddr_source table is missing or broken. (expected status code %d, returned %d)"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    test_finish 0
+}
+
+mysql_lease_version_test() {
+    test_start "mysql.lease-version"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    # Ok, now let's create a version 1.7
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+CREATE TABLE schema_version (
+    version INT PRIMARY KEY NOT NULL,
+    minor INT
+    );
+INSERT INTO schema_version VALUES (1, 7);
+EOF
+
+    version=$(${keaadmin} lease-version mysql -u $db_user -p $db_password -n $db_name)
+
+    assert_str_eq "1.7" ${version} "Expected kea-admin to return %s, returned value was %s"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    test_finish 0
+}
+
+mysql_host_reservation_init_test() {
+    test_start "mysql.host_reservation-init"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    # Ok, now let's initalize the database
+    ${keaadmin} lease-init mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir
+    ERRCODE=$?
+
+    assert_eq 0 $ERRCODE "kea-admin lease-init mysql returned non-zero status code %d, expected %d"
+
+    # Ok, now let's check if the tables are indeed there.
+    # First table: schema_version. Should have 2 columns: version and minor.
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT version, minor FROM schema_version;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "schema_version table is missing or broken. (expected status code %d, returned %d)"
+
+    # Second table: hosts
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT host_id, dhcp_identifier, dhcp_identifier_type, dhcp4_subnet_id, dhcp6_subnet_id, ipv4_address, hostname, dhcp4_client_classes, dhcp6_client_classes, dhcp4_next_server, dhcp4_server_hostname, dhcp4_boot_file_name FROM hosts;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "hosts table is missing or broken. (expected status code %d, returned %d)"
+
+    # Third table: ipv6_reservations
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT reservation_id, address, prefix_len, type, dhcp6_iaid, host_id FROM ipv6_reservations;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "ipv6_reservations table is missing or broken. (expected status code %d, returned %d)"
+
+    # Fourth table: dhcp4_options
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT option_id, code, value, formatted_value, space, persistent, dhcp_client_class, dhcp4_subnet_id, host_id, scope_id FROM dhcp4_options;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dhcp4_options table is missing or broken. (expected status code %d, returned %d)"
+
+    # Fifth table: dhcp6_options
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT option_id, code, value, formatted_value, space, persistent, dhcp_client_class, dhcp6_subnet_id, host_id, scope_id FROM dhcp6_options;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dhcp6_options table is missing or broken. (expected status code %d, returned %d)"
+
+    # Sixth table: host_identifier_type
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT type, name FROM host_identifier_type;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "host_identifier_type table is missing or broken. (expected status code %d, returned %d)"
+    # Seventh table: dhcp_option_scope
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT scope_id, scope_name FROM dhcp_option_scope;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dhcp_option_scope table is missing or broken. (expected status code %d, returned %d)"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    test_finish 0
+}
+
+mysql_upgrade_test() {
+
+    test_start "mysql.host_reservation-upgrade"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    # Initialize database to scheme 1.0.
+    mysql -u$db_user -p$db_password $db_name < @abs_top_srcdir@/src/bin/admin/tests/dhcpdb_create_1.0.mysql
+
+    # Sanity check - verify that it reports version 1.0.
+    version=$(${keaadmin} lease-version mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir) 
+
+    assert_str_eq "1.0" ${version} "Expected kea-admin to return %s, returned value was %s"
+
+    # Ok, we have a 1.0 database. Let's upgrade it to 5.0
+    ${keaadmin} lease-upgrade mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir
+    ERRCODE=$?
+
+    assert_eq 0 $ERRCODE "kea-admin lease-upgrade mysql returned non-zero status code %d, expected %d"
+
+    # Let's check that the new tables are indeed there.
+
+    #table: lease6 (upgrade 1.0 -> 2.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT hwaddr, hwtype, hwaddr_source FROM lease6;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease6 table not upgraded to 2.0 (expected status code %d, returned %d)"
+
+    #table: lease_hwaddr_source (upgrade 1.0 -> 2.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT hwaddr_source, name FROM lease_hwaddr_source;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease_hwaddr_source table is missing or broken. (expected status code %d, returned %d)"
+
+    #table: hosts (upgrade 2.0 -> 3.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT host_id, dhcp_identifier, dhcp_identifier_type, dhcp4_subnet_id, dhcp6_subnet_id, ipv4_address, hostname, dhcp4_client_classes, dhcp6_client_classes FROM hosts;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "hosts table is missing or broken. (expected status code %d, returned %d)"
+
+    #table: ipv6_reservations (upgrade 2.0 -> 3.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT reservation_id, address, prefix_len, type, dhcp6_iaid, host_id FROM ipv6_reservations;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "ipv6_reservations table is missing or broken. (expected status code %d, returned %d)"
+
+    #table: dhcp4_options (upgrade 2.0 -> 3.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT option_id, code, value, formatted_value, space, persistent, dhcp_client_class, dhcp4_subnet_id, host_id FROM dhcp4_options;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dhcp4_options table is missing or broken. (expected status code %d, returned %d)"
+
+    #table: dhcp6_options (upgrade 2.0 -> 3.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT option_id, code, value, formatted_value, space, persistent, dhcp_client_class, dhcp6_subnet_id, host_id FROM dhcp6_options;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dhcp6_options table is missing or broken. (expected status code %d, returned %d)"
+
+    #table: lease_state table added (upgrade 3.0 -> 4.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT state,name from lease_state;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dhcp6_options table is missing or broken. (expected status code %d, returned %d)"
+
+    #table: state column added to lease4 (upgrade 3.0 -> 4.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT state from lease4;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease4 is missing state column. (expected status code %d, returned %d)"
+
+    #table: state column added to lease6 (upgrade 3.0 -> 4.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    SELECT state from lease6;
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease6 is missing state column. (expected status code %d, returned %d)"
+
+    #table: stored procedures for lease dumps added (upgrade 3.0 -> 4.0)
+    mysql -u$db_user -p$db_password $db_name >/dev/null 2>&1 <<EOF
+    call lease4DumpHeader(); call lease4DumpData(); call lease6DumpHeader(); call lease6DumpHeader();
+EOF
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "lease dump stored procedures are missing or broken. (expected status code %d, returned %d)"
+
+    #lease_hardware_source should have row for source = 0 (upgrade 4.0 -> 4.1)
+    qry="select count(hwaddr_source) from lease_hwaddr_source where hwaddr_source = 0 and name='HWADDR_SOURCE_UNKNOWN';"
+    count=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "select from lease_hwaddr_source failed. (expected status code %d, returned %d)"
+    assert_eq 1 "$count" "lease_hwaddr_source does not contain entry for HWADDR_SOURCE_UKNOWN. (record count %d, expected %d)"
+
+    # table: stored procedures for lease data dumps were modified (upgrade 4.0 -> 4.1)
+    # verify  lease4DumpData has order by lease address
+    qry="show create procedure lease4DumpData"
+    text=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "procedure text fetch for lease4DumpData failed. (returned status code %d, expected %d)"
+    count=`echo $text | grep -ic "order by l\.address"`
+    assert_eq 1 $count "lease4DumpData doesn't have order by clause. (returned count %d, expected %d)"
+
+    # verify  lease6DumpData has order by lease address
+    qry="show create procedure lease6DumpData"
+    text=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "procedure text fetch for lease6DumpData failed. (returned status code %d, expected %d)"
+    count=`echo $text | grep -ic "order by l\.address"`
+    assert_eq 1 $count "lease6DumpData doesn't have order by clause. (returned count %d, expected %d)"
+
+    # verify that host_identifier_type table exists.
+    qry="select count(*) from host_identifier_type";
+    count=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "select from host_identifier_type failed. (expected status code %d, returned %d)"
+    assert_eq 3 "$count" "host_identifier_type does not contain correct number of entries. (expected count %d, returned %d)"
+
+    # verify that foreign key fk_host_identifier_type exists
+    qry="show create table hosts";
+    text=`mysql_execute "${qry}"`
+    count=`echo $text | grep -ic -m 1 "fk_host_identifier_type"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "show create table hosts failed. (expected status code %d, returned %d)"
+    assert_eq 1 "$count" "show create table hosts did not return correct number of fk_host_identifier_type instances. (expected %d, returned %d)"
+
+    # verify that dhcp_option_scope table exists.
+    qry="select count(*) from dhcp_option_scope";
+    count=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "select from dhcp_option_scope failed. (expected status code %d, returned %d)"
+    assert_eq 4 "$count" "dhcp_option_scope does not contain correct number of entries. (expected %d, returned %d)"
+
+    # verify that dhcp4_options table includes scope_id
+    qry="select scope_id from dhcp4_options";
+    count=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "select scope_id from dhcp4_options failed. (expected status code %d, returned %d)"
+
+    # verify that dhcp6_options table includes scope_id
+    qry="select scope_id from dhcp6_options";
+    count=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "select scope_id from dhcp6_options failed. (expected status code %d, returned %d)"
+
+    # verify that hosts table has columns holding values for DHCPv4 fixed fields
+    qry="select dhcp4_next_server, dhcp4_server_hostname, dhcp4_boot_file_name from hosts";
+    count=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "select dhcp4_next_server, dhcp4_server_hostname, dhcp4_boot_file_name failed. (expected status code %d, returned %d)"
+
+    # verify that dhcp4_subnet_id is unsigned
+    qry="show columns from hosts like 'dhcp4_subnet_id'"
+    text=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "show columns from hosts like 'dhcp4_subnet_id' failed. (expected status code %d, returned %d)"
+    count=`echo $text | grep -ic unsigned`
+    assert_eq $count 1 "dhcp4_subnet_id is not of unsigned type. (returned count %d, expected %d)"
+
+    # verify that dhcp6_subnet_id is unsigned
+    qry="show columns from hosts like 'dhcp6_subnet_id'"
+    text=`mysql_execute "${qry}"`
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "show columns from hosts like 'dhcp6_subnet_id' failed. (expected status code %d, returned %d)"
+    count=`echo $text | grep -ic unsigned`
+    assert_eq 1 $count "dhcp6_subnet_id is not of unsigned type. (expected count %d, returned %d)"
+
+    # Verify upgraded schema reports version 5.0
+    version=$(${keaadmin} lease-version mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir)
+    assert_str_eq "5.0" ${version} "Expected kea-admin to return %s, returned value was %s"
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    test_finish 0
+}
+
+mysql_lease4_dump_test() {
+    test_start "mysql.lease4_dump_test"
+
+    test_dir="@abs_top_srcdir@/src/bin/admin/tests"
+    output_dir="@abs_top_builddir@/src/bin/admin/tests"
+    script_dir="@abs_top_srcdir@/src/bin/admin/scripts"
+
+    output_file="$output_dir/data/mysql.lease4_dump_test.output.csv"
+    tmp_file="$output_file.tmp"
+
+    ref_file="$test_dir/data/mysql.lease4_dump_test.reference.csv"
+
+    # wipe out any residuals from prior failed runs
+    if [ -e $output_file ]
+    then
+        rm $output_file
+    fi
+
+    if [ -e $tmp_file ]
+    then
+        rm $tmp_file
+    fi
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    # Ok, now let's initalize the database
+    ${keaadmin} lease-init mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "could not create database, expected exit code %d, actual %d"
+
+    # Insert the reference record
+    insert_sql="\
+insert into lease4 values(10,20,30,40,'2015-01-01 01:15:30',50,1,1,'one.example.com', 0);\
+insert into lease4 values(11,NULL,123,40,'2015-02-02 02:30:45',50,1,1,'', 1);\
+insert into lease4 values(12,22,NULL,40,'2015-03-03 11:01:07',50,1,1,'three.example.com', 2);"
+
+    mysql_execute "$insert_sql"
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "insert into lease4 failed, expected exit code %d, actual %d"
+
+    # Dump lease4 to output_file
+    ${keaadmin} lease-dump mysql -4 -u $db_user -p $db_password -n $db_name -d $db_scripts_dir -o $output_file
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "kea-admin lease-dump -4 failed, expected exit code %d, actual %d"
+
+    # Compare the dump output to reference file, they should be identical
+    cmp -s $output_file  $ref_file
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dump file does not match reference file, expected exit code %d, actual %d"
+
+    # remove the output file
+    rm $output_file
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    test_finish 0
+}
+
+mysql_lease6_dump_test() {
+    test_start "mysql.lease6_dump_test"
+
+    test_dir="@abs_top_srcdir@/src/bin/admin/tests"
+    output_dir="@abs_top_builddir@/src/bin/admin/tests"
+    script_dir="@abs_top_srcdir@/src/bin/admin/scripts"
+
+    output_file="$output_dir/data/mysql.lease6_dump_test.output.csv"
+    tmp_file="$output_file.tmp"
+
+    ref_file="$test_dir/data/mysql.lease6_dump_test.reference.csv"
+
+    # wipe out any residuals from prior failed runs
+    if [ -e $output_file ]
+    then
+        rm $output_file
+    fi
+
+    if [ -e $tmp_file ]
+    then
+        rm $tmp_file
+    fi
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    # Ok, now let's initalize the database
+    ${keaadmin} lease-init mysql -u $db_user -p $db_password -n $db_name -d $db_scripts_dir
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "could not create database, expected exit code %d, actual %d"
+
+    # Insert the reference record
+    insert_sql="\
+insert into lease6 values(10,20,30,'2015-04-04 01:15:30',40,50,1,60,70,1,1,'one.example.com',80,90,16,0);\
+insert into lease6 values(11,NULL,30,'2015-05-05 02:30:45',40,50,1,60,70,1,1,'',80,90,1,1);\
+insert into lease6 values(12,21,30,'2015-06-06 11:01:07',40,50,1,60,70,1,1,'three.example.com',80,90,4,2);"
+
+    mysql_execute "$insert_sql"
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "insert into lease6 failed, expected exit code %d, actual %d"
+
+    # Dump lease4 to output_file
+    ${keaadmin} lease-dump mysql -6 -u $db_user -p $db_password -n $db_name -d $db_scripts_dir -o $output_file
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "kea-admin lease-dump -6 failed, status code %d"
+
+    # Compare the dump output to reference file, they should be identical
+    cmp -s $output_file  $ref_file
+    ERRCODE=$?
+    assert_eq 0 $ERRCODE "dump file does not match reference file, expected exit code %d, actual %d"
+
+    # remove the output file
+    rm $output_file
+
+    # Let's wipe the whole database
+    mysql_wipe
+
+    test_finish 0
+}
+
+
+mysql_lease_init_test
+mysql_host_reservation_init_test
+mysql_lease_version_test
+mysql_upgrade_test
+mysql_lease4_dump_test
+mysql_lease6_dump_test

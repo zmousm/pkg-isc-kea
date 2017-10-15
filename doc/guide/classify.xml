@@ -1,0 +1,905 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY mdash  "&#x2014;" >
+]>
+
+<chapter id="classify">
+  <title>Client Classification</title>
+
+  <section>
+    <title>Client Classification Overview</title>
+      <para>
+      In certain cases it is useful to differentiate between different
+      types of clients and treat them accordingly. Common reasons include:
+      <itemizedlist>
+      <listitem><para>
+      The clients represent different pieces of topology, e.g. a cable
+      modem is different to the clients behind that modem.
+      </para></listitem>
+      <listitem><para>
+      The clients have different behavior, e.g. a smart phone behaves
+      differently to a laptop.
+      </para></listitem>
+      <listitem><para>
+      The clients require different values for some options, e.g. a docsis3.0
+      cable modem requires different settings to docsis2.0 cable modem.
+      </para></listitem>
+      </itemizedlist>
+      </para>
+
+      <para>
+      It is envisaged that client classification will be used for changing the
+      behavior of almost any part of the DHCP message processing, including the assignment of
+      leases from different pools, the assignment of different options (or different values of
+      the same options) etc. In the current release of the software however, there are
+      only three mechanisms that take
+      advantage of client classification: subnet selection, assignment of different
+      options and, for DHCPv4 cable modems, the setting of specific options for use with
+      the TFTP server address and the boot file field.
+      </para>
+
+      <para>
+      The process of doing classification is conducted in three steps:
+      <orderedlist>
+      <listitem><para>
+      Assess an incoming packet and assign it to zero or more classes.
+      </para></listitem>
+      <listitem><para>
+      Choose a subnet, possibly based on the class information.
+      </para></listitem>
+      <listitem><para>
+      Assign options, again possibly based on the class information.
+      </para></listitem>
+      </orderedlist>
+      </para>
+
+      <para>
+      When determining which options to include in the response the server will examine
+      the union of options from all of the assigned classes. In the case two or more
+      classes include the same option, the value from the first class examined will
+      be used.  When choosing a subnet, the server will iterate over all of the
+      subnets that are feasible given the information found in the packet (client address,
+      relay address etc). It will use the first subnet it finds that either doesn't
+      have a class associated with it or that has a class which matches one of
+      the packet's classes. In the future the processing order of the
+      various classes may be specified but for now it is being left unspecified and
+      may change in future releases.
+      </para>
+
+      <para>
+      As an example, imagine that an incoming packet matches two classes.
+      Class "foo" defines values for an NTP server
+      (option 42 in DHCPv4) and an SMTP server (option 69 in DHCPv4) while class
+      "bar" defines values for an NTP server and a POP3 server (option 70 in DHCPv4).
+      The server will examine the three options NTP, SMTP and POP3 and return any
+      of them that the client requested.  As the NTP server was defined twice the
+      server will choose only one of the values for the reply: the class from which the
+      value is obtained is unspecified.
+      </para>
+
+      <para>
+      There are two methods of doing classification. The first is automatic and relies
+      on examining the values in the vendor class options. Information from these
+      options is extracted and a class name is constructed from it and added to
+      the class list for the packet. The second allows you to specify an expression
+      that is evaluated for each packet. If the result is true, the packet is
+      a member of the class.
+      </para>
+
+      <note>
+      <para>
+        Care should be taken with client classification as it is easy for
+        clients that do not meet class criteria to be denied any service altogether.
+      </para>
+      </note>
+  </section>
+
+  <section id="classification-using-host-reservations">
+    <title>Using Static Host Reservations In Classification</title>
+    <para>Classes can be statically assigned to the clients using techniques described
+    in <xref linkend="reservation4-client-classes"/> and
+    <xref linkend="reservation6-client-classes"/>.
+    </para>
+  </section>
+
+  <section id="classification-using-vendor">
+    <title>Using Vendor Class Information In Classification</title>
+      <para>
+      The server checks whether an incoming DHCPv4 packet includes
+      the vendor class identifier option (60) or an incoming DHCPv6 packet
+      includes the vendor class option (16). If it does, the content of that
+      option is prepended with &quot;VENDOR_CLASS_&quot; and the result is interpreted
+      as a class. For example, modern cable modems will send this option with
+      value &quot;docsis3.0&quot; and so the packet will belong to
+      class &quot;VENDOR_CLASS_docsis3.0&quot;.
+      </para>
+  </section>
+
+  <section id="classification-using-expressions">
+    <title>Using Expressions In Classification</title>
+      <para>
+      The expression portion of classification contains operators and values.
+      All values are currently strings and operators take a string or strings and
+      return another string. When all the operations have completed
+      the result should be a value of &quot;true&quot; or &quot;false&quot;.
+      The packet belongs to
+      the class (and the class name is added to the list of classes) if the result
+      is &quot;true&quot;. Expressions are written in standard format and can be nested.
+      </para>
+
+      <para>
+      Expressions are pre-processed during the parsing of the configuration file
+      and converted to an internal representation. This allows certain types of
+      errors to be caught and logged during parsing.  Examples of these errors
+      include an incorrect number or types of arguments to an operator.  The
+      evaluation code will also check for this class of error and generally
+      throw an exception, though this should not occur in a normally functioning
+      system.
+      </para>
+
+      <para>
+      Other issues, for example the starting position of a substring being
+      outside of the substring or an option not existing in the packet, result
+      in the operator returning an empty string.
+      </para>
+
+      <para>
+      Expressions are a work in progress and the supported operators and
+      values are limited. The expectation is that additional operators and values
+      will be added over time, however the basic mechanisms will
+      remain the same.
+      </para>
+
+      <para>
+        <table frame="all" id="classification-values-list">
+          <title>List of Classification Values</title>
+          <tgroup cols='3'>
+          <colspec colname='name' />
+          <colspec colname='example' />
+          <colspec colname='description' />
+          <thead>
+            <row>
+              <entry>Name</entry>
+              <entry>Example expression</entry>
+              <entry>Example value</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>String literal</entry>
+              <entry>'example'</entry>
+              <entry>'example'</entry>
+              <entry>A string</entry>
+            </row>
+            <row>
+              <entry>Hexadecimal string literal</entry>
+              <entry>0x5a7d</entry>
+              <entry>'Z}'</entry>
+              <entry>A hexadecimal string</entry>
+            </row>
+            <row>
+              <entry>IP address literal</entry>
+              <entry>10.0.0.1</entry>
+              <entry>0x0a000001</entry>
+              <entry>An IP address</entry>
+            </row>
+            <row>
+              <entry>Integer literal</entry>
+              <entry>123</entry>
+              <entry>'123'</entry>
+              <entry>A 32 bit unsigned integer value</entry>
+            </row>
+            <row></row>
+            <row>
+              <entry>Binary content of the option</entry>
+              <entry>option[123].hex</entry>
+              <entry>'(content of the option)'</entry>
+              <entry>The value of the option with given code from the
+              packet as hex</entry>
+            </row>
+<!-- Text option not fully defined yet, leave it out
+            <row>
+              <entry>Option Text</entry>
+              <entry>option[123].text</entry>
+              <entry>'foobar'</entry>
+              <entry>The value of the option with given code from the
+              packet as text</entry>
+            </row>
+-->
+            <row>
+              <entry>Option existence</entry>
+              <entry>option[123].exists</entry>
+              <entry>'true'</entry>
+              <entry>If the option with given code is present in the
+              packet "true" else "false"</entry>
+            </row>
+            <row>
+              <entry>DHCPv4 relay agent sub-option</entry>
+              <entry>relay4[123].hex</entry>
+              <entry>'(content of the RAI sub-option)'</entry>
+              <entry>The value of sub-option with given code from the
+              DHCPv4 Relay Agent Information option (option 82)</entry>
+            </row>
+            <row>
+              <entry>DHCPv6 Relay Options</entry>
+              <entry>relay6[nest].option[code].hex</entry>
+              <entry>(value of the option)</entry>
+              <entry>The value of the option with code "code" from the
+              relay encapsulation "nest"</entry>
+            </row>
+            <row>
+              <entry>DHCPv6 Relay Peer Address</entry>
+              <entry>relay6[nest].peeraddr</entry>
+              <entry>2001:DB8::1</entry>
+              <entry>The value of the peer address field from the
+              relay encapsulation "nest"</entry>
+            </row>
+            <row>
+              <entry>DHCPv6 Relay Link Address</entry>
+              <entry>relay6[nest].linkaddr</entry>
+              <entry>2001:DB8::1</entry>
+              <entry>The value of the link address field from the
+              relay encapsulation "nest"</entry>
+            </row>
+            <row>
+              <entry>Interface name of packet</entry>
+              <entry>pkt.iface</entry>
+              <entry>eth0</entry>
+              <entry>The name of the incoming interface of a DHCP packet.</entry>
+            </row>
+            <row>
+              <entry>Source address of packet</entry>
+              <entry>pkt.src</entry>
+              <entry>10.1.2.3</entry>
+              <entry>The IP source address of a DHCP packet.</entry>
+            </row>
+            <row>
+              <entry>Destination address of packet</entry>
+              <entry>pkt.dst</entry>
+              <entry>10.1.2.3</entry>
+              <entry>The IP destination address of a DHCP packet.</entry>
+            </row>
+            <row>
+              <entry>Length of packet</entry>
+              <entry>pkt.len</entry>
+              <entry>513</entry>
+              <entry>The length of a DHCP packet (UDP header field), expressed
+              as a 32 bit unsigned integer.</entry>
+            </row>
+            <row>
+              <entry>Hardware address in DHCPv4 packet</entry>
+              <entry>pkt4.mac</entry>
+              <entry>0x010203040506</entry>
+              <entry>The value of the chaddr field of the DHCPv4 packet, hlen (0 to 16) bytes</entry>
+            </row>
+            <row>
+              <entry>Hardware length in DHCPv4 packet</entry>
+              <entry>pkt4.hlen</entry>
+              <entry>6</entry>
+              <entry>The value of the hlen field of the DHCPv4 packet padded to 4 bytes</entry>
+            </row>
+            <row>
+              <entry>Hardware type in DHCPv4 packet</entry>
+              <entry>pkt4.htype</entry>
+              <entry>6</entry>
+              <entry>The value of the htype field of the DHCPv4 packet padded to 4 bytes</entry>
+            </row>
+            <row>
+              <entry>ciaddr field in DHCPv4 packet</entry>
+              <entry>pkt4.ciaddr</entry>
+              <entry>192.0.2.1</entry>
+              <entry>The value of the ciaddr field of the DHCPv4 packet (IPv4 address, 4 bytes)</entry>
+            </row>
+            <row>
+              <entry>giaddr field in DHCPv4 packet</entry>
+              <entry>pkt4.giaddr</entry>
+              <entry>192.0.2.1</entry>
+              <entry>The value of the giaddr field of the DHCPv4 packet (IPv4 address, 4 bytes)</entry>
+            </row>
+            <row>
+              <entry>yiaddr field in DHCPv4 packet</entry>
+              <entry>pkt4.yiaddr</entry>
+              <entry>192.0.2.1</entry>
+              <entry>The value of the yiaddr field of the DHCPv4 packet (IPv4 address, 4 bytes)</entry>
+            </row>
+            <row>
+              <entry>siaddr field in DHCPv4 packet</entry>
+              <entry>pkt4.siaddr</entry>
+              <entry>192.0.2.1</entry>
+              <entry>The value of the siaddr field of the DHCPv4 packet (IPv4 address, 4 bytes)</entry>
+            </row>
+            <row>
+              <entry>Message Type in DHCPv4 packet</entry>
+              <entry>pkt4.msgtype</entry>
+              <entry>1</entry>
+              <entry>The value of the message type field in the DHCPv4
+              packet (expressed as a 32 bit unsigned integer).</entry>
+            </row>
+            <row>
+              <entry>Transaction ID (xid) in DHCPv4 packet</entry>
+              <entry>pkt4.transid</entry>
+              <entry>12345</entry>
+              <entry>The value of the transaction id in the DHCPv4
+              packet (expressed as a 32 bit unsigned integer).</entry>
+            </row>
+            <row>
+              <entry>Message Type in DHCPv6 packet</entry>
+              <entry>pkt6.msgtype</entry>
+              <entry>1</entry>
+              <entry>The value of the message type field in the DHCPv6
+              packet (expressed as a 32 bit unsigned integer).</entry>
+            </row>
+            <row>
+              <entry>Transaction ID in DHCPv6 packet</entry>
+              <entry>pkt6.transid</entry>
+              <entry>12345</entry>
+              <entry>The value of the transaction id in the DHCPv6
+              packet (expressed as a 32 bit unsigned integer).</entry>
+            </row>
+
+            <row>
+              <entry>Vendor option existence (any vendor)</entry>
+              <entry>vendor[*].exists</entry>
+              <entry>true</entry>
+              <entry>Returns whether a vendor option from any vendor
+              is present ('true') or absent ('false').</entry>
+            </row>
+            <row>
+              <entry>Vendor option existence (specific vendor)</entry>
+              <entry>vendor[4491].exists</entry>
+              <entry>true</entry>
+              <entry>Returns whether a vendor option from specified
+              vendor (determined by its enterprise-id)
+              is present ('true') or absent ('false').</entry>
+            </row>
+            <row>
+              <entry>Enterprise-id from vendor option</entry>
+              <entry>vendor.enterprise</entry>
+              <entry>4491</entry>
+              <entry>If the vendor option is present, it returns the
+              value of the enterprise-id field padded to 4
+              bytes. Returns "" otherwise.</entry>
+            </row>
+            <row>
+              <entry>Vendor sub-option existence</entry>
+              <entry>vendor[4491].option[1].exists</entry>
+              <entry>true</entry>
+              <entry>Returns 'true' if there is vendor option with
+              specified enterprise-id and given sub-option is present.
+              Returns 'false' otherwise.</entry>
+            </row>
+            <row>
+              <entry>Vendor sub-option content</entry>
+              <entry>vendor[4491].option[1].hex</entry>
+              <entry>docsis3.0</entry>
+              <entry>Returns content of the specified sub-option of
+              a vendor option with specified enterprise id. Returns
+              '' if no such option or sub-option is present.
+              </entry>
+            </row>
+
+            <row>
+              <entry>Vendor class option existence (any vendor)</entry>
+              <entry>vendor-class[*].exists</entry>
+              <entry>true</entry>
+              <entry>Returns whether a vendor class option from any vendor
+              is present ('true') or absent ('false').</entry>
+            </row>
+            <row>
+              <entry>Vendor class option existence (specific vendor)</entry>
+              <entry>vendor-class[4491].exists</entry>
+              <entry>true</entry>
+              <entry>Returns whether a vendor class option from specified
+              vendor (determined by its enterprise-id)
+              is present ('true') or absent ('false').</entry>
+            </row>
+            <row>
+              <entry>Enterprise-id from vendor class option</entry>
+              <entry>vendor-class.enterprise</entry>
+              <entry>4491</entry>
+              <entry>If the vendor option is present, it returns the
+              value of the enterprise-id field padded to 4
+              bytes. Returns "" otherwise.</entry>
+            </row>
+            <row>
+              <entry>First data chunk from vendor class option</entry>
+              <entry>vendor-class[4491].data</entry>
+              <entry>docsis3.0</entry>
+              <entry>Returns content of the first data chunk from
+              the vendor class option with specified enterprise-id.
+              Returns "" if missing.</entry>
+            </row>
+            <row>
+              <entry>Specific data chunk from vendor class option</entry>
+              <entry>vendor-class[4491].data[3]</entry>
+              <entry>docsis3.0</entry>
+              <entry>Returns content of the specified data chunk of
+              a vendor class option with specified enterprise id. Returns
+              '' if no such option or data chunk is present.
+              </entry>
+            </row>
+          </tbody>
+          </tgroup>
+        </table>
+        Notes:
+      </para>
+
+      <itemizedlist>
+
+      <listitem><para>
+      Hexadecimal strings are converted into a string as expected.  The starting &quot;0X&quot; or
+      &quot;0x&quot; is removed and if the string is an odd number of characters a
+      &quot;0&quot; is prepended to it.
+      </para></listitem>
+
+      <listitem><para>
+      IP addresses are converted into strings of length 4 or 16. IPv4, IPv6,
+      and IPv4 embedded IPv6 (e.g., IPv4 mapped IPv6) addresses are supported.
+      </para></listitem>
+
+      <listitem><para>
+      Integers in an expression are converted to 32 bit unsigned integers and
+      are represented as four-byte strings. For example 123 is represented as
+      0x0000007b. All expressions that return numeric values use 32-bit
+      unsigned integers, even if the field in the packet is smaller.  In general
+      it is easier to use decimal notation to represent integers, but it is also
+      possible to use hex notation. When using hex notation to represent an
+      integer care should be taken to make sure the value is represented as 32
+      bits, e.g. use 0x00000001 instead of 0x1 or 0x01. Also, make
+      sure the value is specified in network order, e.g. 1 is
+      represented as 0x00000001.
+      </para></listitem>
+
+      <listitem><para>
+      "option[code].hex" extracts the value of the option with the code "code"
+      from the incoming packet. If the packet doesn't contain the option, it
+      returns the empty string. The string is presented as a byte string of
+      the option payload without the type code or length fields.
+      </para></listitem>
+
+      <listitem><para>
+      "option[code].exists" checks if an option with the code "code" is present
+      in the incoming packet. It can be used with empty options.
+      </para></listitem>
+
+      <listitem><para>
+      "relay4[code].hex" attempts to extract the value of the sub-option
+      "code" from the option inserted as the DHCPv4 Relay Agent Information
+      (82) option. If the packet doesn't contain a RAI option, or the RAI
+      option doesn't contain the requested sub-option, the expression returns
+      an empty string. The string is presented as a byte string of the
+      option payload without the type code or length fields. This
+      expression is allowed in DHCPv4 only.
+      </para></listitem>
+
+      <listitem><para>
+      "relay4" shares the same representation types as "option", for
+      instance "relay4[code].exists" is supported.
+      </para></listitem>
+
+      <listitem><para>
+      "relay6[nest]" allows access to the encapsulations used by any DHCPv6
+      relays that forwarded the packet.  The "nest" level specifies the relay
+      from which to extract the information, with a value of 0 indicating
+      the relay closest to the DHCPv6 server.  If the requested encapsulation
+      doesn't exist an empty string "" is returned.  This expression is
+      allowed in DHCPv6 only.
+      </para></listitem>
+
+      <listitem><para>
+      "relay6[nest].option[code]" shares the same representation types as
+      "option", for instance "relay6[nest].option[code].exists" is supported.
+      </para></listitem>
+
+      <listitem><para>
+       Expressions starting with "pkt4" can be used only in DHCPv4.
+       They allows access to DHCPv4 message fields.
+      </para></listitem>
+
+      <listitem><para>
+      "pkt6" refers to information from the client request.  To access any
+      information from an intermediate relay use "relay6".  "pkt6.msgtype"
+      and "pkt6.transid" output a 4 byte binary string for the message type
+      or transaction id.  For example the message type SOLICIT will be
+      "0x00000001" or simply 1 as in "pkt6.msgtype == 1".
+      </para></listitem>
+
+      <listitem><para>
+      Vendor option means Vendor-Identifying Vendor-specific Information
+      option in DHCPv4 (code 125, see
+      <ulink url="http://tools.ietf.org/html/rfc3925#section-4">Section 4 of RFC 3925</ulink>) and
+      Vendor-specific Information Option in DHCPv6 (code 17, defined in
+      <ulink url="https://tools.ietf.org/html/rfc3315#section-22.17">Section 22.17 of
+      RFC 3315</ulink>). Vendor class option means Vendor-Identifying Vendor
+      Class Option in DHCPv4 (code 124, see
+      <ulink url="http://tools.ietf.org/html/rfc3925#section-3">Section 3 of RFC 3925</ulink>) in DHCPv4 and
+      Class Option in DHCPv6 (code 16, see
+      <ulink url="https://tools.ietf.org/html/rfc3315#section-22.16">Section 22.16 of RFC 3315</ulink>).
+      Vendor options may
+      have sub-options that are referenced by their codes. Vendor class
+      options do not have sub-options, but rather data chunks, which are
+      referenced by index value. Index 0 means the first data chunk, Index 1
+      is for the second data chunk (if present), etc.
+      </para></listitem>
+
+      <listitem><para>
+      In the vendor and vendor-class constructs Asterisk (*) or 0 can be
+      used to specify a wildcard enterprise-id value, i.e. it will match any
+      enterprise-id value.
+      </para></listitem>
+
+      <listitem><para>Vendor Class Identifier (option 60 in DHCPv4) can be
+      accessed using option[60] expression.</para></listitem>
+
+      <listitem><para>
+      <ulink url="http://tools.ietf.org/html/rfc3925">RFC3925</ulink> and
+      <ulink url="http://tools.ietf.org/html/rfc3315">RFC3315</ulink>
+      allow for multiple instances of vendor options
+      to appear in a single message. The client classification code currently
+      examines the first instance if more than one appear. For vendor.enterprise
+      and vendor-class.enterprise expressions, the value from the first instance
+      is returned. Please submit a feature request on Kea website if you need
+      support for multiple instances.
+      </para></listitem>
+
+      </itemizedlist>
+
+      <para>
+        <table frame="all" id="classification-expressions-list">
+          <title>List of Classification Expressions</title>
+          <tgroup cols='3'>
+          <colspec colname='name' />
+          <colspec colname='example' />
+          <colspec colname='description' />
+          <thead>
+            <row>
+              <entry>Name</entry>
+              <entry>Example</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+<row><entry>Equal</entry> <entry>'foo' == 'bar'</entry><entry>Compare the two values and return "true" or "false"</entry></row>
+<row><entry>Not</entry> <entry>not ('foo' == 'bar')</entry><entry>Logical negation</entry></row>
+<row><entry>And</entry> <entry>('foo' == 'bar') and ('bar' == 'foo')</entry><entry>Logical and</entry></row>
+<row><entry>Or</entry> <entry>('foo' == 'bar') or ('bar' == 'foo')</entry><entry>Logical or</entry></row>
+<row><entry>Substring</entry><entry>substring('foobar',0,3)</entry><entry>Return the requested substring</entry></row>
+<row><entry>Concat</entry><entry>concat('foo','bar')</entry><entry>Return the
+concatenation of the strings</entry></row>
+          </tbody>
+          </tgroup>
+        </table>
+      </para>
+
+      <section>
+        <title>Logical operators</title>
+        The Not, And and Or logical operators are the common operators. Not
+        has the highest precedence and Or the lowest. And and Or are (left)
+        associative, parentheses around a logical expression can be used
+        to enforce a specific grouping, for instance in "A and (B or C)"
+        (without parentheses "A and B or C" means "(A and B) or C").
+      </section>
+
+      <section>
+        <title>Substring</title>
+        The substring operator "substring(value, start, length)" accepts both positive and
+        negative values for the starting position and the length.  For "start", a value of
+        0 is the first byte in the string while -1 is the last byte.  If the starting
+        point is outside of the original string an empty string is returned.  "length"
+        is the number of bytes to extract.  A negative number means to count towards
+        the beginning of the string but doesn't include the byte pointed to by "start".
+        The special value "all" means to return all bytes from start to the end of the
+        string.  If length is longer than the remaining portion of the string then
+        the entire remaining portion is returned.  Some examples may be helpful:
+
+          <screen>
+        substring('foobar', 0, 6) == 'foobar'
+        substring('foobar', 3, 3) == 'bar'
+        substring('foobar', 3, all) == 'bar'
+        substring('foobar', 1, 4) == 'ooba'
+        substring('foobar', -5, 4) == 'ooba'
+        substring('foobar', -1, -3) == 'oba'
+        substring('foobar', 4, -2) == 'ob'
+        substring('foobar', 10, 2) == ''
+          </screen>
+      </section>
+      <section>
+        <title>Concat</title>
+        The concat function "concat(string1, string2)" returns the
+        concatenation of its two arguments. For instance:
+          <screen>
+        concat('foo', 'bar') == 'foobar'
+          </screen>
+       </section>
+    </section>
+
+  <note>
+  <para>
+    The expression for each class is executed on each packet received.
+    If the expressions are overly complex, the time taken to execute
+    them may impact the performance of the server. If you need
+    complex or time consuming expressions you should write a <link
+    linkend='hooks-libraries'>hook</link> to perform the necessary work.
+  </para> </note>
+
+  <section id="classification-configuring">
+    <title>Configuring Classes</title>
+      <para>
+      A class contains three items: a name, a test expression and option data.
+      The name must exist and must be unique amongst all classes. The test
+      expression and option data are optional.
+      </para>
+
+      <para>
+      The test expression is a string containing the logical expression used to
+      determine membership in the class.  The entire expression is in double
+      quotes.
+      </para>
+
+      <para>
+      The option data is a list which defines any options that should be assigned
+      to members of this class.
+      </para>
+
+      <para>
+      In the following example the class named &quot;Client_foo&quot; is defined.
+      It is comprised of all clients whose client ids (option 61) start with the
+      string &quot;foo&quot;. Members of this class will be given 192.0.2.1 and
+      192.0.2.2 as their domain name servers.
+
+        <screen>
+"Dhcp4": {
+    "client-classes": [<userinput>
+        {
+            "name": "Client_foo",
+            "test": "substring(option[61].hex,0,3) == 'foo'",
+            "option-data": [
+                {
+                    "name": "domain-name-servers",
+                    "code": 6,
+                    "space": "dhcp4",
+                    "csv-format": true,
+                    "data": "192.0.2.1, 192.0.2.2"
+                }
+            ]
+        },
+        ...
+    ],</userinput>
+    ...
+}</screen>
+      </para>
+
+      <para>
+      This example shows a client class being defined for use by the DHCPv6 server.
+      In it the class named &quot;Client_enterprise&quot; is defined.  It is comprised
+      of all clients who's client identifiers start with the given hex string (which
+      would indicate a DUID based on an enterprise id of 0xAABBCCDD). Members of this
+      class will be given an 2001:db8:0::1 and 2001:db8:2::1 as their domain name servers.
+        <screen>
+"Dhcp6": {
+    "client-classes": [<userinput>
+        {
+            "name": "Client_enterprise",
+            "test": "substring(option[1].hex,0,6) == 0x0002AABBCCDD'",
+            "option-data": [
+                {
+                    "name": "dns-servers",
+                    "code": 23,
+                    "space": "dhcp6",
+                    "csv-format": true,
+                    "data": "2001:db8:0::1, 2001:db8:2::1"
+                }
+            ]
+        },
+        ...
+    ],</userinput>
+    ...
+}</screen>
+      </para>
+  </section>
+
+  <section id="classification-subnets">
+    <title>Configuring Subnets With Class Information</title>
+      <para>
+        In certain cases it beneficial to restrict access to certain subnets
+        only to clients that belong to a given class, using the "client-class"
+        keyword when defining the subnet.
+      </para>
+
+      <para>
+        Let's assume that the server is connected to a network segment that uses
+        the 192.0.2.0/24 prefix. The Administrator of that network has decided
+        that addresses from range 192.0.2.10 to 192.0.2.20 are going to be
+        managed by the DHCP4 server. Only clients belonging to client class
+        Client_foo  are allowed to use this subnet. Such a
+        configuration can be achieved in the following way:
+        <screen>
+"Dhcp4": {
+    "client-classes": [
+        {
+            "name": "Client_foo",
+            "test": "substring(option[61].hex,0,3) == 'foo'",
+            "option-data": [
+                {
+                    "name": "domain-name-servers",
+                    "code": 6,
+                    "space": "dhcp4",
+                    "csv-format": true,
+                    "data": "192.0.2.1, 192.0.2.2"
+                }
+            ]
+        },
+        ...
+    ],<userinput>
+    "subnet4": [
+        {
+            "subnet": "192.0.2.0/24",
+            "pools": [ { "pool": "192.0.2.10 - 192.0.2.20" } ],
+            "client-class": "Client_foo"
+        },
+        ...
+    ],</userinput>,
+    ...
+}</screen>
+      </para>
+
+      <para>
+        The following example shows restricting access to a DHCPv6 subnet.  This
+        configuration will restrict use of the addresses 2001:db8:1::1 to
+        2001:db8:1::FFFF to members of the "Client_enterprise" class.
+
+        <screen>
+"Dhcp6": {
+    "client-classes": [
+        {
+            "name": "Client_enterprise",
+            "test": "substring(option[1].hex,0,6) == 0x0002AABBCCDD'",
+            "option-data": [
+                {
+                    "name": "dns-servers",
+                    "code": 23,
+                    "space": "dhcp6",
+                    "csv-format": true,
+                    "data": "2001:db8:0::1, 2001:db8:2::1"
+                }
+            ]
+        },
+        ...
+    ], <userinput>
+    "subnet6": [
+        {
+            "subnet": "2001:db8:1::/64",
+            "pools": [ { "pool": "2001:db8:1::-2001:db8:1::ffff" } ],
+            "client-class": "Client_enterprise"
+        }
+    ],</userinput>
+    ...
+}</screen>
+      </para>
+  </section>
+
+  <section>
+    <title>Using Classes</title>
+      <para>
+      Currently classes can be used for two functions.  They can supply options
+      to the members of the class and they can be used to choose a subnet from which an
+      address will be assigned to the class member.
+      </para>
+
+      <para>
+      When supplying options, options defined as part of the class definition
+      are considered &quot;class globals&quot;.  They will override any global options that
+      may be defined and in turn will be overridden by any options defined for an
+      individual subnet.
+      </para>
+  </section>
+
+  <section>
+    <title>Classes and Hooks</title>
+      <para>
+      You may use a hook to classify your packets. This may be useful if the
+      expression would either be complex or time consuming and be easier or
+      better to write as code.  Once the hook has added the proper class name
+      to the packet the rest of the classification system will work as normal
+      in choosing a subnet and selecting options.  For a description of
+      hooks see <xref linkend="hooks-libraries"/>, for a description on
+      configuring classes see <xref linkend="classification-configuring"/>
+      and <xref linkend="classification-subnets"/>.
+      </para>
+  </section>
+
+  <section>
+   <title>Debugging Expressions</title>
+     <para>
+     While you are constructing your classification expressions you may
+     find it useful to enable logging see <xref linkend="logging"/> for
+     a more complete description of the logging facility.
+     </para>
+
+     <para>
+     To enable the debug statements in the classifciaton system you will
+     need to set the severity to "DEBUG" and the debug level to at least 55.
+     The specific loggers are "kea-dhcp4.eval" and "kea-dhcp6.eval".
+     </para>
+
+     <para>
+     In order to understand the logging statements one must understand a
+     bit about how expressions are evaluated, for a more complete description
+     refer to the design document at <ulink url="http://kea.isc.org/wiki/KeaDesigns"/>.
+     In brief there are two structures used during the evaluation of an expression:
+     a list of tokens which represent the expressions and a value stack which
+     represents the values being manipulated.
+     </para>
+
+     <para>
+     The list of tokens is created when the configuration file is processed with
+     most expressions and values being converted to a token.  The list is organized
+     in reverse Polish notation.  During execution, the list will be traversed
+     in order.  As each token is executed it will be able to pop values
+     from the top of the stack and eventually push its result on the top of the
+     stack.  Imagine the following expression:
+       <screen>
+       "test": "substring(option[61].hex,0,3) == 'foo'",
+       </screen>
+     This will result in the following tokens:
+       <screen>
+       option, number (0), number (3), substring, text ('foo'), equals
+       </screen>
+     In this example the first three tokens will simply push values onto the
+     stack.  The substring token will then remove those three values and
+     compute a result that it places on the stack.  The text option also
+     places a value on the stack and finally the equals token removes the
+     two tokens on the stack and places its result on the stack.
+     </para>
+
+     <para>
+     When debug logging is enabled, each time a token is evaluated it will
+     emit a log message indicating the values of any objects that were popped
+     off of the value stack and any objects that were pushed onto the value
+     stack.
+     </para>
+
+     <para>
+     The values will be displayed as either text if the command is known
+     to use text values or hexadecimal if the command either uses binary values or
+     can manipulate either text or binary values.  For expressions that
+     pop multiple values off the stack, the values will be displayed in
+     the order they were popped.  For most expressions this won't matter
+     but for the concat expression the values are displayed in reverse
+     order from how they are written in the expression.
+     </para>
+
+     <para>
+     Let us assume that the following test has been entered into the configuration.
+     This example skips most of the configuration to concentrate on the test.
+       <screen>
+       "test": "substring(option[61].hex,0,3) == 'foo'",
+       </screen>
+     The logging might then resemble this:
+       <screen>
+       2016-05-19 13:35:04.163 DEBUG [kea.eval/44478] EVAL_DEBUG_OPTION Pushing option 61 with value 0x666F6F626172
+       2016-05-19 13:35:04.164 DEBUG [kea.eval/44478] EVAL_DEBUG_STRING Pushing text string '0'
+       2016-05-19 13:35:04.165 DEBUG [kea.eval/44478] EVAL_DEBUG_STRING Pushing text string '3'
+       2016-05-19 13:35:04.166 DEBUG [kea.eval/44478] EVAL_DEBUG_SUBSTRING Popping length 3, start 0, string 0x666F6F626172 pushing result 0x666F6F
+       2016-05-19 13:35:04.167 DEBUG [kea.eval/44478] EVAL_DEBUG_STRING Pushing text string 'foo'
+       2016-05-19 13:35:04.168 DEBUG [kea.eval/44478] EVAL_DEBUG_EQUAL Popping 0x666F6F and 0x666F6F pushing result 'true'
+       </screen>
+     </para>
+
+     <note><para>
+     The debug logging may be quite verbose if you have a number of expressions
+     to evaluate.  It is intended as an aid in helping you create and debug
+     your expressions.  You should plan to disable debug logging when you have your
+     expressions working correctly.  You also may wish to include only one set of
+     expressions at a time in the configuration file while debugging them in order
+     to limit the log statements.  For example when adding a new set of expressions
+     you might find it more convenient to create a configuration file that only
+     includes the new expressions until you have them working correctly and then
+     add the new set to the main configuration file.
+     </para></note>
+  </section>
+
+</chapter>

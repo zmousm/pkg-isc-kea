@@ -1,0 +1,1507 @@
+# Copyright (C) 2014-2015 Internet Systems Consortium, Inc. ("ISC")
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+# File of DHCP-DDNS configuration permutation tests
+# Each test entry consists of:
+#
+# description - text describing the test (optional)
+# should-fail - indicates whether parsing is expected to fail, defaults to
+#               false
+# data {} - Configuration text to submit for parsing.
+#
+# The vast majority of the tests in this file are invalid and are expected
+# to fail.  There are some that should succeed and are used more or less
+# as sanity checks.
+
+{ "test-list" : [
+#-----
+{
+# This test is a bit of sanity check for the "file of configs" test mechanism,
+# as well as validating this as the smallest config which makes writing
+# permutations easier.
+"description" : "D2 smallest, valid config",
+"should-fail" : false,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2 missing forward-ddns map",
+"should-fail" : true,
+"data" :
+    {
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2 missing reverse-ddns map",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+
+#-----
+,{
+"description" : "D2 missing tsig-keys list",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {}
+    }
+}
+
+#-----
+,{
+"description" : "D2 unknown scalar",
+"should-fail" : true,
+"data" :
+    {
+    "bogus-scalar" : true,
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2 unknown map",
+"should-fail" : true,
+"data" :
+    {
+    "bogus-map" : {},
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2 unknown list",
+"should-fail" : true,
+"data" :
+    {
+    "bogus-list" : [],
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- D2Params Test
+
+#----- D2Params.ip-address
+,{
+"description" : "D2Params.ip-address: valid v4",
+"data" :
+    {
+    "ip-address" : "192.168.0.1",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.ip-address: valid v6",
+"data" :
+    {
+    "ip-address" : "2001:db8::1",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.ip-address invalid value",
+"should-fail" : true,
+"data" :
+    {
+    "ip-address" : "bogus",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+#-----
+}
+
+#----- D2Params.port
+,{
+"description" : "D2Params.port, valid value",
+"data" :
+    {
+    "port" : 100,
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.port can't be 0",
+"should-fail" : true,
+"data" :
+    {
+    "port" : 0,
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.port, non numeric",
+"should-fail" : true,
+"data" :
+    {
+    "port" : "bogus",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- D2Params.dns-server-timeout
+,{
+"description" : "D2Params.dns-server-timeout, valid value",
+"data" :
+    {
+    "dns-server-timeout" : 1000,
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.dns-server-timeout can't be 0",
+"should-fail" : true,
+"data" :
+    {
+    "dns-server-timeout" : 0,
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.dns-server-timeout, non numeric",
+"should-fail" : true,
+"data" :
+    {
+    "dns-server-timeout" : "bogus",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+#-----
+
+#----- D2Params.ncr-protocol
+,{
+"description" : "D2Params.ncr-protocol, valid UDP",
+"data" :
+    {
+    "ncr-protocol" : "UDP",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.ncr-protocol, unsupported TCP",
+"should-fail" : true,
+"data" :
+    {
+    "ncr-protocol" : "TCP",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+
+#-----
+,{
+"description" : "D2Params.ncr-protocol, invalid value",
+"should-fail" : true,
+"data" :
+    {
+    "ncr-protocol" : "bogus",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+
+#----- D2Params.ncr-format tests
+
+,{
+"description" : "D2Params.ncr-format, valid JSON",
+"data" :
+    {
+    "ncr-format" : "JSON",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2Params.ncr-format, invalid value",
+"should-fail" : true,
+"data" :
+    {
+    "ncr-format" : "bogus",
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- TSIGKey Tests
+
+#-----
+,{
+# This test is a sanity check that valid TSIG entries work.
+"description" : "D2.tsig-keys, valid key",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, missing key name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, blank key name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, duplicate key name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+            ,{
+            "name" : "first.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#----- D2.tsig-keys, algorithm tests
+
+,{
+"description" : "D2.tsig-keys, all valid algorthms",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            },
+            {
+            "name" : "d2.sha1.key",
+            "algorithm" : "HMAC-SHA1",
+            "secret" : "hRrp29wzUv3uzSNRLlY68w=="
+            },
+            {
+            "name" : "d2.sha224.key",
+            "algorithm" : "HMAC-SHA224",
+            "secret" : "bZEG7Ow8OgAUPfLWV3aAUQ=="
+            },
+            {
+            "name" : "d2.sha256.key",
+            "algorithm" : "hmac-sha256",
+            "secret" : "bjF4hYhTfQ5MX0siagelsw=="
+            },
+            {
+            "name" : "d2.sha384.key",
+            "algorithm" : "hmac-sha384",
+            "secret" : "Gwk53fvy3CmbupoI9TgigA=="
+            },
+            {
+            "name" : "d2.sha512.key",
+            "algorithm" : "hmac-sha512",
+            "secret" : "wP+5FqMnKXCxBWljU/BZAA=="
+            }
+        ]
+    }
+}
+
+#----- D2.tsig-keys, algorithm tests
+,{
+"description" : "D2.tsig-keys, missing algorithm",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, blank algorithm",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "algorithm" : "",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, invalid algorithm",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "algorithm" : "bogus",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#----- D2.tsig-keys, digest-bits tests
+,{
+"description" : "D2.tsig-keys, all valid algorthms",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "digest-bits" : 80,
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            },
+            {
+            "name" : "d2.sha1.key",
+            "algorithm" : "HMAC-SHA1",
+            "digest-bits" : 80,
+            "secret" : "hRrp29wzUv3uzSNRLlY68w=="
+            },
+            {
+            "name" : "d2.sha224.key",
+            "algorithm" : "HMAC-SHA224",
+            "digest-bits" : 112,
+            "secret" : "bZEG7Ow8OgAUPfLWV3aAUQ=="
+            },
+            {
+            "name" : "d2.sha256.key",
+            "algorithm" : "hmac-sha256",
+            "digest-bits" : 128,
+            "secret" : "bjF4hYhTfQ5MX0siagelsw=="
+            },
+            {
+            "name" : "d2.sha384.key",
+            "algorithm" : "hmac-sha384",
+            "digest-bits" : 192,
+            "secret" : "Gwk53fvy3CmbupoI9TgigA=="
+            },
+            {
+            "name" : "d2.sha512.key",
+            "algorithm" : "hmac-sha512",
+            "digest-bits" : 256,
+            "secret" : "wP+5FqMnKXCxBWljU/BZAA=="
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, invalid digest-bits",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "digest-bits" : 84,
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            },
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, too small truncated HMAC-MD5",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "digest-bits" : 72,
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            },
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, too small truncated HMAC-SHA1",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.sha1.key",
+            "algorithm" : "HMAC-SHA1",
+            "digest-bits" : 72,
+            "secret" : "hRrp29wzUv3uzSNRLlY68w=="
+            },
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, too small truncated HMAC-SHA224",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.sha224.key",
+            "algorithm" : "HMAC-SHA224",
+            "digest-bits" : 104,
+            "secret" : "bZEG7Ow8OgAUPfLWV3aAUQ=="
+            },
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, too small truncated HMAC-SHA256",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.sha256.key",
+            "algorithm" : "hmac-sha256",
+            "digest-bits" : 120,
+            "secret" : "bjF4hYhTfQ5MX0siagelsw=="
+            },
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, too small truncated HMAC-SHA384",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.sha384.key",
+            "algorithm" : "hmac-sha384",
+            "digest-bits" : 184,
+            "secret" : "Gwk53fvy3CmbupoI9TgigA=="
+            },
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, too small truncated HMAC-SHA512",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.sha512.key",
+            "algorithm" : "hmac-sha512",
+            "digest-bits" : 248,
+            "secret" : "wP+5FqMnKXCxBWljU/BZAA=="
+            }
+        ]
+    }
+}
+
+#----- D2.tsig-keys, secret tests
+,{
+"description" : "D2.tsig-keys, missing secret",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "algorithm" : "HMAC-MD5"
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, blank secret",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : ""
+            }
+        ]
+    }
+}
+
+#-----
+,{
+"description" : "D2.tsig-keys, invalid secret",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "first.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "bogus"
+            }
+        ]
+    }
+}
+
+#----- D2.forward-ddns tests
+,{
+"description" : "D2.forward-ddns, valid, empty ddns-domains",
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" : []
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#------
+,{
+"description" : "D2.forward-ddns, unknown parameter",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "bogus" : true,
+        "ddns-domains" : []
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#------
+,{
+"description" : "D2.forward-ddns, one valid, domain",
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "key-name" : "d2.md5.key",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.1"
+                }
+            ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#------
+,{
+"description" : "D2.forward-ddns, duplicate domain",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.1"
+                }
+            ]
+            },
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.2"
+                }
+            ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.forward-ddns.dhcp-ddns  tests
+,{
+"description" : "D2.forward-ddns.dhcp-ddns, unknown parameter",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "bogus" : true
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.forward-ddns.dhcp-ddns.name tests
+,{
+"description" : "D2.forward-ddns.dhcp-ddns, no name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns, blank name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : ""
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#------ "D2.forward-ddns.dhcp-ddns, key-name tests
+,{
+"description" : "D2.forward-ddns, no matching key name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "key-name" : "no.such.key",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.1"
+                }
+            ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#----- D2.forward-ddns.dhcp-ddns.dns-servers tests
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers, no servers",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" : []
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.forward-ddns.dhcp-ddns.dns-servers tests
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers, unknown parameter",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "bogus" : true
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers.hostname unsupported",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "hostname" : "myhost.com"
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers.ip-address v4 address ",
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "172.16.1.1"
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers.ip-address v6 address ",
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "2001:db8::1"
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers.ip-address invalid address ",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "bogus"
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers.port valid value ",
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "2001:db8::1",
+                    "port" : 77
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.forward-ddns.dhcp-ddns.dns-servers.port cannot be 0 ",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "four.example.com.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "2001:db8::1",
+                    "port" : 0
+                    }
+                ]
+            }
+        ]
+    },
+    "reverse-ddns" : {},
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.reverse-ddns tests
+,{
+"description" : "D2.reverse-ddns, valid, empty ddns-domains",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" : []
+    },
+    "tsig-keys" : []
+    }
+}
+
+#------
+,{
+"description" : "D2.reverse-ddns, unknown parameter",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "bogus" : true,
+        "ddns-domains" : []
+    },
+    "tsig-keys" : []
+    }
+}
+
+#------
+,{
+"description" : "D2.reverse-ddns, one valid, domain",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addra.arpa.",
+            "key-name" : "d2.md5.key",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.1"
+                }
+            ]
+            }
+        ]
+    },
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#------
+,{
+"description" : "D2.reverse-ddns, duplicate domain",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addra.arpa.",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.1"
+                }
+            ]
+            },
+            {
+            "name" : "2.0.192.in-addra.arpa.",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.2"
+                }
+            ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.reverse-ddns.dhcp-ddns  tests
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns, unknown parameter",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "bogus" : true
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.reverse-ddns.dhcp-ddns.name tests
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns, no name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns, blank name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : ""
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#------ "D2.reverse-ddns.dhcp-ddns, key-name tests
+,{
+"description" : "D2.reverse-ddns, no matching key name",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "key-name" : "no.such.key",
+            "dns-servers" :
+            [
+                {
+                "ip-address" : "172.16.1.1"
+                }
+            ]
+            }
+        ]
+    },
+    "tsig-keys" :
+        [
+            {
+            "name" : "d2.md5.key",
+            "algorithm" : "HMAC-MD5",
+            "secret" : "LSWXnfkKZjdPJI5QxlpnfQ=="
+            }
+        ]
+    }
+}
+
+#----- D2.reverse-ddns.dhcp-ddns.dns-servers tests
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers, no servers",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" : []
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#----- D2.reverse-ddns.dhcp-ddns.dns-servers tests
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers, unknown parameter",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "bogus" : true
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers.hostname unsupported",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "hostname" : "myhost.com"
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers.ip-address v4 address ",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "172.16.1.1"
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers.ip-address v6 address ",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "2001:db8::1"
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers.ip-address invalid value",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "bogus"
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers.port valid value ",
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "2001:db8::1",
+                    "port" : 77
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+#-----
+,{
+"description" : "D2.reverse-ddns.dhcp-ddns.dns-servers.port cannot be 0 ",
+"should-fail" : true,
+"data" :
+    {
+    "forward-ddns" : {},
+    "reverse-ddns" :
+    {
+        "ddns-domains" :
+        [
+            {
+            "name" : "2.0.192.in-addr.arpa.",
+            "dns-servers" :
+                [
+                    {
+                    "ip-address" : "2001:db8::1",
+                    "port" : 0
+                    }
+                ]
+            }
+        ]
+    },
+    "tsig-keys" : []
+    }
+}
+
+# ----- End of Tests
+]}

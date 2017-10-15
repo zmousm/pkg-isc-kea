@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY mdash  "&#x2014;" >
+]>
+<chapter id="kea-config">
+  <title>Kea Configuration</title>
+
+  <para>Kea is designed to allow different methods by which it can be
+    configured, each method being implemented by a component known as a
+    configuration backend.  At present, only one such backend is
+    available, that allowing configuration by means of a JSON file.</para>
+
+  <section id="json-backend">
+    <title>JSON Configuration Backend</title>
+    <para>JSON is the default configuration backend.
+    It assumes that the servers are started from the command line
+    (either directly or using a script, e.g. <filename>keactrl</filename>).
+    The JSON backend uses certain signals to influence Kea. The
+    configuration file is specified upon startup using the -c parameter.</para>
+
+    <section id="json-format">
+      <title>JSON Syntax</title>
+      <para>Configuration files for DHCPv4, DHCPv6 and DDNS modules are defined
+      in an extended JSON format. Basic JSON is defined in <ulink
+      url="http://tools.ietf.org/html/rfc4627">RFC 4627</ulink>.  Kea components
+      use a slightly modified form of JSON in that they allow shell-style
+      comments in the file: lines with the hash (#) character in the first column
+      are comment lines and are ignored.</para>
+
+      <para>The configuration file consists of a single object (often colloquially
+      called a map) started with a curly bracket. It comprises the "Dhcp4", "Dhcp6",
+      "DhcpDdns" and/or "Logging" objects. It is possible to define additional
+      elements, but they will be ignored. For example, it is possible to define
+      Dhcp4, Dhcp6 and Logging elements in a single configuration file that can
+      be used to start both the DHCPv4 and DHCPv6 components. When starting,
+      the DHCPv4 component will use Dhcp4 object to configure itself and the
+      Logging object to configure logging parameters; it will ignore the Dhcp6
+      object.</para>
+
+      <para>A very simple configuration for both DHCPv4 and
+      DHCPv6 could look like this:
+<screen>
+# The whole configuration starts here.
+{
+
+# DHCPv4 specific configuration starts here.
+"Dhcp4": {
+    "interfaces-config": {
+        "interfaces": [ "eth0" ],
+        "dhcp-socket-type": "raw"
+    },
+    "valid-lifetime": 4000,
+    "renew-timer": 1000,
+    "rebind-timer": 2000,
+    "subnet4": [{
+       "pools": [ { "pool": "192.0.2.1-192.0.2.200" } ],
+       "subnet": "192.0.2.0/24"
+    }]
+},
+# DHCPv4 specific configuration ends here.
+
+# DHCPv6 specific configuration starts here.
+"Dhcp6": {
+    "interfaces-config": {
+        "interfaces": [ "eth1" ]
+    },
+    "preferred-lifetime": 3000,
+    "valid-lifetime": 4000,
+    "renew-timer": 1000,
+    "rebind-timer": 2000,
+    "subnet6": [{
+       "pools": [ { "pool": "2001:db8::/80" } ],
+       "subnet": "2001:db8::/64"
+    }]
+},
+# DHCPv6 specific configuration ends here.
+
+# Logger parameters (that could be shared among several components) start here.
+# This section is used by both the DHCPv4 and DHCPv6 servers.
+"Logging": {
+   "loggers": [{
+        "name": "*",
+        "severity": "DEBUG"
+    }]
+}
+# Logger parameters end here.
+
+# The whole configuration structure ends here.
+}
+</screen>
+	</para>
+
+        <para>More examples are available in the installed
+        <filename>share/doc/kea/examples</filename> directory.</para>
+
+        <para>To avoid repetition of mostly similar structures, examples in the
+        rest of this guide will showcase only the subset of parameters appropriate for a given
+        context. For example, when discussing the IPv6 subnets configuration in
+        DHCPv6, only subnet6 parameters will be mentioned. It is implied that
+        the remaining elements (the global map that holds Dhcp6, Logging and possibly
+        DhcpDdns) are present, but they are omitted for clarity. Usually, locations
+        where extra parameters may appear are denoted by an ellipsis.</para>
+    </section>
+
+    <section>
+      <title>Simplified Notation</title>
+
+        <para>It is sometimes convenient to refer to a specific element in the
+        configuration hierarchy. Each hierarchy level is separated by a slash.
+        If there is an array, a specific instance within that array is referenced by
+        a number in square brackets (with numbering starting at zero). For example, in the above configuration the
+        valid-lifetime in the Dhcp6 component can be referred to as
+        Dhcp6/valid-lifetime and the pool in the first subnet defined in the DHCPv6
+        configuration as Dhcp6/subnet6[0]/pool.</para>
+      
+      <!-- @todo Add a reference here after #3422 is done -->
+    </section>
+
+  </section>
+
+</chapter>

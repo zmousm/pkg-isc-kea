@@ -1,0 +1,138 @@
+'\" t
+.\"     Title: keactrl
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: Sep. 28, 2016
+.\"    Manual: Kea
+.\"    Source: ISC Kea 1.1.0
+.\"  Language: English
+.\"
+.TH "KEACTRL" "8" "Sep\&. 28, 2016" "ISC Kea 1.1.0" "Kea"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+keactrl \- Shell script for managing Kea
+.SH "SYNOPSIS"
+.HP \w'\fBkeactrl\fR\ 'u
+\fBkeactrl\fR [command] [\fB\-c\ \fR\fB\fIkeactrl\-config\-file\fR\fR] [\fB\-s\ \fR\fB\fIserver[,server,\&.\&.\&.]\fR\fR]
+.SH "DESCRIPTION"
+.PP
+keactrl is a shell script which controls the startup, shutdown and reconfiguration of the Kea servers (\fBkea\-dhcp4\fR,
+\fBkea\-dhcp6\fR
+and
+\fBkea\-dhcp\-ddns\fR)\&. It also provides the means for checking the current status of the servers and determining the configuration files in use\&.
+.SH "CONFIGURATION FILE"
+.PP
+Depending on requirements, not all of the available servers need be run\&. The keactrl configuration file sets which servers are enabled and which are disabled\&. By default the configuration file is
+[kea\-install\-dir]/etc/kea/keactrl\&.conf\&.
+.PP
+See the Kea Administrator\*(Aqs Guide for the documentation of the parameters in the
+\fBkeactrl\fR
+configuration file\&.
+.SH "OPTIONS"
+.PP
+\fB\fIcommand\fR\fR
+.RS 4
+Command to be issued to the servers\&. It can be one of the following:
+.PP
+start
+.RS 4
+Start the servers\&.
+.RE
+.PP
+stop
+.RS 4
+Stop the servers\&.
+.RE
+.PP
+reload
+.RS 4
+Instructs the servers to re\-read the kea configuration file\&.
+.RE
+.PP
+status
+.RS 4
+Print the status of the servers\&.
+.RE
+.RE
+.PP
+\fB\-c|\-\-ctrl\-config \fR\fB\fIkeactrl\-config\-file\fR\fR
+.RS 4
+Specify the
+\fBkeactrl\fR
+configuration file\&. Without this switch, the
+\fBkeactrl\fR
+will attempt to use the file
+[kea\-install\-dir]/etc/kea/keactrl\&.conf\&.
+.RE
+.PP
+\fB\-s|\-\-server \fR\fB\fIserver[,server,\&.\&.\&.]\fR\fR
+.RS 4
+Specifies a subset of the enabled servers to which the command should be issued\&. The list of servers should be separated by commas with no intervening spaces\&. Acceptable values are:
+.PP
+dhcp4
+.RS 4
+DHCPv4 server (\fBkea\-dhcp4\fR)\&.
+.RE
+.PP
+dhcp6
+.RS 4
+DHCPv6 server (\fBkea\-dhcp6\fR)\&.
+.RE
+.PP
+dhcp_ddns
+.RS 4
+DHCP DDNS server (\fBkea\-dhcp\-ddns\fR)\&.
+.RE
+.PP
+all
+.RS 4
+All servers (default)\&.
+.RE
+.RE
+.SH "DOCUMENTATION"
+.PP
+Kea comes with an extensive Kea User\*(Aqs Guide documentation that covers all aspects of running the Kea software \- compilation, installation, configuration, configuration examples and many more\&. Kea also features a Kea Messages Manual, which lists all possible messages Kea can print with a brief description for each of them\&. Both documents are typically available in various formats (txt, html, pdf) with your Kea distribution\&. The on\-line version is available at http://kea\&.isc\&.org/docs/\&.
+.PP
+Kea source code is documented in the Kea Developer\*(Aqs Guide\&. It\*(Aqs on\-line version is available at http://kea\&.isc\&.org\&. Please follow Developer\*(Aqs Guide link\&.
+.PP
+Kea project website is available at: http://kea\&.isc\&.org\&.
+.SH "MAILING LISTS AND SUPPORT"
+.PP
+There are two mailing lists available for Kea project\&. kea\-users (kea\-users at lists\&.isc\&.org) is intended for Kea users, while kea\-dev (kea\-dev at lists\&.isc\&.org) is intended for Kea developers, prospective contributors and other advanced users\&. Both lists are available at http://lists\&.isc\&.org\&. The community provides best effort type of support on both of those lists\&.
+.PP
+ISC provides professional support for Kea services\&. See https://www\&.isc\&.org/kea/ for details\&.
+.SH "SEE ALSO"
+.PP
+\fBkea-dhcp4\fR(8),
+\fBkea-dhcp6\fR(8),
+\fBkea-dhcp-ddns\fR(8),
+\fBkea-admin\fR(8),
+\fBperfdhcp\fR(8),
+\fBkea-lfc\fR(8),
+Kea Administrator\*(Aqs Guide\&.
+.SH "AUTHOR"
+.br
+.PP
+The Kea software has been written by a number of engineers working for ISC: Tomek Mrugalski, Stephen Morris, Marcin Siodelski, Thomas Markwalder, Francis Dupont, Jeremy C\&. Reed, Wlodek Wencel and Shawn Routhier\&. That list is roughly in the chronological order in which the authors made their first contribution\&. For a complete list of authors and contributors, see AUTHORS file\&.
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2014-2016 Internet Systems Consortium, Inc. ("ISC")
+.br

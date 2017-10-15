@@ -1,0 +1,120 @@
+'\" t
+.\"     Title: kea-admin
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: Sep. 28, 2016
+.\"    Manual: Kea
+.\"    Source: ISC Kea 1.1.0
+.\"  Language: English
+.\"
+.TH "KEA\-ADMIN" "8" "Sep\&. 28, 2016" "ISC Kea 1.1.0" "Kea"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+kea-admin \- Shell script for managing Kea databases
+.SH "SYNOPSIS"
+.HP \w'\fBkea\-admin\fR\ 'u
+\fBkea\-admin\fR [command] [backend] [\fB\-u\ \fR\fB\fIdatabase\ username\fR\fR] [\fB\-p\ \fR\fB\fIdatabase\ password\fR\fR] [\fB\-n\ \fR\fB\fIdatabase\ name\fR\fR] [\fB\-d\ \fR\fB\fIscripts\ directory\fR\fR] [\fB\-4\ |\ \-6\fR] [\fB\-o\ \fR\fB\fIoutput\ file\fR\fR]
+.SH "DESCRIPTION"
+.PP
+kea\-admin is a shell script which offers database maintenance\&. In particular, it features database initialization, database version checking and database schema upgrade\&.
+.SH "OPTIONS"
+.PP
+\fB\fIcommand\fR\fR
+.RS 4
+Command to be issued to the servers\&. It can be one of the following:
+.PP
+lease\-init
+.RS 4
+Initializes a new lease database\&. Useful during first Kea installation\&. The database is initialized to the latest version supported by the version of the software\&.
+.RE
+.PP
+lease\-version
+.RS 4
+Reports lease database version\&. This is not necessarily equal to Kea version as each backend has its own versioning scheme\&.
+.RE
+.PP
+lease\-upgrade
+.RS 4
+Conducts lease database upgrade\&. This is useful when migrating between old and new Kea versions\&.
+.RE
+.PP
+lease\-dump
+.RS 4
+Dumps the contents of the lease database (MySQL and PostgreSQL backends) to text file\&. The content of the file consists of comma\-separated\-values (CSV) where each line in the file contains all of the values for a single lease\&. The first line of file is a header line containing the column names\&.
+.RE
+.RE
+.PP
+\fB\fIbackend\fR\fR
+.RS 4
+Specifies backend type\&. Currently allowed backends are: memfile, mysql and pgsql\&.
+.RE
+.PP
+\fB\-u|\-\-user \fR\fB\fIusername\fR\fR
+.RS 4
+Specify the username when connecting to a database\&. If not specified, the default value of keatest is used\&.
+.RE
+.PP
+\fB\-p|\-\-password \fR\fB\fIpassword\fR\fR
+.RS 4
+Specifies the password when connecting to a database\&. If not specified, the default value of keatest is used\&.
+.RE
+.PP
+\fB\-n|\-\-name \fR\fB\fIdatabase\-name\fR\fR
+.RS 4
+Specifies the database name to connect to\&. If not specified, the default value of keatest is used\&.
+.RE
+.PP
+\fB\-d|\-\-directory \fR\fB\fIscript\-directory\fR\fR
+.RS 4
+Used for override scripts directory\&. That script is used during upgrades, database initialization and possibly other operations\&. If not specified, the default value of (prefix)/share/kea/scripts/ is used\&.
+.RE
+.PP
+\fB\-o|\-\-output \fR\fB\fIoutput_file\fR\fR
+.RS 4
+Required for lease\-dump, Specifies the file to which the lease data will be dumped\&.
+.RE
+.PP
+\fB\-4\fR
+.RS 4
+Directs kea\-admin to lease\-dump the DHCPv4 leases\&. Incompatible with the \-6 option\&.
+.RE
+.PP
+\fB\-6\fR
+.RS 4
+Directs kea\-admin to lease\-dump the DHCPv6 leases\&. Incompatible with the \-4 option\&.
+.RE
+.SH "SEE ALSO"
+.PP
+\fBkeactrl\fR(8),
+\fBkea-dhcp4\fR(8),
+\fBkea-dhcp6\fR(8),
+\fBkea-dhcp-ddns\fR(8),
+\fBkeactrl\fR(8),
+\fBperfdhcp\fR(8),
+Kea Administrator Guide\&.
+.SH "AUTHOR"
+.br
+.PP
+The Kea software has been written by a number of engineers working for ISC: Tomek Mrugalski, Stephen Morris, Marcin Siodelski, Thomas Markwalder, Francis Dupont, Jeremy C\&. Reed, Wlodek Wencel and Shawn Routhier\&. That list is roughly in the chronological order in which the authors made their first contribution\&. For a complete list of authors and contributors, see AUTHORS file\&.
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2014-2016 Internet Systems Consortium, Inc. ("ISC")
+.br
