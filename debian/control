@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Adam Majer <adamm@zombino.com>
 Build-Depends: debhelper (>= 9), autotools-dev, liblog4cplus-dev,
                libboost-dev, libboost-system-dev, bison, flex,
-               default-libmysqlclient-dev, libpq-dev, python3-dev, elinks,
+               libmysqlclient-dev, libpq-dev, python3-dev, elinks,
                postgresql-server-dev-all, libssl-dev,
                xsltproc, docbook, docbook-xsl
 Standards-Version: 3.9.7
