@@ -5,10 +5,10 @@ Forwarded: not-needed
 ---
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 ---
-diff --git a/src/bin/d2/Makefile.am b/src/bin/d2/Makefile.am
-index 8dc0cfe..e8eeb85 100644
---- a/src/bin/d2/Makefile.am
-+++ b/src/bin/d2/Makefile.am
+Index: isc-kea/src/bin/d2/Makefile.am
+===================================================================
+--- isc-kea.orig/src/bin/d2/Makefile.am
++++ isc-kea/src/bin/d2/Makefile.am
 @@ -24,6 +24,7 @@ CLEANFILES  = *.gcno *.gcda d2_messages.h d2_messages.cc s-messages
  man_MANS = kea-dhcp-ddns.8
  DISTCLEANFILES = $(man_MANS)
@@ -17,10 +17,10 @@ index 8dc0cfe..e8eeb85 100644
  
  EXTRA_DIST += images/abstract_app_classes.svg images/add_state_model.svg
  EXTRA_DIST += images/config_data_classes.svg images/config_from_file_sequence.svg
-diff --git a/src/lib/asiolink/Makefile.am b/src/lib/asiolink/Makefile.am
-index 5f48cde..073eaef 100644
---- a/src/lib/asiolink/Makefile.am
-+++ b/src/lib/asiolink/Makefile.am
+Index: isc-kea/src/lib/asiolink/Makefile.am
+===================================================================
+--- isc-kea.orig/src/lib/asiolink/Makefile.am
++++ isc-kea/src/lib/asiolink/Makefile.am
 @@ -21,6 +21,7 @@ libkea_asiolink_la_SOURCES  = asiolink.h
  libkea_asiolink_la_SOURCES += asio_wrapper.h
  libkea_asiolink_la_SOURCES += dummy_io_cb.h
@@ -35,6 +35,39 @@ index 5f48cde..073eaef 100644
  libkea_asiolink_la_SOURCES += unix_domain_socket.cc unix_domain_socket.h
 +libkea_asiolink_la_SOURCES += unix_domain_socket_acceptor.h
 +libkea_asiolink_la_SOURCES += unix_domain_socket_endpoint.h
+ 
+ # Note: the ordering matters: -Wno-... must follow -Wextra (defined in
+ # KEA_CXXFLAGS)
+Index: isc-kea/src/bin/d2/Makefile.in
+===================================================================
+--- isc-kea.orig/src/bin/d2/Makefile.in
++++ isc-kea/src/bin/d2/Makefile.in
+@@ -497,6 +497,7 @@ CLEANFILES = *.gcno *.gcda d2_messages.h
+ man_MANS = kea-dhcp-ddns.8
+ DISTCLEANFILES = $(man_MANS)
+ EXTRA_DIST = $(man_MANS) kea-dhcp-ddns.xml dhcp-ddns.spec d2.dox \
++	d2_parser.yy \
+ 	images/abstract_app_classes.svg images/add_state_model.svg \
+ 	images/config_data_classes.svg \
+ 	images/config_from_file_sequence.svg \
+Index: isc-kea/src/lib/asiolink/Makefile.in
+===================================================================
+--- isc-kea.orig/src/lib/asiolink/Makefile.in
++++ isc-kea/src/lib/asiolink/Makefile.in
+@@ -459,11 +459,12 @@ CLEANFILES = *.gcno *.gcda
+ lib_LTLIBRARIES = libkea-asiolink.la
+ libkea_asiolink_la_LDFLAGS = -no-undefined -version-info 4:0:0
+ libkea_asiolink_la_SOURCES = asiolink.h asio_wrapper.h dummy_io_cb.h \
+-	interval_timer.cc interval_timer.h io_address.cc io_address.h \
+-	io_asio_socket.h io_endpoint.cc io_endpoint.h io_error.h \
+-	io_service.h io_service.cc io_socket.h io_socket.cc \
++	interval_timer.cc interval_timer.h io_acceptor.h io_address.cc \
++	io_address.h io_asio_socket.h io_endpoint.cc io_endpoint.h \
++	io_error.h io_service.h io_service.cc io_socket.h io_socket.cc \
+ 	tcp_acceptor.h tcp_endpoint.h tcp_socket.h udp_endpoint.h \
+-	udp_socket.h unix_domain_socket.cc unix_domain_socket.h
++	udp_socket.h unix_domain_socket.cc unix_domain_socket.h \
++	unix_domain_socket_acceptor.h unix_domain_socket_endpoint.h
  
  # Note: the ordering matters: -Wno-... must follow -Wextra (defined in
  # KEA_CXXFLAGS)
