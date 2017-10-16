@@ -42,6 +42,18 @@ Description: ISC KEA DHCP Dynamic DNS service
  This package provides Dynamic DNS service to update DNS mapping based on 
  DHCP lease events.
 
+Package: kea-control-agent
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version}),
+         kea-dhcp4-server (= ${binary:Version}) |
+         kea-dhcp6-server (= ${binary:Version})
+Suggests: kea-doc
+Description: ISC KEA Control Agent service
+ KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
+ .
+ This package provides the Control Agent, the REST service for controlling KEA
+ services.
+
 Package: kea-doc
 Architecture: all
 Section: doc
