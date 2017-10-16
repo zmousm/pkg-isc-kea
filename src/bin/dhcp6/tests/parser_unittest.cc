@@ -256,6 +256,7 @@ TEST(ParserTest, file) {
     configs.push_back("pgsql-reservations.json");
     configs.push_back("reservations.json");
     configs.push_back("several-subnets.json");
+    configs.push_back("shared-network.json");
     configs.push_back("simple.json");
     configs.push_back("stateless.json");
     configs.push_back("with-ddns.json");
@@ -506,6 +507,13 @@ TEST(ParserTest, errors) {
               Parser6Context::PARSER_DHCP6,
               "<string>:2.2-21: got unexpected keyword "
               "\"preferred_lifetime\" in Dhcp6 map.");
+
+    // missing parameter
+    testError("{ \"name\": \"foo\",\n"
+              "  \"code\": 123 }\n",
+              Parser6Context::PARSER_OPTION_DEF,
+              "missing parameter 'type' (<string>:1:1) "
+              "[option-def map between <string>:1:1 and <string>:2:15]");
 }
 
 // Check unicode escapes

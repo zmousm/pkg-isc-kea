@@ -85,6 +85,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -135,7 +136,7 @@ libkea_hooks_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libkea_hooks_la_OBJECTS = libkea_hooks_la-callout_handle.lo \
 	libkea_hooks_la-callout_manager.lo \
 	libkea_hooks_la-hooks_log.lo libkea_hooks_la-hooks_manager.lo \
@@ -493,7 +494,7 @@ libkea_hooks_la_LIBADD = $(top_builddir)/src/lib/log/libkea-log.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
-	$(LOG4CPLUS_LIBS)
+	$(BOOST_LIBS) $(LOG4CPLUS_LIBS)
 
 # Specify the headers for copying into the installation directory tree. User-
 # written libraries only need the definitions from the headers for the

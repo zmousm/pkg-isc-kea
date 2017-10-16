@@ -4,9 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <dhcp4/simple_parser4.h>
+#include <dhcpsrv/parsers/simple_parser4.h>
 #include <cc/data.h>
 #include <boost/foreach.hpp>
+#include <iostream>
 
 using namespace isc::data;
 
@@ -45,7 +46,8 @@ const SimpleDefaults SimpleParser4::OPTION4_DEF_DEFAULTS = {
 /// for those option-data declarations.
 const SimpleDefaults SimpleParser4::OPTION4_DEFAULTS = {
     { "space",        Element::string,  "dhcp4"},
-    { "csv-format",   Element::boolean, "true"}
+    { "csv-format",   Element::boolean, "true"},
+    { "always-send",  Element::boolean, "false"}
 };
 
 /// @brief This table defines default global values for DHCPv4
@@ -65,6 +67,12 @@ const SimpleDefaults SimpleParser4::GLOBAL4_DEFAULTS = {
 };
 
 /// @brief This table defines default values for each IPv4 subnet.
+///
+/// Note: When updating this array, please also update SHARED_SUBNET4_DEFAULTS
+/// below. In most cases, those two should be kept in sync, except cases
+/// where a parameter can be derived from shared-networks, but is not
+/// defined on global level. Currently there are two such parameters:
+/// interface and reservation-mode
 const SimpleDefaults SimpleParser4::SUBNET4_DEFAULTS = {
     { "id",               Element::integer, "0" }, // 0 means autogenerate
     { "interface",        Element::string,  "" },
@@ -75,19 +83,52 @@ const SimpleDefaults SimpleParser4::SUBNET4_DEFAULTS = {
     { "4o6-subnet",       Element::string,  "" },
 };
 
-/// @brief List of parameters that can be inherited from the global to subnet4 scope.
+/// @brief This table defines default values for each IPv4 subnet that is
+///        part of a shared network
+///
+/// This is mostly the same as @ref SUBNET4_DEFAULTS, except two parameters
+/// that can be derived from shared-network, but cannot from global scope.
+/// Those are: interface and reservation-mode.
+const SimpleDefaults SimpleParser4::SHARED_SUBNET4_DEFAULTS = {
+    { "id",               Element::integer, "0" }, // 0 means autogenerate
+    { "4o6-interface",    Element::string,  "" },
+    { "4o6-interface-id", Element::string,  "" },
+    { "4o6-subnet",       Element::string,  "" },
+};
+
+/// @brief This table defines default values for each IPv4 shared network.
+const SimpleDefaults SimpleParser4::SHARED_NETWORK4_DEFAULTS = {
+    { "client-class",     Element::string, "" },
+    { "interface",        Element::string, "" },
+    { "reservation-mode", Element::string, "all" }
+};
+
+/// @brief This table defines default values for interfaces for DHCPv4.
+const SimpleDefaults SimpleParser4::IFACE4_DEFAULTS = {
+    { "re-detect", Element::boolean, "true" }
+};
+
+/// @brief List of parameters that can be inherited to subnet4 scope.
 ///
 /// Some parameters may be defined on both global (directly in Dhcp4) and
 /// subnet (Dhcp4/subnet4/...) scope. If not defined in the subnet scope,
 /// the value is being inherited (derived) from the global scope. This
 /// array lists all of such parameters.
-const ParamsList SimpleParser4::INHERIT_GLOBAL_TO_SUBNET4 = {
-    "renew-timer",
-    "rebind-timer",
-    "valid-lifetime",
+///
+/// This list is also used for inheriting from global to shared networks
+/// and from shared networks to subnets within it.
+const ParamsList SimpleParser4::INHERIT_TO_SUBNET4 = {
+    "client-class",
+    "interface",
     "match-client-id",
-    "next-server"
+    "next-server",
+    "rebind-timer",
+    "relay",
+    "renew-timer",
+    "reservation-mode",
+    "valid-lifetime"
 };
+
 /// @}
 
 /// ---------------------------------------------------------------------------
@@ -120,6 +161,27 @@ size_t SimpleParser4::setAllDefaults(isc::data::ElementPtr global) {
         cnt += setListDefaults(subnets, SUBNET4_DEFAULTS);
     }
 
+    // Set the defaults for interfaces config
+    ConstElementPtr ifaces_cfg = global->get("interfaces-config");
+    if (ifaces_cfg) {
+        ElementPtr mutable_cfg = boost::const_pointer_cast<Element>(ifaces_cfg);
+        cnt += setDefaults(mutable_cfg, IFACE4_DEFAULTS);
+    }
+
+    // Set defaults for shared networks
+    ConstElementPtr shared = global->get("shared-networks");
+    if (shared) {
+        BOOST_FOREACH(ElementPtr net, shared->listValue()) {
+
+            cnt += setDefaults(net, SHARED_NETWORK4_DEFAULTS);
+
+            ConstElementPtr subs = net->get("subnet4");
+            if (subs) {
+                cnt += setListDefaults(subs, SHARED_SUBNET4_DEFAULTS);
+            }
+        }
+    }
+
     return (cnt);
 }
 
@@ -131,7 +193,31 @@ size_t SimpleParser4::deriveParameters(isc::data::ElementPtr global) {
     if (subnets) {
         BOOST_FOREACH(ElementPtr single_subnet, subnets->listValue()) {
             cnt += SimpleParser::deriveParams(global, single_subnet,
-                                              INHERIT_GLOBAL_TO_SUBNET4);
+                                              INHERIT_TO_SUBNET4);
+        }
+    }
+
+    // Deriving parameters for shared networks is a bit more involved.
+    // First, the shared-network level derives from global, and then
+    // subnets within derive from it.
+    ConstElementPtr shared = global->get("shared-networks");
+    if (shared) {
+        BOOST_FOREACH(ElementPtr net, shared->listValue()) {
+            // First try to inherit the parameters from shared network,
+            // if defined there.
+            // Then try to inherit them from global.
+            cnt += SimpleParser::deriveParams(global, net,
+                                              INHERIT_TO_SUBNET4);
+
+            // Now we need to go thrugh all the subnets in this net.
+            subnets = net->get("subnet4");
+            if (subnets) {
+                BOOST_FOREACH(ElementPtr single_subnet, subnets->listValue()) {
+                    cnt += SimpleParser::deriveParams(net, single_subnet,
+                                                      INHERIT_TO_SUBNET4);
+                }
+            }
+
         }
     }
 

@@ -1,6 +1,6 @@
                        Kea Administrator Reference Manual
 
-   This is the reference guide for Kea version 1.2.0.
+   This is the reference guide for Kea version 1.3.0-beta.
 
    Copyright (c) 2010-2017 Internet Systems Consortium, Inc.
 
@@ -10,9 +10,10 @@
    Protocol (DHCP) servers, developed and maintained by Internet Systems
    Consortium (ISC).
 
-   This is the reference guide for Kea version 1.2.0. The most up-to-date
-   version of this document (in PDF, HTML, and plain text formats), along
-   with other documents for Kea, can be found at http://kea.isc.org/docs.
+   This is the reference guide for Kea version 1.3.0-beta. The most
+   up-to-date version of this document (in PDF, HTML, and plain text
+   formats), along with other documents for Kea, can be found at
+   http://kea.isc.org/docs.
 
    --------------------------------------------------------------------------
 
@@ -143,29 +144,31 @@
 
                              8.2.9. Custom DHCPv4 options
 
-                             8.2.10. DHCPv4 Vendor Specific Options
+                             8.2.10. DHCPv4 Private Options
 
-                             8.2.11. Nested DHCPv4 Options (Custom Option
+                             8.2.11. DHCPv4 Vendor Specific Options
+
+                             8.2.12. Nested DHCPv4 Options (Custom Option
                              Spaces)
 
-                             8.2.12. Unspecified Parameters for DHCPv4 Option
+                             8.2.13. Unspecified Parameters for DHCPv4 Option
                              Configuration
 
-                             8.2.13. Stateless Configuration of DHCPv4
+                             8.2.14. Stateless Configuration of DHCPv4
                              Clients
 
-                             8.2.14. Client Classification in DHCPv4
+                             8.2.15. Client Classification in DHCPv4
 
-                             8.2.15. DDNS for DHCPv4
+                             8.2.16. DDNS for DHCPv4
 
-                             8.2.16. Next Server (siaddr)
+                             8.2.17. Next Server (siaddr)
 
-                             8.2.17. Echoing Client-ID (RFC 6842)
+                             8.2.18. Echoing Client-ID (RFC 6842)
 
-                             8.2.18. Using Client Identifier and Hardware
+                             8.2.19. Using Client Identifier and Hardware
                              Address
 
-                             8.2.19. DHCPv4-over-DHCPv6: DHCPv4 Side
+                             8.2.20. DHCPv4-over-DHCPv6: DHCPv4 Side
 
                 8.3. Host Reservation in DHCPv4
 
@@ -191,26 +194,37 @@
 
                              8.3.9. Fine Tuning DHCPv4 Host Reservation
 
-                8.4. Server Identifier in DHCPv4
+                8.4. Shared networks in DHCPv4
 
-                8.5. How the DHCPv4 Server Selects a Subnet for the Client
+                             8.4.1. Local and relayed traffic in shared
+                             networks
 
-                             8.5.1. Using a Specific Relay Agent for a Subnet
+                             8.4.2. Client classification in shared networks
 
-                             8.5.2. Segregating IPv4 Clients in a Cable
+                             8.4.3. Host reservations in shared networks
+
+                8.5. Server Identifier in DHCPv4
+
+                8.6. How the DHCPv4 Server Selects a Subnet for the Client
+
+                             8.6.1. Using a Specific Relay Agent for a Subnet
+
+                             8.6.2. Segregating IPv4 Clients in a Cable
                              Network
 
-                8.6. Duplicate Addresses (DHCPDECLINE Support)
+                8.7. Duplicate Addresses (DHCPDECLINE Support)
 
-                8.7. Statistics in the DHCPv4 Server
+                8.8. Statistics in the DHCPv4 Server
 
-                8.8. Management API for the DHCPv4 Server
+                8.9. Management API for the DHCPv4 Server
 
-                8.9. Supported DHCP Standards
+                8.10. Supported DHCP Standards
 
-                8.10. User context in IPv4 pools
+                8.11. User contexts in IPv4
 
-                8.11. DHCPv4 Server Limitations
+                8.12. DHCPv4 Server Limitations
+
+                8.13. Kea DHCPv4 server examples
 
    9. The DHCPv6 Server
 
@@ -283,29 +297,40 @@
 
                              9.3.8. Fine Tuning DHCPv6 Host Reservation
 
-                9.4. Server Identifier in DHCPv6
+                9.4. Shared networks in DHCPv6
 
-                9.5. Stateless DHCPv6 (Information-Request Message)
+                             9.4.1. Local and relayed traffic in shared
+                             networks
 
-                9.6. Support for RFC 7550
+                             9.4.2. Client classification in shared networks
 
-                9.7. Using Specific Relay Agent for a Subnet
+                             9.4.3. Host reservations in shared networks
 
-                9.8. Segregating IPv6 Clients in a Cable Network
+                9.5. Server Identifier in DHCPv6
 
-                9.9. MAC/Hardware Addresses in DHCPv6
+                9.6. Stateless DHCPv6 (Information-Request Message)
 
-                9.10. Duplicate Addresses (DECLINE Support)
+                9.7. Support for RFC 7550
 
-                9.11. Statistics in the DHCPv6 Server
+                9.8. Using Specific Relay Agent for a Subnet
 
-                9.12. Management API for the DHCPv6 Server
+                9.9. Segregating IPv6 Clients in a Cable Network
 
-                9.13. User context in IPv6 pools
+                9.10. MAC/Hardware Addresses in DHCPv6
 
-                9.14. Supported DHCPv6 Standards
+                9.11. Duplicate Addresses (DECLINE Support)
 
-                9.15. DHCPv6 Server Limitations
+                9.12. Statistics in the DHCPv6 Server
+
+                9.13. Management API for the DHCPv6 Server
+
+                9.14. User contexts in IPv6
+
+                9.15. Supported DHCPv6 Standards
+
+                9.16. DHCPv6 Server Limitations
+
+                9.17. Kea DHCPv6 server examples
 
    10. Lease Expiration in DHCPv4 and DHCPv6
 
@@ -385,6 +410,10 @@
                              Reservations
 
                              14.3.4. host_cmds: Host Commands
+
+                             14.3.5. lease_cmds: Lease Commands
+
+                             14.3.6. subnet_cmds: Subnet Commands
 
                 14.4. User contexts
 
@@ -534,7 +563,7 @@
    2014, ISC made the decision to discontinue active development of BIND 10
    and continue development of Kea as standalone DHCP software.
 
-   This guide covers Kea version 1.2.0.
+   This guide covers Kea version 1.3.0-beta.
 
 1.1. Supported Platforms
 
@@ -625,11 +654,11 @@
 
     3. Extract the tarball. For example:
 
- $ tar xvzf kea-1.2.0.tar.gz
+ $ tar xvzf kea-1.3.0-beta.tar.gz
 
     4. Go into the source directory and run the configure script:
 
- $ cd kea-1.2.0
+ $ cd kea-1.3.0-beta
  $ ./configure [your extra parameters]
 
     5. Build it:
@@ -1509,6 +1538,8 @@
 
   4.3.6. Limitations Related to the use of SQL Databases
 
+    4.3.6.1. Year 2038 issue
+
    The lease expiration time is stored in the SQL database for each lease as
    a timestamp value. Kea developers observed that MySQL database doesn't
    accept timestamps beyond 2147483647 seconds (maximum signed 32-bit number)
@@ -1521,6 +1552,29 @@
    2147483647 seconds since the beginning of the epoch (around year 2038).
    This will be fixed when the database support for longer timestamps is
    available.
+
+    4.3.6.2. Server Terminates when Database Connection is Lost
+
+   If Kea is configured to use an external database it opens a connection to
+   the database and requires that this connection is not interrupted. When
+   the database connection breaks, e.g. as a result of SQL server restart,
+   DHCP servers will terminate indicating a fatal error. In such a case, the
+   system administrator is required to start the database and then "manually"
+   start Kea to resume the service.
+
+   Although the engineering team is planning to implement some form of
+   reconnect mechanism in the future, this will mostly be applicable in cases
+   when the database service is restarted and the connection down time is
+   relatively short. The DHCP server can't provide its service as long as the
+   database is down, because it can't store leases being assigned to the
+   clients. The server will have to reject any DHCP messages as long as the
+   connection is down and terminate if the reconnection attempt fails
+   multiple times.
+
+   Because the database connection is critical for the operation of the DHCP
+   service, the current behavior is to terminate when that connection is
+   unavailable to indicate that server is in inconsistent state and can't
+   serve clients.
 
                           Chapter 5. Kea Configuration
 
@@ -1669,9 +1723,9 @@
 6.1. Overview
 
    keactrl is a shell script which controls the startup, shutdown and
-   reconfiguration of the Kea servers (kea-dhcp4, kea-dhcp6 and
-   kea-dhcp-ddns). It also provides the means for checking the current status
-   of the servers and determining the configuration files in use.
+   reconfiguration of the Kea servers (kea-dhcp4, kea-dhcp6, kea-dhcp-ddns
+   and kea-ctrl-agent). It also provides the means for checking the current
+   status of the servers and determining the configuration files in use.
 
 6.2. Command Line Options
 
@@ -1704,19 +1758,20 @@
 
  # This is a configuration file for keactrl script which controls
  # the startup, shutdown, reconfiguration and gathering the status
- # of the Kea servers.
+ # of the Kea's processes.
 
  # prefix holds the location where the Kea is installed.
- prefix=/usr/local
+ prefix=@prefix@
 
  # Location of Kea configuration file.
- kea_config_file=${prefix}/etc/kea/kea.conf
+ kea_config_file=@sysconfdir@/@PACKAGE@/kea.conf
 
  # Location of Kea binaries.
- exec_prefix=${prefix}
- dhcp4_srv=${exec_prefix}/sbin/kea/kea-dhcp4
- dhcp6_srv=${exec_prefix}/sbin/kea/kea-dhcp6
- dhcp_ddns_srv=${exec_prefix}/sbin/kea/kea-dhcp-ddns
+ exec_prefix=@exec_prefix@
+ dhcp4_srv=@sbindir@/kea-dhcp4
+ dhcp6_srv=@sbindir@/kea-dhcp6
+ dhcp_ddns_srv=@sbindir@/kea-dhcp-ddns
+ ctrl_agent_srv=@sbindir@/kea-ctrl-agent
 
  # Start DHCPv4 server?
  dhcp4=yes
@@ -1725,21 +1780,25 @@
  dhcp6=yes
 
  # Start DHCP DDNS server?
- dhcp_ddns=yes
+ dhcp_ddns=no
+
+ # Start Control Agent?
+ ctrl_agent=yes
 
  # Be verbose?
  kea_verbose=no
 
-   The dhcp4, dhcp6 and dhcp_ddns parameters set to "yes" configure keactrl
-   to manage (start, reconfigure) all servers, i.e. kea-dhcp4, kea-dhcp6 and
-   kea-dhcp-ddns. When any of these parameters is set to "no" the keactrl
-   will ignore the corresponding server when starting or reconfiguring Kea.
+   The dhcp4, dhcp6, dhcp_ddns and ctrl_agent parameters set to "yes"
+   configure keactrl to manage (start, reconfigure) all servers, i.e.
+   kea-dhcp4, kea-dhcp6, kea-dhcp-ddns and kea-ctrl-agent. When any of these
+   parameters is set to "no" the keactrl will ignore the corresponding server
+   when starting or reconfiguring Kea.
 
    By default, Kea servers managed by keactrl are located in
    [kea-install-dir]/sbin. This should work for most installations. If the
    default location needs to be altered for any reason, the paths specified
-   with the dhcp4_srv, dhcp6_srv and dhcp_ddns_srv parameters should be
-   modified.
+   with the dhcp4_srv, dhcp6_srv, dhcp_ddns_srv and ctrl_agent_srv parameters
+   should be modified.
 
    The kea_verbose parameter specifies the verbosity of the servers being
    started. When kea_verbose is set to "yes" the logging level of the server
@@ -1774,6 +1833,7 @@
  INFO/keactrl: Starting kea-dhcp4 -c /usr/local/etc/kea/kea.conf -d
  INFO/keactrl: Starting kea-dhcp6 -c /usr/local/etc/kea/kea.conf -d
  INFO/keactrl: Starting kea-dhcp-ddns -c /usr/local/etc/kea/kea.conf -d
+ INFO/keactrl: Starting kea-ctrl-agent -c /usr/local/etc/kea/kea.conf -d
 
    Kea's servers create PID files upon startup. These files are used by
    keactrl to determine whether or not a given server is running. If one or
@@ -1784,6 +1844,7 @@
  INFO/keactrl: kea-dhcp4 appears to be running, see: PID 10918, PID file: /usr/local/var/kea/kea.kea-dhcp4.pid.
  INFO/keactrl: kea-dhcp6 appears to be running, see: PID 10924, PID file: /usr/local/var/kea/kea.kea-dhcp6.pid.
  INFO/keactrl: kea-dhcp-ddns appears to be running, see: PID 10930, PID file: /usr/local/var/kea/kea.kea-dhcp-ddns.pid.
+ INFO/keactrl: kea-ctrl-agent appears to be running, see: PID 10931, PID file: /usr/local/var/kea/kea.kea-ctrl-agent.pid.
 
    During normal shutdowns these PID files are deleted. They may, however, be
    left over as remnants following a system crash. It is possible, though
@@ -1799,6 +1860,7 @@
  INFO/keactrl: Stopping kea-dhcp4...
  INFO/keactrl: Stopping kea-dhcp6...
  INFO/keactrl: Stopping kea-dhcp-ddns...
+ INFO/keactrl: Stopping kea-ctrl-agent...
 
    Note that the stop will attempt to stop all servers regardless of whether
    they are "enabled" in the keactrl.conf. If any of the servers are not
@@ -1809,6 +1871,7 @@
  INFO/keactrl: kea-dhcp4 isn't running.
  INFO/keactrl: kea-dhcp6 isn't running.
  INFO/keactrl: kea-dhcp-ddns isn't running.
+ INFO/keactrl: kea-ctrl-agent isn't running.
 
    As already mentioned, the reconfiguration of each Kea server is triggered
    by the SIGHUP signal. The reload command sends the SIGHUP signal to the
@@ -1821,6 +1884,7 @@
  INFO/keactrl: Reloading kea-dhcp4...
  INFO/keactrl: Reloading kea-dhcp6...
  INFO/keactrl: Reloading kea-dhcp-ddns...
+ INFO/keactrl: Reloading kea-ctrl-agent...
 
    If any of the servers are not running, an informational message is
    displayed as in the reload command output below.
@@ -1829,6 +1893,7 @@
  INFO/keactrl: kea-dhcp4 isn't running.
  INFO/keactrl: kea-dhcp6 isn't running.
  INFO/keactrl: kea-dhcp-ddns isn't running.
+ INFO/keactrl: kea-ctrl-agent isn't running.
 
   Note
 
@@ -1844,6 +1909,7 @@
  DHCPv4 server: active
  DHCPv6 server: inactive
  DHCP DDNS: active
+ Control Agent: active
  Kea configuration file: /usr/local/etc/kea/kea.conf
  keactrl configuration file: /usr/local/etc/kea/keactrl.conf
 
@@ -1851,13 +1917,13 @@
 
    The optional -s switch allows the selection of the servers to which
    keactrl command is issued. For example, the following instructs keactrl to
-   stop the kea-dhcp4 and kea-dhcp6 servers and leave the kea-dhcp-ddns
-   server running:
+   stop the kea-dhcp4 and kea-dhcp6 servers and leave the kea-dhcp-ddns and
+   kea-ctrl-agent running:
 
  $ keactrl stop -s dhcp4,dhcp6
 
    Similarly, the following will only start the kea-dhcp4 and kea-dhcp-ddns
-   servers and not kea-dhcp6.
+   servers and not: kea-dhcp6, kea-ctrl-agent.
 
  $ keactrl start -s dhcp4,dhcp_ddns
 
@@ -1874,6 +1940,7 @@
      * dhcp4 for kea-dhcp4.
      * dhcp6 for kea-dhcp6.
      * dhcp_ddns for kea-dhcp-ddns.
+     * ctrl_agent for kea-ctrl-agent.
      * all for all servers (default).
 
                           Chapter 7. Kea Control Agent
@@ -1929,11 +1996,11 @@
          "http-port": 8080,
 
          "control-sockets": {
-             "dhcp4-server": {
+             "dhcp4": {
                  "socket-type": "unix",
                  "socket-name": "/path/to/the/unix/socket-v4"
              },
-             "dhcp6-server": {
+             "dhcp6": {
                  "socket-type": "unix",
                  "socket-name": "/path/to/the/unix/socket-v4"
              }
@@ -1956,14 +2023,6 @@
      }
  }
 
-  Warning
-
-   In the Kea 1.2 release the Control Agent configuration can't be specified
-   within the same configuration file as DHCPv4, DHCPv6 and D2 configuration.
-   The default configuration file for the CA is installed in the
-   etc/kea/kea-ca.conf. In the Kea 1.2 final release the CA configuration
-   will be merged into the default etc/kea/kea.conf.
-
    The http-host and http-port specify an IP address and port to which HTTP
    service will be bound. In case of the example configuration provided
    above, the RESTful service will be available under the URL of
@@ -1980,16 +2039,28 @@
    structure of the commands can be found in Chapter 16, Management API.
 
    The CA uses unix domain sockets to forward control commands and receive
-   responses from other Kea services. The dhcp4-server, dhcp6-server and
-   d2-server maps specify the files to which unix domain sockets are bound.
-   In case of the configuration above, the CA will connect to the DHCPv4
-   server via /path/to/the/unix/socket-v4 to forward the commands to it.
-   Obviously, the DHCPv4 server must be configured to listen to connections
-   via this same socket. In other words, the command socket configuration for
-   the DHCPv4 server and CA (for this server) must match. Consult the
-   Section 8.8, "Management API for the DHCPv4 Server" and the Section 9.12,
-   "Management API for the DHCPv6 Server" to learn how the socket
-   configuration is specified for the DHCPv4 and DHCPv6 services.
+   responses from other Kea services. The dhcp4, dhcp6 and d2 maps specify
+   the files to which unix domain sockets are bound. In case of the
+   configuration above, the CA will connect to the DHCPv4 server via
+   /path/to/the/unix/socket-v4 to forward the commands to it. Obviously, the
+   DHCPv4 server must be configured to listen to connections via this same
+   socket. In other words, the command socket configuration for the DHCPv4
+   server and CA (for this server) must match. Consult the Section 8.9,
+   "Management API for the DHCPv4 Server" and the Section 9.13, "Management
+   API for the DHCPv6 Server" to learn how the socket configuration is
+   specified for the DHCPv4 and DHCPv6 services.
+
+  Warning
+
+   We have renamed "dhcp4-server", "dhcp6-server" and "d2-server" to "dhcp4",
+   "dhcp6" and "d2" respectively after release of Kea 1.2. If you are
+   migrating from Kea 1.2 you need to tweak your CA config to use this new
+   naming convention. We have made this incompatible change to facilitate
+   future use cases where it will be possible to specify additional values of
+   the "service" parameter to point to the particular instances of the Kea
+   servers, e.g. "dhcp4/3" pointing to the 3rd instance of the DHCPv4 server
+   in the multi-processed configuration. This is not yet supported but the
+   current renaming lays the ground for it.
 
    Hooks libraries can be attached to the Control Agent just like to DHCPv4
    and DHCPv6 servers. It currently supports one hook point
@@ -2007,16 +2078,107 @@
    Control Agent doesn't natively support secure HTTP connections like SSL or
    TLS. In order to setup secure connection please use one of the available
    third party HTTP servers and configure it to run as a reverse proxy to the
-   Control Agent.
+   Control Agent. Kea has been tested with two major HTTP server
+   implentations working as a reverse proxy: Apache2 and nginx. Example
+   configurations including extensive comments are provided in the
+   doc/examples/https/ directory.
+
+   The reverse proxy forwards HTTP requests received over secure connection
+   to the Control Agent using (not secured) HTTP. Typically, the reverse
+   proxy and the Control Agent are running on the same machine, but it is
+   possible to configure them to run on separate machines as well. In this
+   case, security depends on the protection of the communications between the
+   reverse proxy and the Control Agent.
+
+   Apart from providing the encryption layer for the control channel, a
+   reverse proxy server is also often used for authentication of the
+   controlling clients. In this case, the client must present a valid
+   certificate when it connects via reverse proxy. The proxy server
+   authenticates the client by checking if the presented certificate is
+   signed by the certificate authority used by the server.
+
+   To illustrate this, we provide a sample configuration for the nginx server
+   running as a reverse proxy to the Kea Control Agent. The server enables
+   authentication of the clients using certificates.
+
+ #   The server certificate and key can be generated as follows:
+ #
+ #   openssl genrsa -des3 -out kea-proxy.key 4096
+ #   openssl req -new -x509 -days 365 -key kea-proxy.key -out kea-proxy.crt
+ #
+ #   The CA certificate and key can be generated as follows:
+ #
+ #   openssl genrsa -des3 -out ca.key 4096
+ #   openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+ #
+ #
+ #   The client certificate needs to be generated and signed:
+ #
+ #   openssl genrsa -des3 -out kea-client.key 4096
+ #   openssl req -new -key kea-client.key -out kea-client.csr
+ #   openssl x509 -req -days 365 -in kea-client.csr -CA ca.crt \
+ #           -CAkey ca.key -set_serial 01 -out kea-client.crt
+ #
+ #   Note that the 'common name' value used when generating the client
+ #   and the server certificates must differ from the value used
+ #   for the CA certificate.
+ #
+ #   The client certificate must be deployed on the client system.
+ #   In order to test the proxy configuration with 'curl' run
+ #   command similar to the following:
+ #
+ #   curl -k --key kea-client.key --cert kea-client.crt -X POST \
+ #        -H Content-Type:application/json -d '{ "command": "list-commands" }' \
+ #         https://kea.example.org/kea
+ #
+ #
+ #
+ #   nginx configuration starts here.
+
+ events {
+ }
+
+ http {
+         #   HTTPS server
+     server {
+         #     Use default HTTPS port.
+         listen 443 ssl;
+         #     Set server name.
+         server_name kea.example.org;
+
+         #   Server certificate and key.
+         ssl_certificate /path/to/kea-proxy.crt;
+         ssl_certificate_key /path/to/kea-proxy.key;
+
+         #   Certificate Authority. Client certificate must be signed by the CA.
+         ssl_client_certificate /path/to/ca.crt;
+
+         # Enable verification of the client certificate.
+         ssl_verify_client on;
+
+         # For URLs such as https://kea.example.org/kea, forward the
+         # requests to http://127.0.0.1:8080.
+         location /kea {
+             proxy_pass http://127.0.0.1:8080;
+         }
+     }
+ }
+
+  Note
+
+   Note that the configuration snippet provided above is for testing purposes
+   only. Consult security policies and best practices of your organization
+   which apply to this setup.
+
+   When you use an HTTP client without TLS support as kea-shell you can use
+   an HTTP/HTTPS translator such as stunnel in client mode. A sample
+   configuration is provided in the doc/examples/https/shell/ directory
 
 7.4. Control Agent Limitations
 
    Control Agent is a new component, first released in Kea 1.2. In this
-   release it comes with two notable limitations:
+   release it comes with one notable limitation:
 
-     * CA configuration must be specified in a separate configuration file
-       from the configurations of other components. The default confirguation
-       file for CA is located in etc/kea/kea-ca.conf.
      * keactrl hasn't been updated to manage the Control Agent (start, stop
        reload). As a result, the CA must be started directly as described in
        Section 7.5, "Starting Control Agent"
@@ -2026,7 +2188,7 @@
    The CA is started by running its binary and specifying the configuration
    file it should use. For example:
 
- $ ./kea-ctrl-agent -c /usr/local/etc/kea/kea-ca.conf
+ $ ./kea-ctrl-agent -c /usr/local/etc/kea/kea.conf
 
 7.6. Connecting to the Control Agent
 
@@ -2059,26 +2221,28 @@
 
                 8.2.9. Custom DHCPv4 options
 
-                8.2.10. DHCPv4 Vendor Specific Options
+                8.2.10. DHCPv4 Private Options
 
-                8.2.11. Nested DHCPv4 Options (Custom Option Spaces)
+                8.2.11. DHCPv4 Vendor Specific Options
 
-                8.2.12. Unspecified Parameters for DHCPv4 Option
+                8.2.12. Nested DHCPv4 Options (Custom Option Spaces)
+
+                8.2.13. Unspecified Parameters for DHCPv4 Option
                 Configuration
 
-                8.2.13. Stateless Configuration of DHCPv4 Clients
+                8.2.14. Stateless Configuration of DHCPv4 Clients
 
-                8.2.14. Client Classification in DHCPv4
+                8.2.15. Client Classification in DHCPv4
 
-                8.2.15. DDNS for DHCPv4
+                8.2.16. DDNS for DHCPv4
 
-                8.2.16. Next Server (siaddr)
+                8.2.17. Next Server (siaddr)
 
-                8.2.17. Echoing Client-ID (RFC 6842)
+                8.2.18. Echoing Client-ID (RFC 6842)
 
-                8.2.18. Using Client Identifier and Hardware Address
+                8.2.19. Using Client Identifier and Hardware Address
 
-                8.2.19. DHCPv4-over-DHCPv6: DHCPv4 Side
+                8.2.20. DHCPv4-over-DHCPv6: DHCPv4 Side
 
    8.3. Host Reservation in DHCPv4
 
@@ -2101,25 +2265,35 @@
 
                 8.3.9. Fine Tuning DHCPv4 Host Reservation
 
-   8.4. Server Identifier in DHCPv4
+   8.4. Shared networks in DHCPv4
 
-   8.5. How the DHCPv4 Server Selects a Subnet for the Client
+                8.4.1. Local and relayed traffic in shared networks
 
-                8.5.1. Using a Specific Relay Agent for a Subnet
+                8.4.2. Client classification in shared networks
 
-                8.5.2. Segregating IPv4 Clients in a Cable Network
+                8.4.3. Host reservations in shared networks
 
-   8.6. Duplicate Addresses (DHCPDECLINE Support)
+   8.5. Server Identifier in DHCPv4
 
-   8.7. Statistics in the DHCPv4 Server
+   8.6. How the DHCPv4 Server Selects a Subnet for the Client
 
-   8.8. Management API for the DHCPv4 Server
+                8.6.1. Using a Specific Relay Agent for a Subnet
 
-   8.9. Supported DHCP Standards
+                8.6.2. Segregating IPv4 Clients in a Cable Network
 
-   8.10. User context in IPv4 pools
+   8.7. Duplicate Addresses (DHCPDECLINE Support)
 
-   8.11. DHCPv4 Server Limitations
+   8.8. Statistics in the DHCPv4 Server
+
+   8.9. Management API for the DHCPv4 Server
+
+   8.10. Supported DHCP Standards
+
+   8.11. User contexts in IPv4
+
+   8.12. DHCPv4 Server Limitations
+
+   8.13. Kea DHCPv4 server examples
 
 8.1. Starting and Stopping the DHCPv4 Server
 
@@ -2729,6 +2903,20 @@
    BSD systems only. If the raw sockets are not supported on the particular
    OS, the server will issue a warning and fall back to use IP/UDP sockets.
 
+   Interfaces are re-detected at each reconfiguration. This behavior can be
+   disabled by setting re-detect value to false, for instance:
+
+ "Dhcp4": {
+     "interfaces-config": {
+         "interfaces": [ "eth1", "eth3" ],
+         "re-detect": false
+     },
+     ...
+ }
+
+
+   Note interfaces are not re-detected during config-test.
+
   8.2.5. Issues with Unicast Responses to DHCPINFORM
 
    The use of UDP sockets has certain benefits in deployments where the
@@ -2952,12 +3140,64 @@
      ]
  }
 
+
+   Defined options are added to response when the client requests them at a
+   few exceptions which are always added. To enforce the addition of a
+   particular option set the always-send flag to true as in:
+
+ "Dhcp4": {
+     "option-data": [
+         {
+            "name": "domain-name-servers",
+            "data": "192.0.2.1, 192.0.2.2",
+            "always-send": true
+         },
+         ...
+     ]
+ }
+
+
+   The effect is the same as if the client added the option code in the
+   Parameter Request List option (or its equivalent for vendor options) so
+   in:
+
+ "Dhcp4": {
+     "option-data": [
+         {
+            "name": "domain-name-servers",
+            "data": "192.0.2.1, 192.0.2.2",
+            "always-send": true
+         },
+         ...
+     ],
+     "subnet4": [
+         {
+            "subnet": "192.0.3.0/24",
+            "option-data": [
+                {
+                    "name": "domain-name-servers",
+                    "data": "192.0.3.1, 192.0.3.2"
+                },
+                ...
+            ],
+            ...
+         },
+         ...
+     ],
+     ...
+ }
+
+
+   The Domain Name Servers option is always added to responses (the
+   always-send is "sticky") but the value is the subnet one when the client
+   is localized in the subnet.
+
    The name parameter specifies the option name. For a list of currently
    supported names, see Table 8.1, "List of standard DHCPv4 options" below.
    The code parameter specifies the option code, which must match one of the
    values from that list. The next line specifies the option space, which
    must always be set to "dhcp4" as these are standard DHCPv4 options. For
-   other option spaces, including custom option spaces, see Section 8.2.11,
+   other option spaces, including custom option spaces, see Section 8.2.12,
    "Nested DHCPv4 Options (Custom Option Spaces)". The next line specifies
    the format in which the data will be entered: use of CSV (comma separated
    values) is recommended. The sixth line gives the actual value to be sent
@@ -2985,7 +3225,7 @@
  }
 
    Most of the parameters in the "option-data" structure are optional and can
-   be omitted in some circumstances as discussed in the Section 8.2.12,
+   be omitted in some circumstances as discussed in the Section 8.2.13,
    "Unspecified Parameters for DHCPv4 Option Configuration".
 
    It is possible to specify or override options on a per-subnet basis. If
@@ -3009,6 +3249,42 @@
                      "space": "dhcp4",
                      "csv-format": true,
                      "data": "192.0.2.3"
+                 },
+                 ...
+             ],
+             ...
+         },
+         ...
+     ],
+     ...
+ }
+
+   In some cases it is useful to associate some options with an address pool
+   from which a client is assigned a lease. Pool specific option values
+   override subnet specific and global option values. The server's
+   administrator must not try to prioritize assignment of pool specific
+   options by trying to order pools declarations in the server configuration.
+   Future Kea releases may change the order in which options are assigned
+   from the pools without any notice.
+
+   The following configuration snippet demonstrates how to specify the DNS
+   servers option, which will be assigned to a client only if the client
+   obtains an address from the given pool:
+
+ "Dhcp4": {
+     "subnet4": [
+         {
+             "pools": [
+                 {
+                     "pool": "192.0.2.1 - 192.0.2.200",
+                     "option-data": [
+                         {
+                             "name": "domain-name-servers",
+                             "data": "192.0.2.3"
+                          },
+                          ...
+                     ],
+                     ...
                  },
                  ...
              ],
@@ -3211,6 +3487,20 @@
 |----------------------------------------+------+--------------+--------+------------|
 |user-class                              |  77  |    binary    | false  |   false    |
 |----------------------------------------+------+--------------+--------+------------|
+|                                        |      |    record    |        |            |
+|slp-service-scope                       |  79  |  (boolean,   | false  |   false    |
+|                                        |      |   string)    |        |            |
+|----------------------------------------+------+--------------+--------+------------|
+|nds-server                              |  85  | ipv4-address |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|nds-tree-name                           |  86  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|nds-context                             |  87  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|bcms-controller-names                   |  88  |     fqdn     |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|bcms-controller-address                 |  89  | ipv4-address |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
 |client-system                           |  93  |    uint16    |  true  |   false    |
 |----------------------------------------+------+--------------+--------+------------|
 |client-ndi                              |  94  |record (uint8,| false  |   false    |
@@ -3219,6 +3509,24 @@
 |uuid-guid                               |  97  |record (uint8,| false  |   false    |
 |                                        |      |   binary)    |        |            |
 |----------------------------------------+------+--------------+--------+------------|
+|uap-servers                             |  98  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|geoconf-civic                           |  99  |    binary    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|pcode                                   | 100  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|tcode                                   | 101  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|netinfo-server-address                  | 112  | ipv4-address |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|netinfo-server-tag                      | 113  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|default-url                             | 114  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|auto-config                             | 116  |    uint8     | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|name-service-search                     | 117  |    uint16    |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
 |subnet-selection                        | 118  | ipv4-address | false  |   false    |
 |----------------------------------------+------+--------------+--------+------------|
 |domain-search                           | 119  |     fqdn     |  true  |   false    |
@@ -3226,6 +3534,21 @@
 |vivco-suboptions                        | 124  |    binary    | false  |   false    |
 |----------------------------------------+------+--------------+--------+------------|
 |vivso-suboptions                        | 125  |    binary    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|pana-agent                              | 136  | ipv4-address |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|v4-lost                                 | 137  |     fqdn     | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|capwap-ac-v4                            | 138  | ipv4-address |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|sip-ua-cs-domains                       | 142  |     fqdn     |  true  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|v4-portparams                           | 159  |record (uint8,| false  |   false    |
+|                                        |      |uint8, uint16)|        |            |
+|----------------------------------------+------+--------------+--------+------------|
+|v4-captive-portal                       | 160  |    string    | false  |   false    |
+|----------------------------------------+------+--------------+--------+------------|
+|v4-access-domain                        | 213  |     fqdn     | false  |   false    |
 +------------------------------------------------------------------------------------+
 
    Table 8.2. List of standard DHCP option types
@@ -3276,6 +3599,14 @@
    |--------------+---------------------------------------------------------|
    | uint32       | 32 bit unsigned integer with allowed values 0 to        |
    |              | 4294967295                                              |
+   |--------------+---------------------------------------------------------|
+   | int8         | 8 bit signed integer with allowed values -128 to 127    |
+   |--------------+---------------------------------------------------------|
+   | int16        | 16 bit signed integer with allowed values -32768 to     |
+   |              | 32767                                                   |
+   |--------------+---------------------------------------------------------|
+   | int32        | 32 bit signed integer with allowed values -2147483648   |
+   |              | to 2147483647                                           |
    +------------------------------------------------------------------------+
 
   8.2.9. Custom DHCPv4 options
@@ -3390,7 +3721,131 @@
    Numbers can be specified in decimal or hexadecimal format. The hexadecimal
    format can be either plain (e.g. abcd) or prefixed with 0x (e.g. 0xabcd).
 
-  8.2.10. DHCPv4 Vendor Specific Options
+  8.2.10. DHCPv4 Private Options
+
+   Options with code between 224 and 254 are reserved for private use. They
+   can be defined at the global scope or at client class local scope: this
+   allows to use option definitions depending on context and to set option
+   data accordingly. For instance to configure an old PXEClient vendor:
+
+ "Dhcp4": {
+     "client-class": [
+         {
+             "name": "pxeclient",
+             "test": "option[vendor-class-identifier].text == 'PXEClient'",
+             "option-def": [
+                 {
+                     "name": "configfile",
+                     "code": 209,
+                     "type": "string"
+                 }
+             ],
+             ...
+         }, ...
+     ],
+     ...
+ }
+
+   As the Vendor Specific Information option (code 43) has vendor specific
+   format, i.e. can carry either raw binary value or sub-options, this
+   mechanism is available for this option too.
+
+   In the following example taken from a real configuration two vendor
+   classes use the option 43 for different and incompatible purposes:
+
+ "Dhcp4": {
+     "option-def": [
+         {
+             "name": "cookie",
+             "code": 1,
+             "type": "string",
+             "space": "APC"
+         },
+         {
+             "name": "mtftp-ip",
+             "code": 1,
+             "type": "ipv4-address",
+             "space": "PXE"
+         },
+         ...
+     ],
+     "client-class": [
+         {
+             "name": "APC",
+             "test": "(option[vendor-class-identifier].text == 'APC'",
+             "option-def": [
+                 {
+                     "name": "vendor-encapsulated-options",
+                     "type": "empty",
+                     "encapsulate": "APC"
+                 }
+             ],
+             "option-data": [
+                 {
+                     "name": "cookie",
+                     "space": "APC",
+                     "data": "1APC"
+                 },
+                 {
+                     "name": "vendor-encapsulated-options"
+                 },
+                 ...
+             ],
+             ...
+         },
+         {
+             "name": "PXE",
+             "test": "(option[vendor-class-identifier].text == 'PXE'",
+             "option-def": [
+                 {
+                     "name": "vendor-encapsulated-options",
+                     "type": "empty",
+                     "encapsulate": "PXE"
+                 }
+             ],
+             "option-data": [
+                 {
+                     "name": "mtftp-ip",
+                     "space": "PXE",
+                     "data": "0.0.0.0"
+                 },
+                 {
+                     "name": "vendor-encapsulated-options"
+                 },
+                 ...
+             ],
+             ...
+         },
+         ...
+     ],
+     ...
+ }
+
+   The definition used to decode a VSI option is:
+
+    1. The local definition of a client class the incoming packet belongs to
+
+    2. If none, the global definition
+
+    3. If none, the last resort definition described in the next section
+       Section 8.2.11, "DHCPv4 Vendor Specific Options" (backward compatible
+       with previous Kea versions).
+
+  Note
+
+   This last resort definition for the Vendor Specific Information option
+   (code 43) is not compatible with a raw binary value. So when there are
+   some known cases where a raw binary value will be used, a client class
+   must be defined with a classification expression matching these cases and
+   an option definition for the VSI option with a binary type and no
+   encapsulation.
+
+  Note
+
+   Option definitions in client classes is allowed only for these limited
+   option set (codes 43 and from 224 to 254), and only for DHCPv4.
+
+  8.2.11. DHCPv4 Vendor Specific Options
 
    Currently there are two option spaces defined for the DHCPv4 daemon:
    "dhcp4" (for the top level DHCPv4 options) and
@@ -3459,7 +3914,10 @@
      ...
  }
 
-  8.2.11. Nested DHCPv4 Options (Custom Option Spaces)
+   Another possibility, added in Kea 1.3, is to redefine the option, see
+   Section 8.2.10, "DHCPv4 Private Options".
+
+  8.2.12. Nested DHCPv4 Options (Custom Option Spaces)
 
    It is sometimes useful to define a completely new option space. This is
    the case when user creates new option in the standard option space
@@ -3469,7 +3927,7 @@
 
    Note that creation of a new option space when defining sub-options for a
    standard option is not required, because it is created by default if the
-   standard option is meant to convey any sub-options (see Section 8.2.10,
+   standard option is meant to convey any sub-options (see Section 8.2.11,
    "DHCPv4 Vendor Specific Options").
 
    Assume that we want to have a DHCPv4 option called "container" with code
@@ -3561,7 +4019,7 @@
    be a valid integer enclosed in quotes, e.g. "123" -- would then be
    assigned to the uint16 field in the "container" option.
 
-  8.2.12. Unspecified Parameters for DHCPv4 Option Configuration
+  8.2.13. Unspecified Parameters for DHCPv4 Option Configuration
 
    In many cases it is not required to specify all parameters for an option
    configuration and the default values may be used. However, it is important
@@ -3596,7 +4054,7 @@
        determine whether the csv-format should be true or false. That is no
        longer the case.
 
-  8.2.13. Stateless Configuration of DHCPv4 Clients
+  8.2.14. Stateless Configuration of DHCPv4 Clients
 
    The DHCPv4 server supports the stateless client configuration whereby the
    client has an IP address configured (e.g. using manual configuration) and
@@ -3643,7 +4101,7 @@
      * The DHCPINFORM is not relayed and the IP address on the interface on
        which the message is received matches the configured subnet.
 
-  8.2.14. Client Classification in DHCPv4
+  8.2.15. Client Classification in DHCPv4
 
    The DHCPv4 server includes support for client classification. For a deeper
    discussion of the classification process see Chapter 13, Client
@@ -3689,7 +4147,7 @@
    Care should be taken with client classification as it is easy for clients
    that do not meet class criteria to be denied any service altogether.
 
-    8.2.14.1. Setting Fixed Fields in Classification
+    8.2.15.1. Setting Fixed Fields in Classification
 
    It is possible to specify that clients belonging to a particular class
    should receive packets with specific values in certain fixed fields. In
@@ -3724,7 +4182,7 @@
    multiple classes, the class whose name is alphabetically the first is
    used.
 
-    8.2.14.2. Using Vendor Class Information in Classification
+    8.2.15.2. Using Vendor Class Information in Classification
 
    The server checks whether an incoming packet includes the vendor class
    identifier option (60). If it does, the content of that option is
@@ -3757,7 +4215,7 @@
      ...
  }
 
-    8.2.14.3. Defining and Using Custom Classes
+    8.2.15.3. Defining and Using Custom Classes
 
    The following example shows how to configure a class using an expression
    and a subnet that makes use of the class. This configuration defines the
@@ -3794,7 +4252,7 @@
      ...
  }
 
-  8.2.15. DDNS for DHCPv4
+  8.2.16. DDNS for DHCPv4
 
    As mentioned earlier, kea-dhcp4 can be configured to generate requests to
    the DHCP-DDNS server (referred to here as "D2" ) to update DNS entries.
@@ -3847,7 +4305,7 @@
      * "replace-client-name": "never"
      * "generated-prefix": "myhost"
 
-    8.2.15.1. DHCP-DDNS Server Connectivity
+    8.2.16.1. DHCP-DDNS Server Connectivity
 
    In order for NCRs to reach the D2 server, kea-dhcp4 must be able to
    communicate with it. kea-dhcp4 uses the following configuration parameters
@@ -3897,7 +4355,7 @@
      ...
  }
 
-    8.2.15.2. When Does the kea-dhcp4 Server Generate DDNS Requests?
+    8.2.16.2. When Does the kea-dhcp4 Server Generate DDNS Requests?
 
    kea-dhcp4 follows the behavior prescribed for DHCP servers in RFC 4702. It
    is important to keep in mind that kea-dhcp4 provides the initial decision
@@ -3999,7 +4457,7 @@
    0-1-0 respectively. The domain name portion of the FQDN option will be the
    name submitted to D2 in the DDNS update request.
 
-    8.2.15.3. kea-dhcp4 name generation for DDNS update requests
+    8.2.16.3. kea-dhcp4 name generation for DDNS update requests
 
    Each NameChangeRequest must of course include the fully qualified domain
    name whose DNS entries are to be affected. kea-dhcp4 can be configured to
@@ -4091,7 +4549,7 @@
 
    myhost-172-16-1-10.example.com.
 
-  8.2.16. Next Server (siaddr)
+  8.2.17. Next Server (siaddr)
 
    In some cases, clients want to obtain configuration from a TFTP server.
    Although there is a dedicated option for it, some devices may use the
@@ -4114,7 +4572,7 @@
      ]
  }
 
-  8.2.17. Echoing Client-ID (RFC 6842)
+  8.2.18. Echoing Client-ID (RFC 6842)
 
    The original DHCPv4 specification (RFC 2131) states that the DHCPv4 server
    must not send back client-id options when responding to clients. However,
@@ -4133,7 +4591,7 @@
      ...
  }
 
-  8.2.18. Using Client Identifier and Hardware Address
+  8.2.19. Using Client Identifier and Hardware Address
 
    The DHCP server must be able to identify the client (and distinguish it
    from other clients) from which it receives the message. There are many
@@ -4270,7 +4728,7 @@
    lease will be assumed to belong to another client and the new lease will
    be allocated.
 
-  8.2.19. DHCPv4-over-DHCPv6: DHCPv4 Side
+  8.2.20. DHCPv4-over-DHCPv6: DHCPv4 Side
 
    The support of DHCPv4-over-DHCPv6 transport is described in RFC 7341 and
    is implemented using cooperating DHCPv4 and DHCPv6 servers. This section
@@ -4575,7 +5033,7 @@
    The options follow the same rules as any other options. These can be
    standard options (see Section 8.2.8, "Standard DHCPv4 Options"), custom
    options (see Section 8.2.9, "Custom DHCPv4 options") or vendor specific
-   options (see Section 8.2.10, "DHCPv4 Vendor Specific Options"). The
+   options (see Section 8.2.11, "DHCPv4 Vendor Specific Options"). The
    following example demonstrates how standard options can be defined.
 
  {
@@ -4805,7 +5263,335 @@
 
  "host-reservation-identifiers": [ "hw-address", "duid", "circuit-id", "client-id" ]
 
-8.4. Server Identifier in DHCPv4
+8.4. Shared networks in DHCPv4
+
+   DHCP servers use subnet information in two ways. First, it is used to
+   determine the point of attachment, or simply put, where the client is
+   connected to the network. Second, the subnet information is used to group
+   information pertaining to specific location in the network. This approach
+   works well in general case, but the are scenarios where the boundaries are
+   blurred. Sometimes it is useful to have more than one logical IP subnet
+   being deployed on the same physical link. The need to understand that two
+   or more subnets are used on the same link requires additional logic in the
+   DHCP server. This capability has been added in Kea 1.3.0. It is called
+   "shared networks" in Kea and ISC DHCP projects. It is sometimes also
+   called "shared subnets". In Microsoft's nomenclature it is called
+   "multinet".
+
+   There are many use cases where the feature is useful. This paragraph
+   explains just a handful of the most common ones. The first and by far the
+   most common use case is an existing network that has grown and is running
+   out of available address space. Rather than migrating all devices to a
+   new, larger subnet, it is easier to simply configure additional subnet on
+   top of the existing one. Sometimes, due to address space fragmentation
+   (e.g. only many disjoint /24s are available) this is the only choice.
+   Also, configuring additional subnet has the advantage of not disrupting
+   the operation of existing devices.
+
+   Another very frequent use case comes from cable networks. There are two
+   types of devices in cable networks: cable modems and the end user devices
+   behind them. It is a common practice to use different subnet for cable
+   modems to prevent users from tinkering with their cable modems. In this
+   case, the distinction is based on the type of device, rather than address
+   space exhaustion.
+
+   In order to define a shared network an additional configuration scope is
+   introduced:
+
+ {
+ "Dhcp4": {
+     "shared-networks": [
+         {
+             // Name of the shared network. It may be an arbitrary string
+             // and it must be unique among all shared networks.
+             "name": "my-secret-lair-level-1",
+
+             // This starts a list of subnets in this shared network.
+             // There are two subnets in this example.
+             "subnet4": [
+                 {
+                     "subnet": "10.0.0.0/8",
+                     "pools": [ { "pool":  "10.0.0.1 - 10.0.0.99" } ],
+                 },
+                 {
+                     "subnet": "192.0.2.0/24",
+                     "pools": [ { "pool":  "192.0.2.100 - 192.0.2.199" } ]
+                 }
+             ],
+         } ], // end of shared-networks
+
+         // It is likely that in your network you'll have a mix of regular,
+         // "plain" subnets and shared networks. It is perfectly valid to mix
+         // them in the same config file.
+         //
+         // This is regular subnet. It's not part of any shared-network.
+         "subnet4": [
+             {
+                 "subnet": "192.0.3.0/24",
+                 "pools": [ { "pool":  "192.0.3.1 - 192.0.3.200" } ]
+             }
+         ]
+
+     } // end of Dhcp4
+ }
+
+   As you see in the example, it is possible to mix shared and regular
+   ("plain") subnets. Each shared network must have a unique name. This is
+   similar to ID for subnets, but gives you more flexibility. This is used
+   for logging, but also internally for identifying shared networks.
+
+   In principle it makes sense to define only shared networks that consist of
+   two or more subnets. However, for testing purposes it is allowed to define
+   a shared network with just one subnet or even an empty one. This is not a
+   recommended practice in production networks, as the shared network logic
+   requires additional processing and thus lowers server's performance. To
+   avoid unnecessary performance degradation the shared subnets should only
+   be defined when required by the deployment.
+
+   Shared networks provide an ability to specify many parameters in the
+   shared network scope that will apply to all subnets within it. If
+   necessary, you can specify a parameter on the shared network scope and
+   then override its value in the subnet scope. For example:
+
+ "shared-networks": [
+     {
+         "name": "lab-network3",
+
+         // This applies to all subnets in this shared network, unless
+         // values are overridden on subnet scope.
+         "valid-lifetime": 600,
+
+         // This option is made available to all subnets in this shared
+         // network.
+         "option-data": [ {
+             "name": "log-servers",
+             "data": "1.2.3.4"
+         } ],
+
+         "subnet4": [
+             {
+                 "subnet": "10.0.0.0/8",
+                 "pools": [ { "pool":  "10.0.0.1 - 10.0.0.99" } ],
+
+                 // This particular subnet uses different values.
+                 "valid-lifetime": 1200,
+                 "option-data": [
+                 {
+                     "name": "log-servers",
+                     "data": "10.0.0.254"
+                 },
+                 {
+                     "name": "routers",
+                     "data": "10.0.0.254"
+                 } ]
+             },
+             {
+                  "subnet": "192.0.2.0/24",
+                  "pools": [ { "pool":  "192.0.2.100 - 192.0.2.199" } ],
+
+                  // This subnet does not specify its own valid-lifetime value,
+                  // so it is inherited from shared network scope.
+                  "option-data": [
+                  {
+                      "name": "routers",
+                      "data": "192.0.2.1"
+                  } ]
+             }
+         ]
+     } ]
+
+   In this example, there is a log-servers option defined that is available
+   to clients in both subnets in this shared network. Also, a valid lifetime
+   is set to 10 minutes (600s). However, the first subnet overrides some of
+   the values (valid lifetime is 20 minutes, different IP address for
+   log-servers), but also adds its own option (router address). Assuming a
+   client asking for router and log servers options is assigned a lease from
+   this subnet, he will get a lease for 20 minutes and log-servers and
+   routers value of 10.0.0.254. If the same client is assigned to the second
+   subnet, he will get a 10 minutes long lease, log-servers value of 1.2.3.4
+   and routers set to 192.0.2.1.
+
+  8.4.1. Local and relayed traffic in shared networks
+
+   It is possible to specify interface name in the shared network scope to
+   tell the server that this specific shared network is reachable directly
+   (not via relays) using local network interface. It is sufficient to
+   specify it once on the shared network level. As all subnets in a shared
+   network are expected to be used on the same physical link, it is a
+   configuration error to attempt to define a shared network using subnets
+   that are reachable over different interfaces. It is allowed to specify
+   interface parameter on each subnet, although its value must be the same
+   for each subnet. Thus it's usually more convenient to specify it once on
+   the shared network level.
+
+ "shared-networks": [
+     {
+         "name": "office-floor-2",
+
+         // This tells Kea that the whole shared networks is reachable over
+         // local interface. This applies to all subnets in this network.
+         "interface": "eth0",
+
+         "subnet4": [
+             {
+                 "subnet": "10.0.0.0/8",
+                 "pools": [ { "pool":  "10.0.0.1 - 10.0.0.99" } ],
+                 "interface": "eth0"
+             },
+             {
+                  "subnet": "192.0.2.0/24",
+                  "pools": [ { "pool":  "192.0.2.100 - 192.0.2.199" } ]
+
+                  // Specifying a different interface name is configuration
+                  // error:
+                  // "interface": "eth1"
+             }
+         ]
+     } ]
+
+   Somewhat similar to interface names, also relay IP addresses can be
+   specified for the whole shared network. However, depending on your relay
+   configuration, it may use different IP addresses depending on which subnet
+   is being used. Thus there is no requirement to use the same IP relay
+   address for each subnet. Here's an example:
+
+ "shared-networks": [
+     {"
+         "name": "kakapo",
+         "relay": {
+             "ip-address": "192.3.5.6"
+         },
+         "subnet4": [
+             {
+                 "subnet": "192.0.2.0/26",
+                 "relay": {
+                     "ip-address": "192.1.1.1"
+                 },
+                 "pools": [ { "pool": "192.0.2.63 - 192.0.2.63" } ]
+             },
+             {
+                 "subnet": "10.0.0.0/24",
+                 "relay": {
+                     "ip-address": "192.2.2.2"
+                 },
+                 "pools": [ { "pool": "10.0.0.16 - 10.0.0.16" } ]
+             }
+         ]
+     }
+ ]
+
+   In this particular case the relay IP address specified on network level
+   doesn't have much sense, as it is overridden in both subnets, but it was
+   left there as an example of how one could be defined on network level.
+   Note that the relay agent IP address typically belongs to the subnet it
+   relays packets from, but this is not a strict requirement. Therefore Kea
+   accepts any value here as long as it is valid IPv4 address.
+
+  8.4.2. Client classification in shared networks
+
+   Sometimes it is desired to segregate clients into specific subnets. A case
+   of cable network where modems should use one subnet and other devices
+   should use another subnet is a good example. For that reason Kea allows
+   for restricting access to specific subnets based on client classification.
+   See Chapter 13, Client Classification for details on how to define client
+   classes. The following example defines two classes of devices. The
+   decision is made based on option 93 values.
+
+ {
+     "client-classes": [
+         {
+
+             "name": "a-devices",
+             "test": "option[93].hex == 0x0001"
+         },
+         {
+             "name": "b-devices",
+             "test": "option[93].hex == 0x0002"
+         }
+     ],
+     "shared-networks": [
+         {
+             "name": "galah",
+             "subnet4": [
+                 {
+                     "subnet": "192.0.2.0/26",
+                     "pools": [ { "pool": "192.0.2.1 - 192.0.2.63" } ],
+                     "client-class": "a-devices"
+                 },
+                 {
+                     "subnet": "10.0.0.0/24",
+                     "pools": [ { "pool": "10.0.0.2 - 10.0.0.250" } ],
+                     "client-class": "b-devices"
+                 }
+             ]
+         }
+     ]
+ }
+
+   In this example each class has its own restriction. Only clients that
+   belong to class "a-devices" will be able to use subnet 192.0.2.0/26 and
+   only clients belonging to b-devices will be able to use subnet
+   10.0.0.0/24. Care should be taken to not define too restrictive
+   classification rules, as clients that are not able to use any subnets will
+   be refused service. Although, this may be a desired outcome if one desires
+   to service only clients of known properties (e.g. only VoIP phones allowed
+   on a given link).
+
+  8.4.3. Host reservations in shared networks
+
+   Subnets being part of a shared network allow host reservations, similar to
+   regular subnets:
+
+ {
+     "shared-networks": [
+     {
+         "name": "frog",
+         "subnet4": [
+             {
+                 "subnet": "192.0.2.0/26",
+                 "id": 100,
+                 "pools": [ { "pool": "192.0.2.1 - 192.0.2.63" } ],
+                 "reservations": [
+                     {
+                         "hw-address": "aa:bb:cc:dd:ee:ff",
+                         "ip-address": "192.0.2.28"
+                     }
+                 ]
+             },
+             {
+                 "subnet": "10.0.0.0/24",
+                 "id": 101,
+                 "pools": [ { "pool": "10.0.0.1 - 10.0.0.254" } ],
+                 "reservations": [
+                     {
+                         "hw-address": "11:22:33:44:55:66",
+                         "ip-address": "10.0.0.29"
+                     }
+                 ]
+             }
+         ]
+     }
+     ]
+ }
+
+
+   It is worth noting that Kea conducts additional checks when processing a
+   packet if shared networks are defined. First, instead of simply checking
+   if there's a reservation for a given client in his initially selected
+   subnet, it goes through all subnets in a shared network looking for a
+   reservation. This is one of the reasons why defining a shared network may
+   impact performance. If there is a reservation for a client in any subnet,
+   that particular subnet will be picked for the client. Although it's
+   technically not an error, it is considered a bad practice to define
+   reservations for the same host in multiple subnets belonging to the same
+   shared network.
+
+   While not strictly mandatory, it is strongly recommended to use explicit
+   "id" values for subnets if you plan to use database storage for host
+   reservations. If ID is not specified, the values for it be autogenerated,
+   i.e. it will assign increasing integer values starting from 1.
+
+8.5. Server Identifier in DHCPv4
 
    The DHCPv4 protocol uses a "server identifier" to allow clients to
    discriminate between several servers present on the same link: this value
@@ -4818,7 +5604,7 @@
    by an administrator. In the future, the configuration mechanism will be
    used to specify the custom server identifier.
 
-8.5. How the DHCPv4 Server Selects a Subnet for the Client
+8.6. How the DHCPv4 Server Selects a Subnet for the Client
 
    The DHCPv4 server differentiates between the directly connected clients,
    clients trying to renew leases and clients sending their messages through
@@ -4844,7 +5630,7 @@
 
    It is also possible to specify a relay IPv4 address for a given subnet. It
    can be used to match incoming packets into a subnet in uncommon
-   configurations, e.g. shared subnets. See Section 8.5.1, "Using a Specific
+   configurations, e.g. shared networks. See Section 8.6.1, "Using a Specific
    Relay Agent for a Subnet" for details.
 
   Note
@@ -4854,7 +5640,7 @@
    mechanism alters the way in which a subnet is selected for the client,
    depending on the classes to which the client belongs.
 
-  8.5.1. Using a Specific Relay Agent for a Subnet
+  8.6.1. Using a Specific Relay Agent for a Subnet
 
    A relay has to have an interface connected to the link on which the
    clients are being configured. Typically the relay has an IPv4 address
@@ -4897,10 +5683,10 @@
    If "relay" is specified, the "ip-address" parameter within it is
    mandatory.
 
-  8.5.2. Segregating IPv4 Clients in a Cable Network
+  8.6.2. Segregating IPv4 Clients in a Cable Network
 
    In certain cases, it is useful to mix relay address information,
-   introduced in Section 8.5.1, "Using a Specific Relay Agent for a Subnet"
+   introduced in Section 8.6.1, "Using a Specific Relay Agent for a Subnet"
    with client classification, explained in Chapter 13, Client
    Classification. One specific example is cable network, where typically
    modems get addresses from a different subnet than all devices connected
@@ -4934,7 +5720,7 @@
      ...
  }
 
-8.6. Duplicate Addresses (DHCPDECLINE Support)
+8.7. Duplicate Addresses (DHCPDECLINE Support)
 
    The DHCPv4 server is configured with a certain pool of addresses that it
    is expected to hand out to the DHCPv4 clients. It is assumed that the
@@ -4977,7 +5763,7 @@
    handling procedure. The lease4_decline hook is triggered after the
    incoming DHCPDECLINE message has been sanitized and the server is about to
    decline the lease. The declined-addresses statistic is increased after the
-   hook returns (both global and subnet specific variants). (See Section 8.7,
+   hook returns (both global and subnet specific variants). (See Section 8.8,
    "Statistics in the DHCPv4 Server" and Chapter 14, Hooks Libraries for more
    details on DHCPv4 statistics and Kea hook points.)
 
@@ -4999,7 +5785,7 @@
    after receiving DHCPDECLINE, but to do it later when we recover the
    address back to the available pool.
 
-8.7. Statistics in the DHCPv4 Server
+8.8. Statistics in the DHCPv4 Server
 
   Note
 
@@ -5340,7 +6126,7 @@
  |                                       |         |separately.                |
  +-----------------------------------------------------------------------------+
 
-8.8. Management API for the DHCPv4 Server
+8.9. Management API for the DHCPv4 Server
 
    The management API allows the issuing of specific management commands,
    such as statistics retrieval, reconfiguration or shutdown. For more
@@ -5397,7 +6183,7 @@
 
    as described here Section 15.3, "Commands for Manipulating Statistics".
 
-8.9. Supported DHCP Standards
+8.10. Supported DHCP Standards
 
    The following standards are currently supported:
 
@@ -5415,9 +6201,9 @@
        Vendor-Identifying Vendor-Specific Information options are supported.
      * Client Identifier Option in DHCP Server Replies, RFC 6842: Server by
        default sends back client-id option. That capability may be disabled.
-       See Section 8.2.17, "Echoing Client-ID (RFC 6842)" for details.
+       See Section 8.2.18, "Echoing Client-ID (RFC 6842)" for details.
 
-8.10. User context in IPv4 pools
+8.11. User contexts in IPv4
 
    Kea allows loading hook libraries that sometimes could benefit from
    additional parameters. If such a parameter is specific to the whole
@@ -5425,9 +6211,17 @@
    However, sometimes there is a need to specify parameters that are
    different for each pool.
 
+   User contexts can store arbitrary data as long as it is valid JSON syntax
+   and its top level element is a map (i.e. the data must be enclosed in
+   curly brackets). Some hook libraries may expect specific formatting,
+   though. Please consult specific hook library documentation for details.
+
+   User contexts can be specified on either subnet or pool level. One other
+   useful usage is the ability to store comments or descriptions.
+
    Let's consider an imaginary case of devices that have color LED lights.
    Depending on their location, they should glow red, blue or green. It would
-   be easy to write a hook library that would send specific values as maybe
+   be easy to write a hook library that would send specific values as maybe a
    vendor option. However, the server has to have some way to specify that
    value for each pool. This need is addressed by user contexts. In essence,
    any user data can specified in the user context as long as it is a valid
@@ -5438,8 +6232,22 @@
      "subnet4": [
          {
              "subnet": "192.0.2.0/24",
-             "pools": [ { "pool": "192.0.2.10 - 192.0.2.20" } ],
-             "user-context": { "colour": "red" }
+             "pools": [ {
+                 "pool": "192.0.2.10 - 192.0.2.20",
+                 // This is pool specific user context
+                 "user-context": { "colour": "red" }
+             } ],
+
+             // This is a subnet specific user context. You can put whatever type
+             // of information you want as long as it is a valid JSON.
+             "user-context": {
+                 "comment": "network on the second floor",
+                 "last-modified": "2017-09-04 13:32",
+                 "description": "you can put here anything you like",
+                 "phones": [ "x1234", "x2345" ],
+                 "devices-registered": 42,
+                 "billing": false
+             }
          },
          ...
      ],
@@ -5450,11 +6258,9 @@
    store and make it available to hook libraries. It is up to the hook
    library to extract that information and make use of it.
 
-   Currently only pools allow definition of user contexts, but this concept
-   is expected to be enhanced to other structures in the future. For more
-   background information, see Section 14.4, "User contexts"
+   For more background information, see Section 14.4, "User contexts".
 
-8.11. DHCPv4 Server Limitations
+8.12. DHCPv4 Server Limitations
 
    These are the current limitations of the DHCPv4 server software. Most of
    them are reflections of the current stage of development and should be
@@ -5475,6 +6281,13 @@
      * The DHCPv4 server does not verify that assigned address is unused.
        According to RFC 2131, the allocating server should verify that
        address is not used by sending ICMP echo request.
+
+8.13. Kea DHCPv4 server examples
+
+   A collection of simple to use examples for DHCPv4 component of Kea is
+   available with the sources. It is located in doc/examples/kea4 directory.
+   At the time of writing this text there were 15 examples, but the number is
+   growing slowly with each release.
 
                           Chapter 9. The DHCPv6 Server
 
@@ -5545,29 +6358,39 @@
 
                 9.3.8. Fine Tuning DHCPv6 Host Reservation
 
-   9.4. Server Identifier in DHCPv6
+   9.4. Shared networks in DHCPv6
 
-   9.5. Stateless DHCPv6 (Information-Request Message)
+                9.4.1. Local and relayed traffic in shared networks
 
-   9.6. Support for RFC 7550
+                9.4.2. Client classification in shared networks
 
-   9.7. Using Specific Relay Agent for a Subnet
+                9.4.3. Host reservations in shared networks
 
-   9.8. Segregating IPv6 Clients in a Cable Network
+   9.5. Server Identifier in DHCPv6
 
-   9.9. MAC/Hardware Addresses in DHCPv6
+   9.6. Stateless DHCPv6 (Information-Request Message)
 
-   9.10. Duplicate Addresses (DECLINE Support)
+   9.7. Support for RFC 7550
 
-   9.11. Statistics in the DHCPv6 Server
+   9.8. Using Specific Relay Agent for a Subnet
 
-   9.12. Management API for the DHCPv6 Server
+   9.9. Segregating IPv6 Clients in a Cable Network
 
-   9.13. User context in IPv6 pools
+   9.10. MAC/Hardware Addresses in DHCPv6
 
-   9.14. Supported DHCPv6 Standards
+   9.11. Duplicate Addresses (DECLINE Support)
 
-   9.15. DHCPv6 Server Limitations
+   9.12. Statistics in the DHCPv6 Server
+
+   9.13. Management API for the DHCPv6 Server
+
+   9.14. User contexts in IPv6
+
+   9.15. Supported DHCPv6 Standards
+
+   9.16. DHCPv6 Server Limitations
+
+   9.17. Kea DHCPv6 server examples
 
 9.1. Starting and Stopping the DHCPv6 Server
 
@@ -6086,6 +6909,20 @@
    desired to temporarily override a list of interface names and listen on
    all interfaces.
 
+   As for the DHCPv4 server binding to specific addresses and disabling
+   re-detection of interfaces are supported. But dhcp-socket-type is not
+   because DHCPv6 uses UDP/IPv6 sockets only. The following example shows how
+   to disable the interface detection:
+
+ "Dhcp6": {
+     "interfaces-config": {
+         "interfaces": [ "eth1", "eth3" ],
+         "re-detect": false
+     },
+     ...
+ }
+
+
   9.2.5. IPv6 Subnet Identifier
 
    The subnet identifier is a unique number associated with a particular
@@ -6399,7 +7236,7 @@
    true, so it too can be skipped, unless you want to specify the option
    value as hexstring. Therefore the above example can be simplified to:
 
- "Dhcp4": {
+ "Dhcp6": {
      "option-data": [
          {
             "name": "dns-servers",
@@ -6408,6 +7245,57 @@
          ...
      ]
  }
+
+
+   Defined options are added to response when the client requests them at a
+   few exceptions which are always added. To enforce the addition of a
+   particular option set the always-send flag to true as in:
+
+ "Dhcp6": {
+     "option-data": [
+         {
+            "name": "dns-servers",
+            "data": "2001:db8::cafe, 2001:db8::babe",
+            "always-send": true
+         },
+         ...
+     ]
+ }
+
+
+   The effect is the same as if the client added the option code in the
+   Option Request Option (or its equivalent for vendor options) so in:
+
+ "Dhcp6": {
+     "option-data": [
+         {
+            "name": "dns-servers",
+            "data": "2001:db8::cafe, 2001:db8::babe",
+            "always-send": true
+         },
+         ...
+     ],
+     "subnet6": [
+         {
+            "subnet": "2001:db8:1::/64",
+            "option-data": [
+                {
+                    "name": "dns-servers",
+                    "data": "2001:db8:1::cafe, 2001:db8:1::babe"
+                },
+                ...
+            ],
+            ...
+         },
+         ...
+     ],
+     ...
+ }
+
+
+   The DNS Servers option is always added to responses (the always-send is
+   "sticky") but the value is the subnet one when the client is localized in
+   the subnet.
 
    It is possible to override options on a per-subnet basis. If clients
    connected to most of your subnets are expected to get the same values of a
@@ -6595,6 +7483,16 @@
    |--------------------------+------+-----------------------------+--------|
    | lq-client-link           |  48  |        ipv6-address         |  true  |
    |--------------------------+------+-----------------------------+--------|
+   | v6-lost                  |  51  |            fqdn             | false  |
+   |--------------------------+------+-----------------------------+--------|
+   | capwap-ac-v6             |  52  |        ipv6-address         |  true  |
+   |--------------------------+------+-----------------------------+--------|
+   | relay-id                 |  53  |           binary            | false  |
+   |--------------------------+------+-----------------------------+--------|
+   | v6-access-domain         |  57  |            fqdn             | false  |
+   |--------------------------+------+-----------------------------+--------|
+   | sip-ua-cs-list           |  58  |            fqdn             |  true  |
+   |--------------------------+------+-----------------------------+--------|
    | bootfile-url             |  59  |           string            | false  |
    |--------------------------+------+-----------------------------+--------|
    | bootfile-param           |  60  |            tuple            |  true  |
@@ -6614,7 +7512,17 @@
    |--------------------------+------+-----------------------------+--------|
    | client-linklayer-addr    |  79  |           binary            | false  |
    |--------------------------+------+-----------------------------+--------|
+   | link-address             |  80  |        ipv6-address         | false  |
+   |--------------------------+------+-----------------------------+--------|
+   | solmax-rt                |  82  |           uint32            | false  |
+   |--------------------------+------+-----------------------------+--------|
+   | inf-max-rt               |  83  |           uint32            | false  |
+   |--------------------------+------+-----------------------------+--------|
    | dhcp4o6-server-addr      |  88  |        ipv6-address         |  true  |
+   |--------------------------+------+-----------------------------+--------|
+   | v6-captive-portal        | 103  |           string            | false  |
+   |--------------------------+------+-----------------------------+--------|
+   | ipv6-address-andsf       | 143  |        ipv6-address         |  true  |
    +------------------------------------------------------------------------+
 
    Table 9.2. List of Experimental DHCPv6 Options
@@ -7511,7 +8419,7 @@
    The support of DHCPv4-over-DHCPv6 transport is described in RFC 7341 and
    is implemented using cooperating DHCPv4 and DHCPv6 servers. This section
    is about the configuration of the DHCPv6 side (the DHCPv4 side is
-   described in Section 8.2.19, "DHCPv4-over-DHCPv6: DHCPv4 Side").
+   described in Section 8.2.20, "DHCPv4-over-DHCPv6: DHCPv4 Side").
 
   Note
 
@@ -7604,7 +8512,7 @@
 
    Hosts reservations are defined as parameters for each subnet. Each host
    can be identified by either DUID or its hardware/MAC address. See
-   Section 9.9, "MAC/Hardware Addresses in DHCPv6" for details. There is an
+   Section 9.10, "MAC/Hardware Addresses in DHCPv6" for details. There is an
    optional reservations array in the subnet6 structure. Each element in that
    array is a structure, that holds information about a single host. In
    particular, the structure has an identifier that uniquely identifies a
@@ -8016,7 +8924,337 @@
 
  "host-reservation-identifiers": [ "hw-address", "duid" ]
 
-9.4. Server Identifier in DHCPv6
+9.4. Shared networks in DHCPv6
+
+   DHCP servers use subnet information in two ways. First, it is used to
+   determine the point of attachment, or simply put, where the client is
+   connected to the network. Second, the subnet information is used to group
+   information pertaining to specific location in the network. This approach
+   works well in general case, but the are scenarios where the boundaries are
+   blurred. Sometimes it is useful to have more than one logical IP subnet
+   being deployed on the same physical link. The need to understand that two
+   or more subnets are used on the same link requires additional logic in the
+   DHCP server. This capability has been added in Kea 1.3.0. It is called
+   "shared networks" in Kea and ISC DHCP projects. It is sometimes also
+   called "shared subnets". In Microsoft's nomenclature it is called
+   "multinet".
+
+   There are many use cases where the feature is useful. The most common
+   example in the IPv4 case is when the server is running out of available
+   addresses in a subnet. This is less common in IPv6, but the shared
+   networks are still useful in IPv6. One of the use cases is an exhaustion
+   of IPv6 delegated prefixes within a subnet. Another IPv6 specific example
+   is an experiment with addressing scheme. With the advent of IPv6
+   deployment and vast address space, many organizations split the address
+   space into subnets, then deploy it and after a while discover that they
+   want to split it differently. In the transition period they want both old
+   and new addressing to be available. Thus the need for more than one subnet
+   on the same physical link.
+
+   Finally, the case of cable networks is directly applicable in IPv6. There
+   are two types of devices in cable networks: cable modems and the end user
+   devices behind them. It is a common practice to use different subnet for
+   cable modems to prevent users from tinkering with their cable modems. In
+   this case, the distinction is based on the type of device, rather than
+   coming out of running out address space.
+
+   In order to define a shared network an additional configuration scope is
+   introduced:
+
+ {
+ "Dhcp6": {
+     "shared-networks": [
+         {
+             // Name of the shared network. It may be an arbitrary string
+             // and it must be unique among all shared networks.
+             "name": "ipv6-lab-1",
+
+             // This starts a list of subnets in this shared network.
+             // There are two subnets in this example.
+             "subnet6": [
+                 {
+                     "subnet": "2001:db8::/48",
+                     "pools": [ { "pool":  "2001:db8::1 - 2001:db8::ffff" } ]
+                 },
+                 {
+                     "subnet": "3ffe:ffe::/64",
+                     "pools": [ { "pool":  "3ffe:ffe::/64" } ]
+                 }
+             ]
+         } ], // end of shared-networks
+
+         // It is likely that in your network you'll have a mix of regular,
+         // "plain" subnets and shared networks. It is perfectly valid to mix
+         // them in the same config file.
+         //
+         // This is regular subnet. It's not part of any shared-network.
+         "subnet6": [
+             {
+                 "subnet": "2001:db9::/48",
+                 "pools": [ { "pool":  "2001:db9::/64" } ]
+             }
+         ]
+
+     } // end of Dhcp6
+ }
+
+   As you see in the example, it is possible to mix shared and regular
+   ("plain") subnets. Each shared network must have a unique name. This is a
+   similar concept to ID for subnets, but it offers more flexibility. This is
+   used for logging, but also internally for identifying shared networks.
+
+   In principle it makes sense to define only shared networks that consist of
+   two or more subnets. However, for testing purposes it is allowed to define
+   a shared network with just one subnet or even an empty one. This is not a
+   recommended practice in production networks, as the shared network logic
+   requires additional processing and thus lowers server's performance. To
+   avoid unnecessary performance degradation the shared subnets should only
+   be defined when required by the deployment.
+
+   Shared networks provide an ability to specify many parameters in the
+   shared network scope that will apply to all subnets within it. If
+   necessary, you can specify a parameter in the shared network scope and
+   then override its value on the subnet scope. For example:
+
+ "shared-networks": [
+     {
+         "name": "lab-network3",
+
+         // This applies to all subnets in this shared network, unless
+         // values are overridden on subnet scope.
+         "valid-lifetime": 600,
+
+         // This option is made available to all subnets in this shared
+         // network.
+         "option-data": [ {
+             "name": "dns-servers",
+             "data": "2001:db8::8888"
+         } ],
+
+         "subnet6": [
+             {
+                 "subnet": "2001:db8:1::/48",
+                 "pools": [ { "pool":  "2001:db8:1::1 - 2001:db8:1::ffff" } ],
+
+                 // This particular subnet uses different values.
+                 "valid-lifetime": 1200,
+                 "option-data": [
+                 {
+                     "name": "dns-servers",
+                     "data": "2001:db8::1:2"
+                 },
+                 {
+                     "name": "unicast",
+                     "data": "2001:abcd::1"
+                 } ]
+             },
+             {
+                  "subnet": "2001:db8:2::/48",
+                  "pools": [ { "pool":  "2001:db8:2::1 - 2001:db8:2::ffff" } ],
+
+                  // This subnet does not specify its own valid-lifetime value,
+                  // so it is inherited from shared network scope.
+                  "option-data": [
+                  {
+                      "name": "dns-servers",
+                      "data": "2001:db8:cafe::1"
+                  } ]
+             }
+         ],
+     } ]
+
+   In this example, there is a dns-servers option defined that is available
+   to clients in both subnets in this shared network. Also, a valid lifetime
+   is set to 10 minutes (600s). However, the first subnet overrides some of
+   the values (valid lifetime is 20 minutes, different IP address for
+   dns-servers), but also adds its own option (unicast address). Assuming a
+   client asking for a server unicast and dns servers options is assigned a
+   lease from this subnet, he will get a lease for 20 minutes and dns-servers
+   and be allowed to use server unicast at address 2001:abcd::1. If the same
+   client is assigned to the second subnet, he will get a 10 minutes long
+   lease, dns-servers value of 2001:db8:cafe::1 and no server unicast.
+
+  9.4.1. Local and relayed traffic in shared networks
+
+   It is possible to specify interface name in the shared network scope to
+   tell the server that this specific shared network is reachable directly
+   (not via relays) using local network interface. It is sufficient to
+   specify it once in the shared network level. As all subnets in a shared
+   network are expected to be used on the same physical link, it is a
+   configuration error to attempt to make a shared network out of subnets
+   that are reachable over different interfaces. It is allowed to specify
+   interface parameter on each subnet, although its value must be the same
+   for each subnet. Thus it's usually more convenient to specify it once on
+   the shared network level.
+
+ "shared-networks": [
+     {
+         "name": "office-floor-2",
+
+         // This tells Kea that the whole shared networks is reachable over
+         // local interface. This applies to all subnets in this network.
+         "interface": "eth0",
+
+         "subnet6": [
+             {
+                 "subnet": "2001:db8::/64",
+                 "pools": [ { "pool":  "2001:db8::1 - 2001:db8::ffff" } ],
+                 "interface": "eth0"
+             },
+             {
+                  "subnet": "3ffe:abcd::/64",
+                  "pools": [ { "pool":  "3ffe:abcd::1 - 3ffe:abcd::ffff" } ]
+
+                  // Specifying a different interface name is configuration
+                  // error:
+                  // "interface": "eth1"
+             }
+         ],
+     } ]
+
+   Somewhat similar to interface names, also relay IP addresses can be
+   specified for the whole shared network. However, depending on your relay
+   configuration, it may use different IP addresses depending on which subnet
+   is being used. Thus there is no requirement to use the same IP relay
+   address for each subnet. Here's an example:
+
+ "shared-networks": [
+     {"
+         "name": "kakapo",
+         "relay": {
+             "ip-address": "2001:db8::abcd"
+         },
+         "subnet6": [
+             {
+                 "subnet": "2001:db8::/64",
+                 "relay": {
+                     "ip-address": "2001:db8::1234"
+                 },
+                 "pools": [ { "pool":  "2001:db8::1 - 2001:db8::ffff" } ]
+             },
+             {
+                  "subnet": "3ffe:abcd::/64",
+                  "pools": [ { "pool":  "3ffe:abcd::1 - 3ffe:abcd::ffff" } ],
+                  "relay": {
+                     "ip-address": "3ffe:abcd::cafe"
+                  }
+             }
+         ]
+     }
+ ]
+
+   In this particular case the relay IP address specified on network level
+   doesn't have much sense, as it is overridden in both subnets, but it was
+   left there as an example of how one could be defined on network level.
+   Note that the relay agent IP address typically belongs to the subnet it
+   relays packets from, but this is not a strict requirement. Therefore Kea
+   accepts any value here as long as it is valid IPv6 address.
+
+  9.4.2. Client classification in shared networks
+
+   Sometimes it is desired to segregate clients into specific subnets. A case
+   of cable network where modems should use one subnet and other devices
+   should use another subnet is a good example. For that reason Kea allows
+   for restricting access to specific subnets based on client classification.
+   See Chapter 13, Client Classification for details on how to define client
+   classes. The following example defines two classes of devices. The
+   decision is made based on option 1234 values.
+
+ {
+     "client-classes": [
+         {
+
+             "name": "a-devices",
+             "test": "option[1234].hex == 0x0001"
+         },
+         {
+             "name": "b-devices",
+             "test": "option[1234].hex == 0x0002"
+         }
+     ],
+     "shared-networks": [
+         {
+             "name": "galah",
+             "subnet6": [
+                 {
+                     "subnet": "2001:db8:1::/64",
+                     "pools": [ { "pool": "2001:db8:1::20 - 2001:db8:1::ff" } ],
+                     "client-class": "a-devices"
+                 },
+                 {
+                     "subnet": "2001:db8:3::/64",
+                     "pools": [ { "pool": "2001:db8:3::20 - 2001:db8:3::ff" } ],
+                     "client-class": "b-devices"
+                 }
+             ]
+         }
+     ]
+ }
+
+   In this example each class has its own restriction. Only clients that
+   belong to class a-devices will be able to use subnet 2001:db8:1::/64 and
+   only clients belonging to b-devices will be able to use subnet
+   2001:db8:3::/64. Care should be taken to not define too restrictive
+   classification rules, as clients that are not able to use any subnets will
+   be refused service. Although, this may be desired outcome if one desires
+   to service only clients of known properties (e.g. only VoIP phones allowed
+   on a given link).
+
+  9.4.3. Host reservations in shared networks
+
+   Subnets being part of a shared network allow host reservations, similar to
+   regular subnets:
+
+ {
+     "shared-networks": [
+     {
+         "name": "frog",
+         "subnet6": [
+             {
+                 "subnet": "2001:db8:1::/64",
+                 "id": 100,
+                 "pools": [ { "2001:db8:1::1 - 2001:db8:1::64" } ],
+                 "reservations": [
+                 {
+                     "duid": "00:03:00:01:11:22:33:44:55:66",
+                     "ip-addresses": [ "2001:db8:1::28" ]
+                 }
+                 ]
+             },
+             {
+                 "subnet": "2001:db8:3::/64",
+                 "id": 101,
+                 "pools": [ { "pool": "2001:db8:3::1 - 2001:db8:3::64" } ],
+                 "reservations": [
+                     {
+                         "duid": "00:03:00:01:aa:bb:cc:dd:ee:ff",
+                         "ip-addresses": [ "2001:db8:2::28" ]
+                     }
+                 ]
+             }
+         ]
+     }
+     ]
+ }
+
+
+   It is worth noting that Kea conducts additional checks when processing a
+   packet if shared networks are defined. First, instead of simply checking
+   if there's a reservation for a given client in his initially selected
+   subnet, it goes through all subnets in a shared network looking for a
+   reservation. This is one of the reasons why defining a shared network may
+   impact performance. If there is a reservation for a client in any subnet,
+   that particular subnet will be picked for the client. Although it's
+   technically not an error, it is considered a bad practice to define
+   reservations for the same host in multiple subnets belonging to the same
+   shared network.
+
+   While not strictly mandatory, it is strongly recommended to use explicit
+   "id" values for subnets if you plan to use database storage for host
+   reservations. If ID is not specified, the values for it be autogenerated,
+   i.e. it will assign increasing integer values starting from 1.
+
+9.5. Server Identifier in DHCPv6
 
    The DHCPv6 protocol uses a "server identifier" (also known as a DUID) for
    clients to be able to discriminate between several servers present on the
@@ -8201,7 +9439,7 @@
    because entire server identifier is explicitly specified in the
    configuration.
 
-9.5. Stateless DHCPv6 (Information-Request Message)
+9.6. Stateless DHCPv6 (Information-Request Message)
 
    Typically DHCPv6 is used to assign both addresses and options. These
    assignments (leases) have state that changes over time, hence their name,
@@ -8245,7 +9483,7 @@
    specification of the memfile lease database: this is needed as Kea
    requires a lease database to be specified even if it is not used.
 
-9.6. Support for RFC 7550
+9.7. Support for RFC 7550
 
    The RFC 7550 introduced some changes to the DHCPv6 protocol to resolve a
    few issues with the coexistence of multiple stateful options in the
@@ -8280,7 +9518,7 @@
        and IA_PD options in the Advertise message, rather than as the top
        level options.
 
-9.7. Using Specific Relay Agent for a Subnet
+9.8. Using Specific Relay Agent for a Subnet
 
    The relay has to have an interface connected to the link on which the
    clients are being configured. Typically the relay has a global IPv6
@@ -8325,10 +9563,10 @@
    If "relay" is specified, the "ip-address" parameter within it is
    mandatory.
 
-9.8. Segregating IPv6 Clients in a Cable Network
+9.9. Segregating IPv6 Clients in a Cable Network
 
    In certain cases, it is useful to mix relay address information,
-   introduced in Section 9.7, "Using Specific Relay Agent for a Subnet" with
+   introduced in Section 9.8, "Using Specific Relay Agent for a Subnet" with
    client classification, explained in Chapter 13, Client Classification. One
    specific example is a cable network, where typically modems get addresses
    from a different subnet than all devices connected behind them.
@@ -8367,7 +9605,7 @@
      ]
  }
 
-9.9. MAC/Hardware Addresses in DHCPv6
+9.10. MAC/Hardware Addresses in DHCPv6
 
    MAC/hardware addresses are available in DHCPv4 messages from the clients
    and administrators frequently use that information to perform certain
@@ -8463,7 +9701,7 @@
    simply omit mac-sources definition or specify it with the "any" value
    which is the default.
 
-9.10. Duplicate Addresses (DECLINE Support)
+9.11. Duplicate Addresses (DECLINE Support)
 
    The DHCPv6 server is configured with a certain pool of addresses that it
    is expected to hand out to the DHCPv6 clients. It is assumed that the
@@ -8506,7 +9744,7 @@
    handling procedure. The lease6_decline hook is triggered after the
    incoming Decline message has been sanitized and the server is about to
    decline the lease. The declined-addresses statistic is increased after the
-   hook returns (both global and subnet specific variants). (See Section 8.7,
+   hook returns (both global and subnet specific variants). (See Section 8.8,
    "Statistics in the DHCPv4 Server" and Chapter 14, Hooks Libraries for more
    details on DHCPv4 statistics and Kea hook points.)
 
@@ -8528,7 +9766,7 @@
    after receiving Decline, but to do it later when we recover the address
    back to the available pool.
 
-9.11. Statistics in the DHCPv6 Server
+9.12. Statistics in the DHCPv6 Server
 
   Note
 
@@ -8970,7 +10208,7 @@
   |                                       |         |each subnet separately.   |
   +----------------------------------------------------------------------------+
 
-9.12. Management API for the DHCPv6 Server
+9.13. Management API for the DHCPv6 Server
 
    The management API allows the issuing of specific management commands,
    such as statistics retrieval, reconfiguration or shutdown. For more
@@ -9027,13 +10265,21 @@
 
    as described here Section 15.3, "Commands for Manipulating Statistics".
 
-9.13. User context in IPv6 pools
+9.14. User contexts in IPv6
 
    Kea allows loading hook libraries that sometimes could benefit from
    additional parameters. If such a parameter is specific to the whole
    library, it is typically defined as a parameter for the hook library.
    However, sometimes there is a need to specify parameters that are
    different for each pool.
+
+   User contexts can store arbitrary data as long as it is valid JSON syntax
+   and its top level element is a map (i.e. the data must be enclosed in
+   curly brackets). Some hook libraries may expect specific formatting,
+   though. Please consult specific hook library documentation for details.
+
+   User contexts can be specified on either subnet or pool level. One other
+   useful usage is the ability to store comments or descriptions.
 
    Let's consider an example where certain parameters are supposed to be
    delivered to clients in form of additional options, and the values of
@@ -9046,20 +10292,31 @@
    structure that holds the parameters used by the hook library when it is
    loaded. An example configuration could look as follows:
 
- "Dhcp4": {
+ "Dhcp6": {
      "subnet6": [ {
          "pd-pools": [
          {
              "prefix":  "2001:db8::",
              "prefix-len": 56,
              "delegated-len": 64,
+
+             // This is a pool specific context.
              "user-context": {
                  "threshold-percent": 85,
                  "v4-network": "192.168.0.0/16",
                  "v4-overflow": "10.0.0.0/16"
              }
          } ],
-         "subnet": "2001:db8::/32"
+         "subnet": "2001:db8::/32",
+
+         // This is a subnet specific context. You can put any type of
+         // information here as long as it is a valid JSON.
+         "user-context": {
+             "comment": "Those v4-v6 migration technologies are tricky.",
+             "experimental": true,
+             "billing-department": 42,
+             "contact-points": [ "Alice", "Bob" ]
+         }
      } ],
      ...
  }
@@ -9068,11 +10325,9 @@
    stores it, making it available to the hook libraries. It is up to each
    hook library to extract the information and make use of it.
 
-   Currently only address and prefix pools allow definition of user contexts,
-   but this concept is expected to be enhanced to other structures in the
-   future. For more background information, see Section 14.4, "User contexts"
+   For more background information, see Section 14.4, "User contexts".
 
-9.14. Supported DHCPv6 Standards
+9.15. Supported DHCPv6 Standards
 
    The following standards are currently supported:
 
@@ -9103,7 +10358,7 @@
        7550: All recommendations related to the DHCPv6 server operation are
        supported.
 
-9.15. DHCPv6 Server Limitations
+9.16. DHCPv6 Server Limitations
 
    These are the current limitations of the DHCPv6 server software. Most of
    them are reflections of the early stage of development and should be
@@ -9115,6 +10370,13 @@
        a single IA.
      * Temporary addresses are not supported.
      * Client reconfiguration (RECONFIGURE) is not yet supported.
+
+9.17. Kea DHCPv6 server examples
+
+   A collection of simple to use examples for DHCPv6 component of Kea is
+   available with the sources. It is located in doc/examples/kea6 directory.
+   At the time of writing this text there were 18 examples, but the number is
+   growing slowly with each release.
 
                Chapter 10. Lease Expiration in DHCPv4 and DHCPv6
 
@@ -9513,7 +10775,7 @@
 
    Before starting kea-dhcp-ddns module for the first time, a configuration
    file needs to be created. The following default configuration is a
-   template that can be customised to your requirements.
+   template that can be customized to your requirements.
 
  "DhcpDdns": {
      "ip-address": "127.0.0.1",
@@ -10130,18 +11392,25 @@
    behavior of almost any part of the DHCP message processing, including the
    assignment of leases from different pools, the assignment of different
    options (or different values of the same options) etc. In the current
-   release of the software however, there are only three mechanisms that take
-   advantage of client classification: subnet selection, assignment of
-   different options and, for DHCPv4 cable modems, the setting of specific
-   options for use with the TFTP server address and the boot file field.
+   release of the software however, there are only four mechanisms that take
+   advantage of client classification: subnet selection, definition of DHCPv4
+   private (codes 224-254) and code 43 options, assignment of different
+   options and, for DHCPv4 cable modems, the setting of specific options for
+   use with the TFTP server address and the boot file field.
 
-   The process of doing classification is conducted in three steps:
+   The process of doing classification is conducted in four steps:
 
     1. Assess an incoming packet and assign it to zero or more classes.
 
-    2. Choose a subnet, possibly based on the class information.
+    2. If a private or code 43 DHCPv4 option is received, decoding it
+       following its client class or global (or for option 43 last resort)
+       definition.
 
-    3. Assign options, again possibly based on the class information.
+    3. Choose a subnet, possibly based on the class information.
+
+    4. Assign options, again possibly based on the class information. For
+       DHCPv4 private and code 43 options this includes class local option
+       definitions.
 
    When determining which options to include in the response the server will
    examine the union of options from all of the assigned classes. In the case
@@ -10494,7 +11763,10 @@
      * "relay6[nest]" allows access to the encapsulations used by any DHCPv6
        relays that forwarded the packet. The "nest" level specifies the relay
        from which to extract the information, with a value of 0 indicating
-       the relay closest to the DHCPv6 server. If the requested encapsulation
+       the relay closest to the DHCPv6 server. Negative values allow to
+       specify relays counted from the DHCPv6 client, -1 indicating the relay
+       closest to the client. In general negative "nest" level is the same as
+       the number of relays + "nest" level. If the requested encapsulation
        doesn't exist an empty string "" is returned. This expression is
        allowed in DHCPv6 only.
 
@@ -10863,12 +12135,16 @@
 
                 14.3.4. host_cmds: Host Commands
 
+                14.3.5. lease_cmds: Lease Commands
+
+                14.3.6. subnet_cmds: Subnet Commands
+
    14.4. User contexts
 
 14.1. Introduction
 
    Although Kea offers a lot of flexibility, there may be cases where its
-   behavior needs customisation. To accommodate this possibility, Kea
+   behavior needs customization. To accommodate this possibility, Kea
    includes the idea of "Hooks". This feature lets Kea load one or more
    dynamically-linked libraries (known as "hooks libraries") and, at various
    points in its processing ("hook points"), call functions in them. Those
@@ -11062,6 +12338,22 @@
    |          |            |       |interface). Additional commands and       |
    |          |            |       |capabilities related to host reservations |
    |          |            |       |will be added in the future.              |
+   |----------+------------+-------+------------------------------------------|
+   |          |            |       |In deployments in which subnet            |
+   |          |            |       |configuration needs to be frequently      |
+   |          |            |       |updated, it is a hard requirement that    |
+   |          |            |       |such updates be performed without the need|
+   |          |            |       |for a full DHCP server reconfiguration or |
+   |          |            |       |restart. This hooks library allows for    |
+   |Subnet    |Support     |Kea    |incremental changes to the subnet         |
+   |Commands  |customers   |1.3.0  |configuration such as: adding a subnet,   |
+   |          |            |       |removing a subnet. It also allows for     |
+   |          |            |       |listing all available subnets and fetching|
+   |          |            |       |detailed information about a selected     |
+   |          |            |       |subnet. The commands exposed by this      |
+   |          |            |       |library do not affect other subnets or    |
+   |          |            |       |configuration parameters currently used by|
+   |          |            |       |the server.                               |
    +--------------------------------------------------------------------------+
 
    ISC hopes to see more hooks libraries become available as time progresses,
@@ -11218,6 +12510,51 @@
  connected via relay at address: 192.2.16.33, identified by circuit-id:
  68:6f:77:64:79 and remote-id: 87:f6:79:77:ef
 
+   In addition to logging lease activity driven by DHCPv4 client traffic, it
+   also logs entries for the following lease management control channel
+   commands: lease4-add, lease4-update, and lease4-del. Each entry is a
+   single string with no embedded end-of-line markers and they will typically
+   have the following forms:
+
+   lease4-add:
+
+ Administrator added a lease of address: *address* to a device with hardware address: *device-id*
+
+   Dependent on the arguments of the add command, it may also include the
+   client-id and duration.
+
+   Example:
+
+ Administrator added a lease of address: 192.0.2.202 to a device with hardware address: 1a:1b:1c:1d:1e:1f for 1 days 0 hrs 0 mins 0 secs
+
+   lease4-update:
+
+ Administrator updated information on the lease of address: *address* to a device with hardware address: *device-id*
+
+   Dependent on the arguments of the update command, it may also include the
+   client-id and lease duration.
+
+   Example:
+
+ Administrator updated information on the lease of address: 192.0.2.202 to a device with hardware address: 1a:1b:1c:1d:1e:1f, client-id: 1234567890
+
+   lease4-del: Deletes have two forms, one by address and one by identifier
+   and identifier type:
+
+ Administrator deleted the lease for address: *address*
+
+   or
+
+ Administrator deleted a lease for a device identified by: *identifier-type* of *identifier*
+
+   Currently only a type of @b hw-address (hardware address) is supported.
+
+   Examples:
+
+ Administrator deleted the lease for address: 192.0.2.202
+
+ Administrator deleted a lease for a device identified by: hw-address of 1a:1b:1c:1d:1e:1f
+
     14.3.2.3. DHCPv6 Log Entries
 
    For DHCPv6 the library creates entries based on lease management actions
@@ -11257,6 +12594,51 @@
  (from Raw Socket) connected via relay at address: fe80::abcd for client on
  link address: 3001::1, hop count: 1, identified by remote-id:
  01:02:03:04:0a:0b:0c:0d:0e:0f and subscriber-id: 1a:2b:3c:4d:5e:6f
+
+   In addition to logging lease activity driven by DHCPv6 client traffic, it
+   also logs entries for the following lease management control channel
+   commands: lease6-add, lease6-update, and lease6-del. Each entry is a
+   single string with no embedded end-of-line markers and they will typically
+   have the following forms:
+
+   lease6-add:
+
+     Administrator added a lease of address: *address* to a device with DUID: *DUID*
+
+   Dependent on the arguments of the add command, it may also include the
+   hardware address and duration.
+
+   Example:
+
+ Administrator added a lease of address: 2001:db8::3 to a device with DUID: 1a:1b:1c:1d:1e:1f:20:21:22:23:24 for 1 days 0 hrs 0 mins 0 secs
+
+   lease6-update:
+
+ Administrator updated information on the lease of address: *address* to a device with DUID: *DUID*
+
+   Dependent on the arguments of the update command, it may also include the
+   hardware address and lease duration.
+
+   Example:
+
+ Administrator updated information on the lease of address: 2001:db8::3 to a device with DUID: 1a:1b:1c:1d:1e:1f:20:21:22:23:24, hardware address: 1a:1b:1c:1d:1e:1f
+
+   lease6-del: Deletes have two forms, one by address and one by identifier
+   and identifier type:
+
+ Administrator deleted the lease for address: *address*
+
+   or
+
+ Administrator deleted a lease for a device identified by: *identifier-type* of *identifier*
+
+   Currently only a type of DUID is supported.
+
+   Examples:
+
+ Administrator deleted the lease for address: 2001:db8::3
+
+ Administrator deleted a lease for a device identified by: duid of 1a:1b:1c:1d:1e:1f:20:21:22:23:24
 
     14.3.2.4. Configuring the Forensic Log Hooks
 
@@ -11361,8 +12743,9 @@
    reservation. However, only the first 6 bytes of the interface-id are
    interesting, because remaining bytes are either randomly changed or not
    unique between devices. Therefore the customer decided to use first 6
-   bytes of the interface-id option inserted by the relay agent. This could
-   be achieved by using the following configuration:
+   bytes of the interface-id option inserted by the relay agent. After adding
+   "flex-id" host-reservation-identifiers goal can be achieved by using the
+   following configuration:
 
  "Dhcp6": {
      "subnet6": [{ ..., // subnet definition starts here
@@ -11371,11 +12754,12 @@
          "ip-addresses": [ "2001:db8::1" ]
      ],
      }], // end of subnet definitions
+     "host-reservation-identifiers": ["duid", "flex-id"], // add "flex-id" to reservation identifiers
      "hooks-libraries": [
          {
              "library": "/path/libdhcp_flex_id.so",
              "parameters": {
-                 "identifier-expression": "substring(relay6[0].option[18],0,8)"
+                 "identifier-expression": "substring(relay6[0].option[18].hex,0,8)"
              }
          },
          ...
@@ -11396,6 +12780,25 @@
    and single quotes), e.g. "'bar'". The former is more convenient for
    printable characters, while hex string values are more convenient for
    non-printable characters.
+
+ "Dhcp6": {
+     "subnet6": [{ ..., // subnet definition starts here
+     "reservations": [
+         "flex-id": "01:02:03:04:05:06", // value of the first 8 bytes of the interface-id
+         "ip-addresses": [ "2001:db8::1" ]
+     ],
+     }], // end of subnet definitions
+     "host-reservation-identifiers": ["duid", "flex-id"], // add "flex-id" to reservation identifiers
+     "hooks-libraries": [
+         {
+             "library": "/path/libdhcp_flex_id.so",
+             "parameters": {
+                 "identifier-expression": "vendor[4491].option[1026].hex"
+             }
+         },
+         ...
+     ]
+ }
 
   14.3.4. host_cmds: Host Commands
 
@@ -11478,8 +12881,9 @@
  {
      "command": "reservation-add",
      "arguments": {
-         "reservation": {
+         "reservation":
              {
+                 "subnet-id":1,
                  "client-id": "01:0a:0b:0c:0d:0e:0f",
                  "ip-address": "192.0.2.205",
                  "next-server": "192.0.2.1",
@@ -11493,7 +12897,6 @@
                  ],
                  "client-classes": [ "special_snowflake", "office" ]
              }
-         }
      }
  }
 
@@ -11502,8 +12905,9 @@
  {
      "command": "reservation-add",
      "arguments": {
-         "reservation": {
+         "reservation":
              {
+                 "subnet-id":1,
                  "duid": "01:02:03:04:05:06:07:08:09:0A",
                  "ip-addresses": [ "2001:db8:1:cafe::1" ],
                  "prefixes": [ "2001:db8:2:abcd::/64" ],
@@ -11520,7 +12924,6 @@
                      }
                  ]
              }
-         }
      }
  }
 
@@ -11651,15 +13054,14 @@
      }
  }
 
-   reservation-del returns result 0 when the host deletion was successul or 1
-   if it was not. A descriptive text is provided in case of error. Example
+   reservation-del returns result 0 when the host deletion was successful or
+   1 if it was not. A descriptive text is provided in case of error. Example
    results look as follows:
 
  {
      "result": 1,
      "text": "Host not deleted (not found)."
  }
-
 
  {
      "result": 0,
@@ -11670,6 +13072,762 @@
      "result": 1,
      "text": "Unable to delete a host because there is no hosts-database
               configured."
+ }
+
+  14.3.5. lease_cmds: Lease Commands
+
+   This section describes the hook library that offers a number of new
+   commands used to manage leases. Kea provides a way to store lease
+   information in several backends (memfile, MySQL, PostgreSQL and
+   Cassandra). This library provides a unified interface that can manipulate
+   leases in an unified, safe way. In particular, it allows things previously
+   impossible: manipulate leases in memfile while Kea is running, sanity
+   check changes, check lease existence and remove all leases belonging to
+   specific subnet. It can also catch more obscure errors, like adding a
+   lease with subnet-id that does not exist in the configuration or
+   configuring a lease to use an address that is outside of the subnet to
+   which it is supposed to belong.
+
+   There are many use cases when an administrative command may be useful:
+   during migration between servers (possibly even between different
+   vendors), when a certain network is being retired, when a device has been
+   disconnected and the sysadmin knows for sure that it will not be coming
+   back. The "get" queries may be useful for automating certain management
+   and monitoring tasks. They can also act as preparatory steps for lease
+   updates and removals.
+
+   This library provides the following commands:
+
+     * lease4-add - adds new IPv4 lease;
+
+     * lease6-add - adds new IPv6 lease;
+
+     * lease4-get - checks if an IPv4 lease with the specified parameters
+       exists and returns it if it does;
+
+     * lease6-get - checks if an IPv6 lease with the specified parameters
+       exists and returns it if it does;
+
+     * lease4-del - attempts to delete an IPv4 lease with the specified
+       parameters;
+
+     * lease6-del - attempts to delete an IPv6 lease with the specified
+       parameters;
+
+     * lease4-update - updates an IPv4 lease;
+
+     * lease6-update - updates an IPv6 lease;
+
+     * lease4-wipe - removes all leases from a specific IPv4 subnet;
+
+     * lease6-wipe - removes all leases from a specific IPv6 subnet;
+
+   Lease commands library is part of the open source code and is available to
+   every Kea user.
+
+   All commands are using JSON syntax. They can be issued either using
+   control channel (see Chapter 16, Management API) or via Control Agent (see
+   Chapter 7, Kea Control Agent).
+
+   The library can be loaded in the same way as other hook libraries. It does
+   not take any parameters. It supports both DHCPv4 and DHCPv6 servers.
+
+ "Dhcp6": {
+     "hooks-libraries": [
+         {
+             "library": "/path/libdhcp_lease_cmds.so"
+         }
+         ...
+     ]
+ }
+
+    14.3.5.1. lease4-add, lease6-add commands
+
+   lease4-add and lease6-add commands allow creation of a new lease.
+   Typically Kea creates a lease on its own, when it first sees a new device.
+   However, sometimes it may be convenient to create the lease
+   administratively. The lease4-add command requires at least three
+   parameters: an IPv4 address, a subnet-id and an identifier: hardware (MAC)
+   address. The simplest successful call might look as follows:
+
+ {
+     "command": "lease4-add",
+     "arguments": {
+         "subnet-id": 44,
+         "ip-address": "192.0.2.202",
+         "hw-address": "1a:1b:1c:1d:1e:1f"
+     }
+ }
+
+   lease6-add command requires four parameters: an IPv6 address, a subnet-id,
+   and IAID value (identity association identifier, a value sent by clients)
+   and a DUID:
+
+ {
+     "command": "lease6-add",
+     "arguments": {
+         "subnet-id": 66,
+         "ip-address": "2001:db8::3",
+         "duid": "1a:1b:1c:1d:1e:1f:20:21:22:23:24",
+         "iaid": 1234
+     }
+ }
+
+   lease6-add can be also used to add leases for IPv6 prefixes. In this case
+   there are two parameters that must be specified: type (set to value of
+   "IA_PD") and a prefix length. The actual prefix is set using ip-address
+   field. For example, to configure a lease for prefix 2001:db8:abcd::/48,
+   the following command can be used:
+
+ {
+     "command": "lease6-add",
+     "arguments": {
+         "subnet-id": 66,
+         "type": "IA_PD",
+         "ip-address": "2001:db8:abcd::",
+         "prefix-len": 48,
+         "duid": "1a:1b:1c:1d:1e:1f:20:21:22:23:24",
+         "iaid": 1234
+     }
+ }
+
+   The commands can take a number of additional optional parameters:
+
+     * valid-lft - specifies the lifetime of the lease, expressed in seconds.
+       If not specified, the value configured in the subnet related to
+       specified subnet-id is used.
+
+     * expire - timestamp of the lease expiration time, expressed in unix
+       format (seconds since 1 Jan 1970). If not specified, the default value
+       is now + valid lifetime.
+
+     * fqdn-fwd - specifies whether the lease should be marked as if forward
+       DNS update was conducted. Note this only affects the lease parameter
+       and the actual DNS update will not be conducted at the lease insertion
+       time. If configured, a DNS update to remove the A or AAAA records will
+       be conducted when the lease is removed due to expiration or being
+       released by a client. If not specified, the default value is false.
+       Hostname parameter must be specified in fqdn-fwd is set to true.
+
+     * fqdn-rev - specifies whether the lease should be marked as if reverse
+       DNS update was conducted. Note this only affects the lease parameter
+       and the actual DNS update will not be conducted at the lease insertion
+       time. If configured, a DNS update to remove the PTR record will be
+       conducted when the lease is removed due to expiration or being
+       released by a client. If not specified, the default value is false.
+       Hostname parameter must be specified in fqdn-fwd is set to true.
+
+     * hostname - specifies the hostname to be associated with this lease.
+       Its value must be non-empty if either fqdn-fwd or fwdn-rev are set to
+       true. If not specified, the default value is an empty string.
+
+     * hw-address - hardware (MAC) address can be optionally specified for
+       IPv6 lease. It is mandatory parameter for IPv4 lease.
+
+     * client-id - client identifier is an optional parameter that can be
+       specified for IPv4 lease.
+
+     * preferred-lft - Preferred lifetime is an optional parameter for IPv6
+       leases. If not specified, the value configured for the subnet
+       corresponding to the specified subnet-id is used. This parameter is
+       not used in IPv4.
+
+   Here's an example of more complex lease addition:
+
+ {
+     "command": "lease6-add",
+     "arguments": {
+         "subnet-id": 66,
+         "ip-address": "2001:db8::3",
+         "duid": "01:02:03:04:05:06:07:08",
+         "iaid": 1234,
+         "hw-address": "1a:1b:1c:1d:1e:1f",
+         "preferred-lft": 500,
+         "valid-lft": 1000,
+         "expire": 12345678,
+         "fqdn-fwd": true,
+         "fqdn-rev": true,
+         "hostname": "urania.example.org"
+     }
+ }
+
+   The command returns a status that indicates either a success (result 0) or
+   a failure (result 1). Failed command always includes text parameter that
+   explains the cause of failure. Example results:
+
+ { "result": 0, "text": "Lease added." }
+
+   Example failure:
+
+ { "result": 1, "text": "missing parameter 'ip-address' (<string>:3:19)" }
+
+      14.3.5.1.1. lease4-get, lease6-get commands
+
+   lease4-get or lease6-get can be used to query the lease database and
+   retrieve existing leases. There are two types of parameters the lease4-get
+   supports: (address) or (subnet-id, identifier-type, identifier). There are
+   two types for lease6-get: (address,type) or (subnet-id, identifier-type,
+   identifier, IAID, type). The first type of query is used when the address
+   (either IPv4 or IPv6) is known, but the details of the lease aren't. One
+   common use case of this type of query is to find out whether a given
+   address is being used or not. The second query uses identifiers. For
+   maximum flexibility, Kea stores the host identifying information as a pair
+   of values: type and the actual identifier. Currently supported identifiers
+   are "hw-address", "duid", "circuit-id", "client-id" and "flex-id", but
+   additional types may be added in the future. If any new identifier types
+   are defined in the future, reservation-get command will support them
+   automatically.
+
+   An example lease4-get command for getting a lease by an IPv4 address looks
+   as follows:
+
+ {
+     "command": "lease4-get",
+     "arguments": {
+         "ip-address": "192.0.2.1"
+     }
+ }
+
+   An example of the lease6-get query looks as follows:
+
+ {
+   "command": "lease6-get",
+   "arguments": {
+     "ip-address": "2001:db8:1234:ab::",
+     "type": "IA_PD"
+   }
+ }
+
+   An example query by (subnet-id, identifier-type, identifier) for IPv4
+   lease looks as follows:
+
+ {
+     "command": "lease4-get",
+     "arguments": {
+         "identifier-type": "hw-address",
+         "identifier": "08:08:08:08:08:08",
+         "subnet-id": 44
+     }
+ }
+
+   An example query by (subnet-id, identifier-type, identifier, iaid, type)
+   for IPv6 lease looks as follows:
+
+ {
+     "command": "lease4-get",
+     "arguments": {
+         "identifier-type": "duid",
+         "identifier": "08:08:08:08:08:08",
+         "iaid": 1234567,
+         "type": "IA_NA",
+         "subnet-id": 44
+     }
+ }
+
+   The type is an optional parameter. Supported values are: IA_NA
+   (non-temporary address) and IA_PD (IPv6 prefix) are supported. If not
+   specified, IA_NA is assumed.
+
+   leaseX-get returns a result that indicates a result of the operation and
+   lease details, if found. It has one of the following values: 0 (success),
+   1 (error) or 2 (empty). The empty result means that a query has been
+   completed properly, but the object (a lease in this case) has not been
+   found. The lease parameters, if found, are returned as arguments.
+
+   An example result returned when the host was found:
+
+ {
+   "arguments": {
+     "client-id": "42:42:42:42:42:42:42:42",
+     "cltt": 12345678,
+     "fqdn-fwd": false,
+     "fqdn-rev": true,
+     "hostname": "myhost.example.com.",
+     "hw-address": "08:08:08:08:08:08",
+     "ip-address": "192.0.2.1",
+     "state": 0,
+     "subnet-id": 44,
+     "valid-lft": 3600
+   },
+   "result": 0,
+   "text": "IPv4 lease found."
+ }
+
+      14.3.5.1.2. lease4-del, lease6-del commands
+
+   leaseX-del can be used to delete a lease from the lease database. There
+   are two types of parameters this command supports, similar to leaseX-get
+   commands: (address) for both v4 and v6, (subnet-id, identifier-type,
+   identifier) for v4 and (subnet-id, identifier-type, identifier, type,
+   IAID) for v6. The first type of query is used when the address (either
+   IPv4 or IPv6) is known, but the details of the lease are not. One common
+   use case of this type of query is to remove a lease (e.g. you want a
+   specific address to no longer be used, no matter who may use it). The
+   second query uses identifiers. For maximum flexibility, this interface
+   uses identifiers as a pair of values: type and the actual identifier.
+   Currently supported identifiers are "hw-address" and "duid", but
+   additional types may be added in the future.
+
+   An example command for deleting a host reservation by address looks as
+   follows:
+
+ {
+     "command": "lease4-del",
+     "arguments": {
+         "ip-address": "192.0.2.202"
+     }
+ }
+
+   An example IPv4 lease deletion by (subnet-id, identifier-type, identifier)
+   looks as follows:
+
+ {
+   "command": "lease4-del",
+   "arguments": {
+     "identifier": "08:08:08:08:08:08",
+     "identifier-type": "hw-address",
+     "subnet-id": 44
+   }
+ }
+
+   leaseX-get returns a result that indicates a outcome of the operation. It
+   has one of the following values: 0 (success), 1 (error) or 2 (empty). The
+   empty result means that a query has been completed properly, but the
+   object (a lease in this case) has not been found.
+
+      14.3.5.1.3. lease4-update, lease6-update commands
+
+   lease4-update and lease6-update commands can be used to update existing
+   leases. Since all lease database backends are indexed by IP addresses, it
+   is not possible to update an address. All other fields may be updated. If
+   an address needs to be changed, please use leaseX-del followed by
+   leaseX-add commands.
+
+   To use leaseX-update the lease must be present in the lease database. If
+   the lease is not there, an error will be returned. Please use leaseX-add
+   to add new leases. You may check if a lease is present using leaseX-get,
+   if needed.
+
+   An example command updating IPv4 lease looks as follows:
+
+ {
+   "command": "lease4-update",
+   "arguments": {
+     "ip-address": "192.0.2.1",
+     "hostname": "newhostname.example.org",
+     "hw-address": "1a:1b:1c:1d:1e:1f",
+     "subnet-id": 44
+   }
+ }
+
+   An example command updating IPv6 lease looks as follows:
+
+ {
+   "command": "lease6-update",
+   "arguments": {
+     "ip-address": "2001:db8::1",
+     "duid": "88:88:88:88:88:88:88:88",
+     "iaid": 7654321,
+     "hostname": "newhostname.example.org",
+     "subnet-id": 66
+   }
+ }
+
+      14.3.5.1.4. lease4-wipe, lease6-wipe commands
+
+   lease4-wipe and lease6-wipe are designed to remove all leases associated
+   with a given subnet. This administrative task is expected to be used when
+   existing subnet is being retired. Note that the leases are not properly
+   expired, there are no DNS updates conducted, no log messages and hooks are
+   not called for leases being removed.
+
+   An example of lease4-wipe looks as follows:
+
+ {
+   "command": "lease4-wipe",
+   "arguments": {
+     "subnet-id": 44
+   }
+ }
+
+   An example of lease6-wipe looks as follows:
+
+ {
+   "command": "lease6-wipe",
+   "arguments": {
+     "subnet-id": 66
+   }
+ }
+
+   The commands return a textual description of the number of leases removed
+   and 0 (success) status code if any leases were removed and 2 (empty) if
+   there were no leases. Status code 1 (error) may be returned in case the
+   parameters are incorrect or some other exception is encountered.
+
+   Note: not all backends support this command.
+
+  14.3.6. subnet_cmds: Subnet Commands
+
+   This section describes a hook application that offers a number of new
+   commands used to query and manipulate subnet configurations in Kea. This
+   application is very useful in deployments with a large number of subnets
+   being managed by the DHCP servers and when the subnets are frequently
+   updated. The commands offer lightweight approach for manipulating subnets
+   without a need to fully reconfigure the server and without affecting
+   existing servers' configurations.
+
+   Currently this library is only available to ISC customers with a support
+   contract.
+
+   The following commands are currently supported:
+
+     * subnet4-list/subnet6-list: lists all configured subnets
+     * subnet4-get/subnet6-get: retrieves detailed information about a
+       selected subnet
+     * subnet4-add/subnet6-add: adds new subnet into server's configuration
+     * subnet4-del/subnet6-del: removes a subnet from the server's
+       configuration
+
+    14.3.6.1. subnet4-list command
+
+   This command is used to list all currently configured subnets. The subnets
+   are returned in a brief form, i.e. a subnet identifier and subnet prefix
+   is included for each subnet. In order to retrieve the detailed information
+   about the subnet the subnet4-get should be used.
+
+   This command has the simple structure:
+
+ {
+     "command": "subnet4-list"
+ }
+
+   The list of subnets returned as a result of this command is returned in
+   the following format:
+
+ {
+     "result": 0,
+     "text": "2 IPv4 subnets found",
+     "arguments": {
+     "subnets": [
+         {
+             "id": 10,
+             "subnet": "10.0.0.0/8"
+         },
+         {
+             "id": 100,
+             "subnet": "192.0.2.0/24"
+         }
+     ]
+ }
+
+   If no IPv4 subnets are found, an error code is returned along with the
+   error description.
+
+    14.3.6.2. subnet6-list command
+
+   This command is used to list all currently configured subnets. The subnets
+   are returned in a brief form, i.e. a subnet identifier and subnet prefix
+   is included for each subnet. In order to retrieve the detailed information
+   about the subnet the subnet6-get should be used.
+
+   This command has the simple structure:
+
+ {
+     "command": "subnet6-list"
+ }
+
+   The list of subnets returned as a result of this command is returned in
+   the following format:
+
+ {
+     "result": 0,
+     "text": "2 IPv6 subnets found",
+     "arguments": {
+     "subnets": [
+         {
+             "id": 11,
+             "subnet": "2001:db8:1::/64"
+         },
+         {
+             "id": 233,
+             "subnet": "3000::/16"
+         }
+     ]
+ }
+
+   If no IPv6 subnets are found, an error code is returned along with the
+   error description.
+
+    14.3.6.3. subnet4-get command
+
+   This command is used to retrieve detailed information about the specified
+   subnet. This command usually follows the subnet4-list, which is used to
+   discover available subnets with their respective subnet identifiers and
+   prefixes. Any of those parameters can be then used in subnet4-get to fetch
+   subnet information:
+
+ {
+     "command": "subnet4-get",
+     "arguments": {
+         "id": 10
+     }
+ }
+
+   or
+
+ {
+     "command": "subnet4-get",
+     "arguments": {
+         "subnet": "10.0.0.0/8"
+     }
+ }
+
+   If the subnet exists the response will be similar to this:
+
+ {
+     "result": 0,
+     "text": "Info about IPv4 subnet 10.0.0.0/8 (id 10) returned",
+     "arguments": {
+         "subnets": [
+             {
+                 "subnet": "10.0.0.0/8",
+                 "id": 1,
+                 "option-data": [
+                     ....
+                 ]
+                 ...
+             }
+         ]
+     }
+ }
+
+
+    14.3.6.4. subnet6-get command
+
+   This command is used to retrieve detailed information about the specified
+   subnet. This command usually follows the subnet6-list, which is used to
+   discover available subnets with their respective subnet identifiers and
+   prefixes. Any of those parameters can be then used in subnet6-get to fetch
+   subnet information:
+
+ {
+     "command": "subnet6-get",
+     "arguments": {
+         "id": 11
+     }
+ }
+
+   or
+
+ {
+     "command": "subnet6-get",
+     "arguments": {
+         "subnet": "2001:db8:1::/64"
+     }
+ }
+
+   If the subnet exists the response will be similar to this:
+
+ {
+     "result": 0,
+     "text": "Info about IPv6 subnet 2001:db8:1::/64 (id 11) returned",
+     "arguments": {
+         "subnets": [
+             {
+                 "subnet": "2001:db8:1::/64",
+                 "id": 1,
+                 "option-data": [
+                     ...
+                 ]
+                 ....
+             }
+         ]
+     }
+ }
+
+    14.3.6.5. subnet4-add
+
+   This command is used to create and add new subnet to the existing server
+   configuration. This operation has no impact on other subnets. The subnet
+   identifier must be specified and must be unique among all subnets. If the
+   identifier or a subnet prefix is not unique an error is reported and the
+   subnet is not added.
+
+   The subnet information within this command has the same structure as the
+   subnet information in the server configuration file with the exception
+   that static host reservations must not be specified within subnet4-add.
+   The commands described in Section 14.3.4, "host_cmds: Host Commands"
+   should be used to add, remove and modify static reservations.
+
+ {
+     "command": "subnet4-add",
+     "arguments": {
+         "subnets": [ {
+             "id": 123,
+             "subnet": "10.20.30.0/24",
+             ...
+         } ]
+     }
+ }
+
+   The response to this command has the following structure:
+
+ {
+     "result": 0,
+     "text": "IPv4 subnet added",
+     "arguments": {
+         "subnets": [
+             {
+                 "id": 123,
+                 "subnet": "10.20.30.0/24"
+             }
+         ]
+     }
+ }
+
+    14.3.6.6. subnet6-add
+
+   This command is used to create and add new subnet to the existing server
+   configuration. This operation has no impact on other subnets. The subnet
+   identifier must be specified and must be unique among all subnets. If the
+   identifier or a subnet prefix is not unique an error is reported and the
+   subnet is not added.
+
+   The subnet information within this command has the same structure as the
+   subnet information in the server configuration file with the exception
+   that static host reservations must not be specified within subnet6-add.
+   The commands described in Section 14.3.4, "host_cmds: Host Commands"
+   should be used to add, remove and modify static reservations.
+
+ {
+     "command": "subnet6-add",
+     "arguments": {
+         "subnet6": [ {
+             "id": 234,
+             "subnet": "2001:db8:1::/64",
+             ...
+         } ]
+     }
+ }
+
+   The response to this command has the following structure:
+
+ {
+     "result": 0,
+     "text": "IPv6 subnet added",
+     "arguments": {
+         "subnet6": [
+             {
+                 "id": 234,
+                 "subnet": "2001:db8:1::/64"
+             }
+         ]
+     }
+ }
+
+   It is recommended, but not mandatory to specify subnet id. If not
+   specified, Kea will try to assign the next subnet-id value. This automatic
+   ID value generator is simple. It returns a previously automatically
+   assigned value increased by 1. This works well, unless you manually create
+   a subnet with a value bigger than previously used. For example, if you
+   call subnet4-add five times, each without id, Kea will assign IDs: 1,2,3,4
+   and 5 and it will work just fine. However, if you try to call subnet4-add
+   five times, with the first subnet having subnet-id of value 3 and
+   remaining ones having no subnet-id, it will fail. The first command (with
+   explicit value) will use subnet-id 3, the second command will create a
+   subnet with id of 1, the third will use value of 2 and finally the fourth
+   will have the subnet-id value auto-generated as 3. However, since there is
+   already a subnet with that id, it will fail.
+
+   The general recommendation is to either: never use explicit values (so the
+   auto-generated values will always work) or always use explicit values (so
+   the auto-generation is never used). You can mix those two approaches only
+   if you understand how the internal automatic subnet-id generation works.
+
+    14.3.6.7. subnet4-del command
+
+   This command is used to remove a subnet from the server's configuration.
+   This command has no effect on other configured subnets but removing a
+   subnet has certain implications which the server's administrator should be
+   aware of.
+
+   In most cases the server has assigned some leases to the clients belonging
+   to the subnet. The server may also be configured with static host
+   reservations which are associated with this subnet. The current
+   implementation of the subnet4-del removes neither the leases nor host
+   reservations associated with a subnet. This is the safest approach because
+   the server doesn't loose track of leases assigned to the clients from this
+   subnet. However, removal of the subnet may still cause configuration
+   errors and conflicts. For example: after removal of the subnet, the server
+   administrator may add a new subnet with the ID used previously for the
+   removed subnet. This means that the existing leases and static
+   reservations will be in conflict with this new subnet. Thus, we recommend
+   that this command is used with extreme caution.
+
+   The command has the following structure:
+
+ {
+     "command": "subnet4-del",
+     "arguments": {
+         "id": 123
+     }
+ }
+
+   The example successful response may look like this:
+
+ {
+     "result": 0,
+     "text": "IPv4 subnet 192.0.2.0/24 (id 123) deleted",
+     "arguments": {
+         "subnets": [
+             {
+                 "id": 123,
+                 "subnet": "192.0.2.0/24"
+             }
+         ]
+     }
+ }
+
+    14.3.6.8. subnet6-del command
+
+   This command is used to remove a subnet from the server's configuration.
+   This command has no effect on other configured subnets but removing a
+   subnet has certain implications which the server's administrator should be
+   aware of.
+
+   In most cases the server has assigned some leases to the clients belonging
+   to the subnet. The server may also be configured with static host
+   reservations which are associated with this subnet. The current
+   implementation of the subnet6-del removes neither the leases nor host
+   reservations associated with a subnet. This is the safest approach because
+   the server doesn't loose track of leases assigned to the clients from this
+   subnet. However, removal of the subnet may still cause configuration
+   errors and conflicts. For example: after removal of the subnet, the server
+   administrator may add a new subnet with the ID used previously for the
+   removed subnet. This means that the existing leases and static
+   reservations will be in conflict with this new subnet. Thus, we recommend
+   that this command is used with extreme caution.
+
+   The command has the following structure:
+
+ {
+     "command": "subnet6-del",
+     "arguments": {
+         "id": 234
+     }
+ }
+
+   The example successful response may look like this:
+
+ {
+     "result": 0,
+     "text": "IPv6 subnet 2001:db8:1::/64 (id 234) deleted",
+     "subnets": [
+         {
+             "id": 234,
+             "subnet": "2001:db8:1::/64"
+         }
+     ]
  }
 
 14.4. User contexts
@@ -11685,9 +13843,16 @@
    arbitrary complexity. Kea does not use that data on its own, simply stores
    and makes it available for the hook libraries.
 
-   As of Kea 1.2, the only structures that allow user contexts are address
-   and prefix pools, but it is expected to extend other structures with the
-   user context capability.
+   Another use case for user contexts may be storing comments and other
+   information that will be retained by Kea. Regular comments are discarded
+   when configuration is loaded, but user contexts are retained. This is
+   useful if you want your comments to survive config-set, config-get
+   operations for example.
+
+   As of Kea 1.3, the structures that allow user contexts are pools of all
+   types (addresses and prefixes) and subnets. These are supported in both
+   DHCPv4 and DHCPv6. It is expected that other structures will be extended
+   in the future to provide the user context capability.
 
                              Chapter 15. Statistics
 
@@ -11740,8 +13905,8 @@
        form. It uses std::string C++ type.
 
    During normal operation, DHCPv4 and DHCPv6 servers gather statistics. For
-   a list of DHCPv4 and DHCPv6 statistics, see Section 8.7, "Statistics in
-   the DHCPv4 Server" and Section 9.11, "Statistics in the DHCPv6 Server",
+   a list of DHCPv4 and DHCPv6 statistics, see Section 8.8, "Statistics in
+   the DHCPv4 Server" and Section 9.12, "Statistics in the DHCPv6 Server",
    respectively.
 
    To extract data from the statistics module, the control channel can be
@@ -11951,8 +14116,8 @@
    time.
 
    The DHCPv4 and DHCPv6 servers receive commands over the unix domain
-   sockets. The details how to configure these sockets, see Section 8.8,
-   "Management API for the DHCPv4 Server" and Section 9.12, "Management API
+   sockets. The details how to configure these sockets, see Section 8.9,
+   "Management API for the DHCPv4 Server" and Section 9.13, "Management API
    for the DHCPv6 Server". While it is possible control the servers directly
    using unix domain sockets it requires that the controlling client be
    running on the same machine as the server. In order to connect remotely
@@ -11977,6 +14142,16 @@
    included or if the parameter is a blank list the CA will assume that the
    control command is targetted at the CA itself and will try to handle it on
    its own.
+
+   Control connections over both HTTP and unix domain sockets are guarded
+   with timeouts. The default timeout value is set to 10s and is not
+   configurable. The timeout configuration will be implemented in the future.
+
+  Note
+
+   Kea 1.2.0 release and earlier had a limitation of 64kB on the maximum size
+   of a command and a response sent over the unix domain socket. This
+   limitation has been removed in Kea 1.3.0 release.
 
 16.1. Data Syntax
 
@@ -12027,7 +14202,7 @@
    operations in the CA rather than forwarding it to the DHCPv4 server is the
    ability to perform these operations without disrupting the DHCPv4 service
    (DHCPv4 server doesn't have to stop processing DHCP messages to apply
-   changes to the database). Nevetheless, these situations are rather rare
+   changes to the database). Nevertheless, these situations are rather rare
    and, in most cases, when the service parameter contains a name of the
    service the commands are simply forwarded by the CA. The forwarded command
    includes the service parameter but this parameter is ignored by the
@@ -12082,7 +14257,7 @@
    Kea development team is actively working on providing client applications
    which can be used to control the servers. These applications are, however,
    in the early stages of development and as of Kea 1.2.0 release have
-   certain limitatins. The easiest way to start playing with the control API
+   certain limitations. The easiest way to start playing with the control API
    is to use common Unix/Linux tools such as socat and curl.
 
    In order to control the given Kea service via unix domain socket, use
@@ -12095,7 +14270,7 @@
    Text passed to socat will be sent to Kea and the responses received from
    Kea printed to standard output.
 
-   It is also easy to open UNIX socket programatically. An example of such a
+   It is also easy to open UNIX socket programmatically. An example of such a
    simplistic client written in C is available in the Kea Developer's Guide,
    chapter Control Channel Overview, section Using Control Channel.
 
@@ -12708,12 +14883,15 @@
 
       18.1.1.4.3. maxsize (integer)
 
-   Only relevant when destination is file, this is maximum file size of
-   output files in bytes. When the maximum size is reached, the file is
-   renamed and a new file opened. (For example, a ".1" is appended to the
-   name -- if a ".1" file exists, it is renamed ".2", etc.)
+   Only relevant when the destination is a file. This is maximum size in
+   bytes that a log file may reach. When the maximum size is reached, the
+   file is renamed and a new file opened. For example, a ".1" is appended to
+   the name -- if a ".1" file exists, it is renamed ".2", etc. This is
+   referred to as rotation.
 
-   If this is set to 0 or omitted, no maximum file size is used.
+   The default value is 10240000 (10MB). The smallest value that may be
+   specified without disabling rotation is 204800. Any value less than this,
+   including 0, disables rotation.
 
   Note
 
@@ -12728,8 +14906,12 @@
 
       18.1.1.4.4. maxver (integer)
 
-   Maximum number of old log files to keep around when rolling the output
-   file. Only relevant when output is "file".
+   Only relevant when the destination is file and rotation is enabled (i.e.
+   maxsize is large enough). This is maximum number of rotated versions that
+   will be kept. Once that number of files has been reached, the oldest file,
+   "log-name.maxver", will be discarded each time the log rotates. In other
+   words, at most there will be the active log file plus maxver rotated
+   files. The minimum and default value is 1.
 
     18.1.1.5. Example Logger Configurations
 
@@ -12904,9 +15086,9 @@
        specified, 8000 is used.
      * --timeout seconds specifies the timeout (in seconds) for the
        connection. If not given, 10 seconds is used.
-     * --service serive-name specifies the target of a command. If not given,
-       CA will be used as target. May be used more than once to specify
-       multiple targets.
+     * --service service-name specifies the target of a command. If not
+       given, CA will be used as target. May be used more than once to
+       specify multiple targets.
      * command specifies the command to be sent. If not specified,
        list-commands command is used.
 

@@ -257,6 +257,13 @@ public:
     /// @return a pointer to unparsed configuration
     virtual isc::data::ElementPtr toElement() const;
 
+    /// @brief Set the re-detect flag
+    ///
+    /// @param re_detect the new value of the flag
+    void setReDetect(bool re_detect) {
+        re_detect_ = re_detect;
+    }
+
 private:
 
     /// @brief Checks if multiple IPv4 addresses has been activated on any
@@ -324,12 +331,15 @@ private:
     /// for which the sockets should be opened.
     ExplicitAddressMap address_map_;
 
-    /// @brief A booolean value which indicates that the wildcard interface name
+    /// @brief A boolean value which indicates that the wildcard interface name
     /// has been specified (*).
     bool wildcard_used_;
 
     /// @brief A type of the sockets used by the DHCP server.
     SocketType socket_type_;
+
+    /// @brief A boolean value which reflects current re-detect setting
+    bool re_detect_;
 };
 
 /// @brief A pointer to the @c CfgIface .

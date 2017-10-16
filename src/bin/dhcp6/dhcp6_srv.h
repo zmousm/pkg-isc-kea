@@ -7,6 +7,7 @@
 #ifndef DHCPV6_SRV_H
 #define DHCPV6_SRV_H
 
+#include <asiolink/io_service.h>
 #include <dhcp_ddns/ncr_msg.h>
 #include <dhcp/dhcp6.h>
 #include <dhcp/duid.h>
@@ -53,6 +54,10 @@ public:
 /// packets, processes them, manages leases assignment and generates
 /// appropriate responses.
 class Dhcpv6Srv : public Daemon {
+private:
+
+    /// @brief Pointer to IO service used by the server.
+    asiolink::IOServicePtr io_service_;
 
 public:
     /// @brief defines if certain option may, must or must not appear
@@ -77,6 +82,11 @@ public:
 
     /// @brief Destructor. Used during DHCPv6 service shutdown.
     virtual ~Dhcpv6Srv();
+
+    /// @brief Returns pointer to the IO service used by the server.
+    asiolink::IOServicePtr& getIOService() {
+        return (io_service_);
+    }
 
     /// @brief returns Kea version on stdout and exit.
     /// redeclaration/redefinition. @ref Daemon::getVersion()
@@ -639,7 +649,7 @@ protected:
     void setReservedClientClasses(const Pkt6Ptr& pkt,
                                   const AllocEngine::ClientContext6& ctx);
 
-    /// @brief Attempts to get a MAC/hardware address using configred sources
+    /// @brief Attempts to get a MAC/hardware address using configured sources
     ///
     /// Tries to extract MAC/hardware address information from the packet
     /// using MAC sources configured in 'mac-sources' configuration parameter.
@@ -679,7 +689,7 @@ protected:
     /// @param [out] ctx reference to context object to be initialized.
     void initContext(const Pkt6Ptr& pkt, AllocEngine::ClientContext6& ctx);
 
-    /// @brief this is a prefix added to the contend of vendor-class option
+    /// @brief this is a prefix added to the content of vendor-class option
     ///
     /// If incoming packet has a vendor class option, its content is
     /// prepended with this prefix and then interpreted as a class.
@@ -753,6 +763,25 @@ private:
     /// @param pkt packet to be classified
     /// @param classes a reference to added class names for logging
     void classifyByVendor(const Pkt6Ptr& pkt, std::string& classes);
+
+    /// @brief Update FQDN based on the reservations in the current subnet.
+    ///
+    /// When shared networks are in use the allocation engine may switch to
+    /// a different subnet than originally selected. If this new subnet has
+    /// hostname reservations there is a need to update the FQDN option
+    /// value.
+    ///
+    /// This method should be called after lease assignments to perform
+    /// such update when required.
+    ///
+    /// @param ctx Client context.
+    /// @param answer Message being sent to a client, which may hold an FQDN
+    /// option to be updated.
+    ///
+    /// @throw isc::Unexpected if specified message is NULL. This is treated
+    /// as a programmatic error.
+    void updateReservedFqdn(const AllocEngine::ClientContext6& ctx,
+                            const Pkt6Ptr& answer);
 
     /// @private
     /// @brief Generate FQDN to be sent to a client if none exists.

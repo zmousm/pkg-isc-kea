@@ -10,6 +10,7 @@
 #include <asiolink/io_service.h>
 #include <asiolink/io_socket.h>
 #include <boost/shared_ptr.hpp>
+#include <functional>
 #include <string>
 
 namespace isc {
@@ -28,6 +29,13 @@ class UnixDomainSocketImpl;
 /// of boost asio.
 class UnixDomainSocket : public IOSocket {
 public:
+
+    /// @brief Callback type used in call to @ref UnixDomainSocket::asyncConnect.
+    typedef std::function<void(const boost::system::error_code&)> ConnectHandler;
+
+    /// @brief Callback type used in calls to @ref UnixDomainSocket::asyncSend
+    /// and @ref UnixDomainSocket::asyncReceive.
+    typedef std::function<void(const boost::system::error_code&, size_t)> Handler;
 
     /// @brief Constructor.
     ///
@@ -48,6 +56,15 @@ public:
     /// @throw UnixDomainSocketError if error occurs.
     void connect(const std::string& path);
 
+    /// @brief Asynchronously connects the socket to the specified endpoint.
+    ///
+    /// Always returns immediately.
+    ///
+    /// @param path Path to the unix socket to which we should connect.
+    /// @param handler Callback to be invoked when connection is established or
+    /// a connection error is signalled.
+    void asyncConnect(const std::string& path, const ConnectHandler& handler);
+
     /// @brief Writes specified amount of data to a socket.
     ///
     /// @param data Pointer to data to be written.
@@ -56,6 +73,16 @@ public:
     /// @return Number of bytes written.
     /// @throw UnixDomainSocketError if error occurs.
     size_t write(const void* data, size_t length);
+
+    /// @brief Asynchronously sends data over the socket.
+    ///
+    /// Always returns immediately.
+    ///
+    /// @param data Pointer to data to be sent.
+    /// @param length Number of bytes to be sent.
+    /// @param handler Callback to be invoked when data have been sent or
+    /// sending error is signalled.
+    void asyncSend(const void* data, const size_t length, const Handler& handler);
 
     /// @brief Receives data from a socket.
     ///
@@ -67,8 +94,35 @@ public:
     /// @throw UnixDomainSocketError if error occurs.
     size_t receive(void* data, size_t length);
 
+    /// @brief Asynchronously receives data over the socket.
+    ///
+    /// Always returns immediately.
+    /// @param [out] data Pointer to a location into which the read data should
+    /// be stored.
+    /// @param length Length of the buffer.
+    /// @param handler Callback to be invoked when data have been received or an
+    /// error is signalled.
+    void asyncReceive(void* data, const size_t length, const Handler& handler);
+
+    /// @brief Disables read and write operations on the socket.
+    ///
+    /// @throw UnixDomainSocketError if an error occurs during shutdown.
+    void shutdown();
+
+    /// @brief Cancels scheduled asynchronous operations on the socket.
+    ///
+    /// @throw UnixDomainSocketError if an error occurs during cancel operation.
+    void cancel();
+
     /// @brief Closes the socket.
+    ///
+    /// @throw UnixDomainSocketError if an error occurs during closure.
     void close();
+
+    /// @brief Returns reference to the underlying ASIO socket.
+    ///
+    /// @return Reference to underlying ASIO socket.
+    virtual boost::asio::local::stream_protocol::socket& getASIOSocket() const;
 
 private:
 

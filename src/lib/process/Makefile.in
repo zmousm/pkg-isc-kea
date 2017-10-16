@@ -89,6 +89,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -141,7 +142,6 @@ libkea_process_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/hooks/libkea-hooks.la \
-	$(top_builddir)/src/lib/cryptolink/libkea-cryptolink.la \
 	$(top_builddir)/src/lib/log/libkea-log.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
@@ -491,7 +491,6 @@ libkea_process_la_LIBADD =  \
 	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/hooks/libkea-hooks.la \
-	$(top_builddir)/src/lib/cryptolink/libkea-cryptolink.la \
 	$(top_builddir)/src/lib/log/libkea-log.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \

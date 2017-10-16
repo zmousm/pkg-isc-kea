@@ -43,6 +43,11 @@ EXTRA_DIST += parsers/host_reservation_parser.h
 EXTRA_DIST += parsers/host_reservations_list_parser.h
 EXTRA_DIST += parsers/ifaces_config_parser.cc
 EXTRA_DIST += parsers/ifaces_config_parser.h
+EXTRA_DIST += parsers/option_data_parser.h
+EXTRA_DIST += parsers/simple_parser4.cc
+EXTRA_DIST += parsers/simple_parser4.h
+EXTRA_DIST += parsers/simple_parser6.cc
+EXTRA_DIST += parsers/simple_parser6.h
 
 # Devel guide diagrams
 EXTRA_DIST += images/pgsql_host_data_source.svg
@@ -83,6 +88,7 @@ libkea_dhcpsrv_la_SOURCES  =
 libkea_dhcpsrv_la_SOURCES += addr_utilities.cc addr_utilities.h
 libkea_dhcpsrv_la_SOURCES += alloc_engine.cc alloc_engine.h
 libkea_dhcpsrv_la_SOURCES += alloc_engine_log.cc alloc_engine_log.h
+libkea_dhcpsrv_la_SOURCES += assignable_network.h
 libkea_dhcpsrv_la_SOURCES += base_host_data_source.h
 libkea_dhcpsrv_la_SOURCES += callout_handle_store.h
 libkea_dhcpsrv_la_SOURCES += cfg_4o6.cc cfg_4o6.h
@@ -96,6 +102,7 @@ libkea_dhcpsrv_la_SOURCES += cfg_host_operations.cc cfg_host_operations.h
 libkea_dhcpsrv_la_SOURCES += cfg_option.cc cfg_option.h
 libkea_dhcpsrv_la_SOURCES += cfg_option_def.cc cfg_option_def.h
 libkea_dhcpsrv_la_SOURCES += cfg_rsoo.cc cfg_rsoo.h
+libkea_dhcpsrv_la_SOURCES += cfg_shared_networks.h
 libkea_dhcpsrv_la_SOURCES += cfg_subnets4.cc cfg_subnets4.h
 libkea_dhcpsrv_la_SOURCES += cfg_subnets6.cc cfg_subnets6.h
 libkea_dhcpsrv_la_SOURCES += cfg_mac_source.cc cfg_mac_source.h
@@ -133,6 +140,7 @@ libkea_dhcpsrv_la_SOURCES += mysql_host_data_source.cc mysql_host_data_source.h
 endif
 
 libkea_dhcpsrv_la_SOURCES += ncr_generator.cc ncr_generator.h
+libkea_dhcpsrv_la_SOURCES += network.cc network.h
 
 if HAVE_PGSQL
 libkea_dhcpsrv_la_SOURCES += pgsql_connection.cc pgsql_connection.h
@@ -145,6 +153,7 @@ libkea_dhcpsrv_la_SOURCES += cql_lease_mgr.cc cql_lease_mgr.h
 libkea_dhcpsrv_la_SOURCES += cql_connection.cc cql_connection.h
 endif
 libkea_dhcpsrv_la_SOURCES += pool.cc pool.h
+libkea_dhcpsrv_la_SOURCES += shared_network.cc shared_network.h
 libkea_dhcpsrv_la_SOURCES += srv_config.cc srv_config.h
 libkea_dhcpsrv_la_SOURCES += subnet.cc subnet.h
 libkea_dhcpsrv_la_SOURCES += subnet_id.h
@@ -171,6 +180,15 @@ libkea_dhcpsrv_la_SOURCES += parsers/host_reservation_parser.h
 libkea_dhcpsrv_la_SOURCES += parsers/host_reservations_list_parser.h
 libkea_dhcpsrv_la_SOURCES += parsers/ifaces_config_parser.cc
 libkea_dhcpsrv_la_SOURCES += parsers/ifaces_config_parser.h
+libkea_dhcpsrv_la_SOURCES += parsers/option_data_parser.cc
+libkea_dhcpsrv_la_SOURCES += parsers/option_data_parser.h
+libkea_dhcpsrv_la_SOURCES += parsers/shared_network_parser.cc
+libkea_dhcpsrv_la_SOURCES += parsers/shared_network_parser.h
+libkea_dhcpsrv_la_SOURCES += parsers/shared_networks_list_parser.h
+libkea_dhcpsrv_la_SOURCES += parsers/simple_parser4.cc
+libkea_dhcpsrv_la_SOURCES += parsers/simple_parser4.h
+libkea_dhcpsrv_la_SOURCES += parsers/simple_parser6.cc
+libkea_dhcpsrv_la_SOURCES += parsers/simple_parser6.h
 
 nodist_libkea_dhcpsrv_la_SOURCES = alloc_engine__messages.h
 nodist_libkea_dhcpsrv_la_SOURCES += alloc_engine_messages.cc
@@ -193,7 +211,7 @@ libkea_dhcpsrv_la_LIBADD  += $(top_builddir)/src/lib/log/libkea-log.la
 libkea_dhcpsrv_la_LIBADD  += $(top_builddir)/src/lib/util/threads/libkea-threads.la
 libkea_dhcpsrv_la_LIBADD  += $(top_builddir)/src/lib/util/libkea-util.la
 libkea_dhcpsrv_la_LIBADD  += $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
-libkea_dhcpsrv_la_LIBADD  += $(LOG4CPLUS_LIBS) $(CRYPTO_LIBS)
+libkea_dhcpsrv_la_LIBADD  += $(LOG4CPLUS_LIBS) $(CRYPTO_LIBS) $(BOOST_LIBS)
 
 libkea_dhcpsrv_la_LDFLAGS  = -no-undefined -version-info 7:0:0
 libkea_dhcpsrv_la_LDFLAGS += $(CRYPTO_LDFLAGS)

@@ -8,19 +8,21 @@
 
 #include <cc/command_interpreter.h>
 #include <dhcp4/dhcp4_log.h>
-#include <dhcp4/simple_parser4.h>
 #include <dhcp/libdhcp++.h>
 #include <dhcp/option_definition.h>
 #include <dhcpsrv/cfg_option.h>
 #include <dhcpsrv/cfgmgr.h>
-#include <dhcpsrv/parsers/client_class_def_parser.h>
 #include <dhcp4/json_config_parser.h>
+#include <dhcpsrv/parsers/client_class_def_parser.h>
 #include <dhcpsrv/parsers/dbaccess_parser.h>
 #include <dhcpsrv/parsers/dhcp_parsers.h>
 #include <dhcpsrv/parsers/expiration_config_parser.h>
 #include <dhcpsrv/parsers/host_reservation_parser.h>
 #include <dhcpsrv/parsers/host_reservations_list_parser.h>
 #include <dhcpsrv/parsers/ifaces_config_parser.h>
+#include <dhcpsrv/parsers/option_data_parser.h>
+#include <dhcpsrv/parsers/simple_parser4.h>
+#include <dhcpsrv/parsers/shared_networks_list_parser.h>
 #include <dhcpsrv/timer_mgr.h>
 #include <hooks/hooks_parser.h>
 #include <config/command_mgr.h>
@@ -46,274 +48,12 @@ using namespace isc::hooks;
 
 namespace {
 
-/// @brief Parser for IPv4 pool definitions.
+/// @brief Parser that takes care of global DHCPv4 parameters and utility
+///        functions that work on global level.
 ///
-/// This is the IPv4 derivation of the PoolParser class and handles pool
-/// definitions, i.e. a list of entries of one of two syntaxes: min-max and
-/// prefix/len for IPv4 pools. Pool4 objects are created and stored in chosen
-/// PoolStorage container.
-///
-/// It is useful for parsing Dhcp4/subnet4[X]/pool parameters.
-class Pool4Parser : public PoolParser {
-protected:
-    /// @brief Creates a Pool4 object given a IPv4 prefix and the prefix length.
-    ///
-    /// @param addr is the IPv4 prefix of the pool.
-    /// @param len is the prefix length.
-    /// @param ignored dummy parameter to provide symmetry between the
-    /// PoolParser derivations. The V6 derivation requires a third value.
-    /// @return returns a PoolPtr to the new Pool4 object.
-    PoolPtr poolMaker (IOAddress &addr, uint32_t len, int32_t) {
-        return (PoolPtr(new Pool4(addr, len)));
-    }
-
-    /// @brief Creates a Pool4 object given starting and ending IPv4 addresses.
-    ///
-    /// @param min is the first IPv4 address in the pool.
-    /// @param max is the last IPv4 address in the pool.
-    /// @param ignored dummy parameter to provide symmetry between the
-    /// PoolParser derivations. The V6 derivation requires a third value.
-    /// @return returns a PoolPtr to the new Pool4 object.
-    PoolPtr poolMaker (IOAddress &min, IOAddress &max, int32_t) {
-        return (PoolPtr(new Pool4(min, max)));
-    }
-};
-
-/// @brief Specialization of the pool list parser for DHCPv4
-class Pools4ListParser : PoolsListParser {
-public:
-
-    /// @brief parses the actual structure
-    ///
-    /// This method parses the actual list of pools.
-    ///
-    /// @param pools storage container in which to store the parsed pool.
-    /// @param pools_list a list of pool structures
-    /// @throw isc::dhcp::DhcpConfigError when pool parsing fails
-    void parse(PoolStoragePtr pools,
-               isc::data::ConstElementPtr pools_list) {
-        BOOST_FOREACH(ConstElementPtr pool, pools_list->listValue()) {
-            Pool4Parser parser;
-            parser.parse(pools, pool, AF_INET);
-        }
-    }
-};
-
-/// @anchor Subnet4ConfigParser
-/// @brief This class parses a single IPv4 subnet.
-///
-/// This is the IPv4 derivation of the SubnetConfigParser class and it parses
-/// the whole subnet definition. It creates parsersfor received configuration
-/// parameters as needed.
-class Subnet4ConfigParser : public SubnetConfigParser {
-public:
-    /// @brief Constructor
-    ///
-    /// stores global scope parameters, options, option definitions.
-    Subnet4ConfigParser()
-        :SubnetConfigParser(AF_INET) {
-    }
-
-    /// @brief Parses a single IPv4 subnet configuration and adds to the
-    /// Configuration Manager.
-    ///
-    /// @param subnet A new subnet being configured.
-    /// @return a pointer to created Subnet4 object
-    Subnet4Ptr parse(ConstElementPtr subnet) {
-        /// Parse Pools first.
-        ConstElementPtr pools = subnet->get("pools");
-        if (pools) {
-            Pools4ListParser parser;
-            parser.parse(pools_, pools);
-        }
-
-        SubnetPtr generic = SubnetConfigParser::parse(subnet);
-
-        if (!generic) {
-            isc_throw(DhcpConfigError,
-                      "Failed to create an IPv4 subnet (" <<
-                      subnet->getPosition() << ")");
-        }
-
-        Subnet4Ptr sn4ptr = boost::dynamic_pointer_cast<Subnet4>(subnet_);
-        if (!sn4ptr) {
-            // If we hit this, it is a programming error.
-            isc_throw(Unexpected,
-                      "Invalid Subnet4 cast in Subnet4ConfigParser::parse");
-        }
-
-        // Set relay information if it was parsed
-        if (relay_info_) {
-            sn4ptr->setRelayInfo(*relay_info_);
-        }
-
-        // Parse Host Reservations for this subnet if any.
-        ConstElementPtr reservations = subnet->get("reservations");
-        if (reservations) {
-            HostCollection hosts;
-            HostReservationsListParser<HostReservationParser4> parser;
-            parser.parse(subnet_->getID(), reservations, hosts);
-            for (auto h = hosts.begin(); h != hosts.end(); ++h) {
-                CfgMgr::instance().getStagingCfg()->getCfgHosts()->add(*h);
-            }
-        }
-
-        return (sn4ptr);
-    }
-
-protected:
-
-    /// @brief Instantiates the IPv4 Subnet based on a given IPv4 address
-    /// and prefix length.
-    ///
-    /// @param addr is IPv4 address of the subnet.
-    /// @param len is the prefix length
-    void initSubnet(isc::data::ConstElementPtr params,
-                    isc::asiolink::IOAddress addr, uint8_t len) {
-        // The renew-timer and rebind-timer are optional. If not set, the
-        // option 58 and 59 will not be sent to a client. In this case the
-        // client will use default values based on the valid-lifetime.
-        Triplet<uint32_t> t1 = getInteger(params, "renew-timer");
-        Triplet<uint32_t> t2 = getInteger(params, "rebind-timer");
-
-        // The valid-lifetime is mandatory. It may be specified for a
-        // particular subnet. If not, the global value should be present.
-        // If there is no global value, exception is thrown.
-        Triplet<uint32_t> valid = getInteger(params, "valid-lifetime");
-
-        // Subnet ID is optional. If it is not supplied the value of 0 is used,
-        // which means autogenerate. The value was inserted earlier by calling
-        // SimpleParser4::setAllDefaults.
-        SubnetID subnet_id = static_cast<SubnetID>(getInteger(params, "id"));
-
-        stringstream s;
-        s << addr << "/" << static_cast<int>(len) << " with params: ";
-        // t1 and t2 are optional may be not specified.
-        if (!t1.unspecified()) {
-            s << "t1=" << t1 << ", ";
-        }
-        if (!t2.unspecified()) {
-            s << "t2=" << t2 << ", ";
-        }
-        s <<"valid-lifetime=" << valid;
-
-        LOG_INFO(dhcp4_logger, DHCP4_CONFIG_NEW_SUBNET).arg(s.str());
-
-        Subnet4Ptr subnet4(new Subnet4(addr, len, t1, t2, valid, subnet_id));
-        subnet_ = subnet4;
-
-        // Set the match-client-id value for the subnet. It is always present.
-        // If not explicitly specified, the default value was filled in when
-        // SimpleParser4::setAllDefaults was called.
-        bool match_client_id = getBoolean(params, "match-client-id");
-        subnet4->setMatchClientId(match_client_id);
-
-        // Set next-server. The default value is 0.0.0.0. Nevertheless, the
-        // user could have messed that up by specifying incorrect value.
-        // To avoid using 0.0.0.0, user can specify "".
-        string next_server;
-        try {
-            next_server = getString(params, "next-server");
-            if (!next_server.empty()) {
-                subnet4->setSiaddr(IOAddress(next_server));
-            }
-        } catch (...) {
-            ConstElementPtr next = params->get("next-server");
-            string pos;
-            if (next)
-                pos = next->getPosition().str();
-            else
-                pos = params->getPosition().str();
-            isc_throw(DhcpConfigError, "invalid parameter next-server : "
-                      << next_server << "(" << pos << ")");
-        }
-
-        // 4o6 specific parameter: 4o6-interface. If not explicitly specified,
-        // it will have the default value of "".
-        string iface4o6 = getString(params, "4o6-interface");
-        if (!iface4o6.empty()) {
-            subnet4->get4o6().setIface4o6(iface4o6);
-            subnet4->get4o6().enabled(true);
-        }
-
-        // 4o6 specific parameter: 4o6-subnet. If not explicitly specified, it
-        // will have the default value of "".
-        string subnet4o6 = getString(params, "4o6-subnet");
-        if (!subnet4o6.empty()) {
-            size_t slash = subnet4o6.find("/");
-            if (slash == std::string::npos) {
-                isc_throw(DhcpConfigError, "Missing / in the 4o6-subnet parameter:"
-                          << subnet4o6 << ", expected format: prefix6/length");
-            }
-            string prefix = subnet4o6.substr(0, slash);
-            string lenstr = subnet4o6.substr(slash + 1);
-
-            uint8_t len = 128;
-            try {
-                len = boost::lexical_cast<unsigned int>(lenstr.c_str());
-            } catch (const boost::bad_lexical_cast &) {
-                isc_throw(DhcpConfigError, "Invalid prefix length specified in "
-                          "4o6-subnet parameter: " << subnet4o6 << ", expected 0..128 value");
-            }
-            subnet4->get4o6().setSubnet4o6(IOAddress(prefix), len);
-            subnet4->get4o6().enabled(true);
-        }
-
-        // Try 4o6 specific parameter: 4o6-interface-id
-        std::string ifaceid = getString(params, "4o6-interface-id");
-        if (!ifaceid.empty()) {
-            OptionBuffer tmp(ifaceid.begin(), ifaceid.end());
-            OptionPtr opt(new Option(Option::V6, D6O_INTERFACE_ID, tmp));
-            subnet4->get4o6().setInterfaceId(opt);
-            subnet4->get4o6().enabled(true);
-        }
-
-        /// client-class processing is now generic and handled in the common
-        /// code (see @ref isc::data::SubnetConfigParser::createSubnet)
-    }
-};
-
-/// @brief this class parses list of DHCP4 subnets
-///
-/// This is a wrapper parser that handles the whole list of Subnet4
-/// definitions. It iterates over all entries and creates Subnet4ConfigParser
-/// for each entry.
-class Subnets4ListConfigParser : public isc::data::SimpleParser {
-public:
-
-    /// @brief parses contents of the list
-    ///
-    /// Iterates over all entries on the list, parses its content
-    /// (by instantiating Subnet6ConfigParser) and adds to specified
-    /// configuration.
-    ///
-    /// @param subnets_list pointer to a list of IPv4 subnets
-    /// @return number of subnets created
-    size_t parse(SrvConfigPtr cfg, ConstElementPtr subnets_list) {
-        size_t cnt = 0;
-        BOOST_FOREACH(ConstElementPtr subnet_json, subnets_list->listValue()) {
-
-            Subnet4ConfigParser parser;
-            Subnet4Ptr subnet = parser.parse(subnet_json);
-            if (subnet) {
-
-                // Adding a subnet to the Configuration Manager may fail if the
-                // subnet id is invalid (duplicate). Thus, we catch exceptions
-                // here to append a position in the configuration string.
-                try {
-                    cfg->getCfgSubnets4()->add(subnet);
-                    cnt++;
-                } catch (const std::exception& ex) {
-                    isc_throw(DhcpConfigError, ex.what() << " ("
-                              << subnet_json->getPosition() << ")");
-                }
-            }
-        }
-        return (cnt);
-    }
-};
-
-/// @brief Parser that takes care of global DHCPv4 parameters.
+/// This class is a collection of utility method that either handle
+/// global parameters (see @ref parse), or conducts operations on
+/// global level (see @ref sanityChecks and @ref copySubnets4).
 ///
 /// See @ref parse method for a list of supported parameters.
 class Dhcp4ConfigParser : public isc::data::SimpleParser {
@@ -332,7 +72,7 @@ public:
     ///
     /// @throw DhcpConfigError if parameters are missing or
     /// or having incorrect values.
-    void parse(SrvConfigPtr cfg, ConstElementPtr global) {
+    void parse(const SrvConfigPtr& cfg, const ConstElementPtr& global) {
 
         // Set whether v4 server is supposed to echo back client-id
         // (yes = RFC6842 compatible, no = backward compatibility)
@@ -347,6 +87,132 @@ public:
         // Set the DHCPv4-over-DHCPv6 interserver port.
         uint16_t dhcp4o6_port = getUint16(global, "dhcp4o6-port");
         cfg->setDhcp4o6Port(dhcp4o6_port);
+    }
+
+    /// @brief Copies subnets from shared networks to regular subnets container
+    ///
+    /// @param from pointer to shared networks container (copy from here)
+    /// @param dest pointer to cfg subnets4 (copy to here)
+    /// @throw BadValue if any pointer is missing
+    /// @throw DhcpConfigError if there are duplicates (or other subnet defects)
+    void
+    copySubnets4(const CfgSubnets4Ptr& dest, const CfgSharedNetworks4Ptr& from) {
+
+        if (!dest || !from) {
+            isc_throw(BadValue, "Unable to copy subnets: at least one pointer is null");
+        }
+
+        const SharedNetwork4Collection* networks = from->getAll();
+        if (!networks) {
+            // Nothing to copy. Technically, it should return a pointer to empty
+            // container, but let's handle null pointer as well.
+            return;
+        }
+
+        // Let's go through all the networks one by one
+        for (auto net = networks->begin(); net != networks->end(); ++net) {
+
+            // For each network go through all the subnets in it.
+            const Subnet4Collection* subnets = (*net)->getAllSubnets();
+            if (!subnets) {
+                // Shared network without subnets it weird, but we decided to
+                // accept such configurations.
+                continue;
+            }
+
+            // For each subnet, add it to a list of regular subnets.
+            for (auto subnet = subnets->begin(); subnet != subnets->end(); ++subnet) {
+                dest->add(*subnet);
+            }
+        }
+    }
+
+    /// @brief Conducts global sanity checks
+    ///
+    /// This method is very simple now, but more sanity checks are expected
+    /// in the future.
+    ///
+    /// @param cfg - the parsed structure
+    /// @param global global Dhcp4 scope
+    /// @throw DhcpConfigError in case of issues found
+    void
+    sanityChecks(const SrvConfigPtr& cfg, const ConstElementPtr& global) {
+
+        /// Shared network sanity checks
+        const SharedNetwork4Collection* networks = cfg->getCfgSharedNetworks4()->getAll();
+        if (networks) {
+            sharedNetworksSanityChecks(*networks, global->get("shared-networks"));
+        }
+    }
+
+    /// @brief Sanity checks for shared networks
+    ///
+    /// This method verifies if there are no issues with shared networks.
+    /// @param networks pointer to shared networks being checked
+    /// @param json shared-networks element
+    /// @throw DhcpConfigError if issues are encountered
+    void
+    sharedNetworksSanityChecks(const SharedNetwork4Collection& networks,
+                               ConstElementPtr json) {
+
+        /// @todo: in case of errors, use json to extract line numbers.
+        if (!json) {
+            // No json? That means that the shared-networks was never specified
+            // in the config.
+            return;
+        }
+
+        // Used for names uniqueness checks.
+        std::set<string> names;
+
+        // Let's go through all the networks one by one
+        for (auto net = networks.begin(); net != networks.end(); ++net) {
+            string txt;
+
+            // Let's check if all subnets have either the same interface
+            // or don't have the interface specified at all.
+            string iface = (*net)->getIface();
+
+            const Subnet4Collection* subnets = (*net)->getAllSubnets();
+            if (subnets) {
+                // For each subnet, add it to a list of regular subnets.
+                for (auto subnet = subnets->begin(); subnet != subnets->end(); ++subnet) {
+                    if (iface.empty()) {
+                        iface = (*subnet)->getIface();
+                        continue;
+                    }
+
+                    if ((*subnet)->getIface().empty()) {
+                        continue;
+                    }
+
+                    if (iface != (*subnet)->getIface()) {
+                        isc_throw(DhcpConfigError, "Subnet " << (*subnet)->toText()
+                                  << " has specified interface " << (*subnet)->getIface()
+                                  << ", but earlier subnet in the same shared-network"
+                                  << " or the shared-network itself used " << iface);
+                    }
+
+                    // Let's collect the subnets in case we later find out the
+                    // subnet doesn't have a mandatory name.
+                    txt += (*subnet)->toText() + " ";
+                }
+            }
+
+            // Next, let's check name of the shared network.
+            if ((*net)->getName().empty()) {
+                isc_throw(DhcpConfigError, "Shared-network with subnets "
+                          << txt << " is missing mandatory 'name' parameter");
+            }
+
+            // Is it unique?
+            if (names.find((*net)->getName()) != names.end()) {
+                isc_throw(DhcpConfigError, "A shared-network with "
+                          "name " << (*net)->getName() << " defined twice.");
+            }
+            names.insert((*net)->getName());
+
+        }
     }
 };
 
@@ -373,13 +239,13 @@ void configureCommandChannel() {
 
     // Determine if the socket configuration has changed. It has if
     // both old and new configuration is specified but respective
-    // data elements are't equal.
+    // data elements aren't equal.
     bool sock_changed = (sock_cfg && current_sock_cfg &&
                          !sock_cfg->equals(*current_sock_cfg));
 
     // If the previous or new socket configuration doesn't exist or
     // the new configuration differs from the old configuration we
-    // close the exisitng socket and open a new socket as appropriate.
+    // close the existing socket and open a new socket as appropriate.
     // Note that closing an existing socket means the clien will not
     // receive the configuration result.
     if (!sock_cfg || !current_sock_cfg || sock_changed) {
@@ -420,7 +286,7 @@ configureDhcp4Server(Dhcpv4Srv&, isc::data::ConstElementPtr config_set,
     // Revert any runtime option definitions configured so far and not committed.
     LibDHCP::revertRuntimeOptionDefs();
     // Let's set empty container in case a user hasn't specified any configuration
-    // for option definitions. This is equivalent to commiting empty container.
+    // for option definitions. This is equivalent to committing empty container.
     LibDHCP::setRuntimeOptionDefs(OptionDefSpaceContainer());
 
     // Answer will hold the result.
@@ -454,6 +320,10 @@ configureDhcp4Server(Dhcpv4Srv&, isc::data::ConstElementPtr config_set,
             CfgOptionDefPtr cfg_option_def = srv_cfg->getCfgOptionDef();
             parser.parse(cfg_option_def, option_defs);
         }
+
+        // This parser is used in several places, so it should be available
+        // early.
+        Dhcp4ConfigParser global_parser;
 
         // Make parsers grouping.
         const std::map<std::string, ConstElementPtr>& values_map =
@@ -489,9 +359,15 @@ configureDhcp4Server(Dhcpv4Srv&, isc::data::ConstElementPtr config_set,
             }
 
             if (config_pair.first == "interfaces-config") {
+                ElementPtr ifaces_cfg =
+                    boost::const_pointer_cast<Element>(config_pair.second);
+                if (check_only) {
+                    // No re-detection in check only mode
+                    ifaces_cfg->set("re-detect", Element::create(false));
+                }
                 IfacesConfigParser parser(AF_INET);
                 CfgIfacePtr cfg_iface = srv_cfg->getCfgIface();
-                parser.parse(cfg_iface, config_pair.second);
+                parser.parse(cfg_iface, ifaces_cfg);
                 continue;
             }
 
@@ -550,6 +426,23 @@ configureDhcp4Server(Dhcpv4Srv&, isc::data::ConstElementPtr config_set,
                 continue;
             }
 
+            if (config_pair.first == "shared-networks") {
+
+                /// We need to create instance of SharedNetworks4ListParser
+                /// and parse the list of the shared networks into the
+                /// CfgSharedNetworks4 object. One additional step is then to
+                /// add subnets from the CfgSharedNetworks4 into CfgSubnets4
+                /// as well.
+                SharedNetworks4ListParser parser;
+                CfgSharedNetworks4Ptr cfg = srv_cfg->getCfgSharedNetworks4();
+                parser.parse(cfg, config_pair.second);
+
+                // We also need to put the subnets it contains into normal
+                // subnets list.
+                global_parser.copySubnets4(srv_cfg->getCfgSubnets4(), cfg);
+                continue;
+            }
+
             // Timers are not used in the global scope. Their values are derived
             // to specific subnets (see SimpleParser6::deriveParameters).
             // decline-probation-period, dhcp4o6-port, echo-client-id are
@@ -573,8 +466,12 @@ configureDhcp4Server(Dhcpv4Srv&, isc::data::ConstElementPtr config_set,
         }
 
         // Apply global options in the staging config.
-        Dhcp4ConfigParser global_parser;
         global_parser.parse(srv_cfg, mutable_cfg);
+
+        // This method conducts final sanity checks and tweaks. In particular,
+        // it checks that there is no conflict between plain subnets and those
+        // defined as part of shared networks.
+        global_parser.sanityChecks(srv_cfg, mutable_cfg);
 
     } catch (const isc::Exception& ex) {
         LOG_ERROR(dhcp4_logger, DHCP4_PARSER_FAIL)

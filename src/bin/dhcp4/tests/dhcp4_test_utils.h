@@ -196,6 +196,7 @@ public:
     using Dhcpv4Srv::sanityCheck;
     using Dhcpv4Srv::srvidToString;
     using Dhcpv4Srv::classifyPacket;
+    using Dhcpv4Srv::deferredUnpack;
     using Dhcpv4Srv::accept;
     using Dhcpv4Srv::acceptMessageType;
     using Dhcpv4Srv::selectSubnet;
@@ -326,7 +327,7 @@ public:
     /// present (false)
     /// @param t2_present check that t2 must be present (true) or must not be
     /// present (false)
-    void checkAddressParams(const Pkt4Ptr& rsp, const SubnetPtr subnet,
+    void checkAddressParams(const Pkt4Ptr& rsp, const Subnet4Ptr subnet,
                             bool t1_present = false,
                             bool t2_present = false);
 
@@ -418,7 +419,7 @@ public:
     void configure(const std::string& config, NakedDhcpv4Srv& srv,
                    const bool commit = true);
 
-    /// @brief Pretents a packet of specified type was received.
+    /// @brief Pretends a packet of specified type was received.
     ///
     /// Instantiates fake network interfaces, configures passed Dhcpv4Srv,
     /// then creates a message of specified type and sends it to the
@@ -479,6 +480,18 @@ public:
     NakedDhcpv4Srv srv_;
 };
 
+/// @brief Patch the server config to add interface-config/re-detect=false
+/// @param json the server config
+inline void
+disableIfacesReDetect(isc::data::ConstElementPtr json) {
+    isc::data::ConstElementPtr ifaces_cfg = json->get("interfaces-config");
+    if (ifaces_cfg) {
+        isc::data::ElementPtr mutable_cfg =
+            boost::const_pointer_cast<isc::data::Element>(ifaces_cfg);
+        mutable_cfg->set("re-detect", isc::data::Element::create(false));
+    }
+}
+
 /// @brief Runs parser in JSON mode, useful for parser testing
 ///
 /// @param in string to be parsed
@@ -503,7 +516,10 @@ parseDHCP4(const std::string& in, bool verbose = false)
 {
     try {
         isc::dhcp::Parser4Context ctx;
-        return (ctx.parseString(in, isc::dhcp::Parser4Context::SUBPARSER_DHCP4));
+        isc::data::ElementPtr json;
+        json = ctx.parseString(in, isc::dhcp::Parser4Context::SUBPARSER_DHCP4);
+        disableIfacesReDetect(json);
+        return (json);
     }
     catch (const std::exception& ex) {
         if (verbose) {
@@ -521,11 +537,11 @@ parseDHCP4(const std::string& in, bool verbose = false)
 /// @param verbose display the exception message when it fails
 /// @return ElementPtr structure representing parsed JSON
 inline isc::data::ElementPtr
-parseOPTION_DEF(const std::string& in, bool verbose = false)
+parseOPTION_DEFS(const std::string& in, bool verbose = false)
 {
     try {
         isc::dhcp::Parser4Context ctx;
-        return (ctx.parseString(in, isc::dhcp::Parser4Context::PARSER_OPTION_DEF));
+        return (ctx.parseString(in, isc::dhcp::Parser4Context::PARSER_OPTION_DEFS));
     }
     catch (const std::exception& ex) {
         if (verbose) {

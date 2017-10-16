@@ -29,8 +29,25 @@
         // 'udp' is generally better if you have only relayed traffic. Kea
         // than opens up normal UDP socket and the kernel does all the
         // Ethernet/IP stack processing.
-        "dhcp-socket-type": "udp"
+        "dhcp-socket-type": "udp",
+
+        // This makes interfaces to be re-detected at each (re-)configuration.
+        // By default it is true.
+        "re-detect": true
     },
+
+    // Option 43 last resort definition can make well-formed messages
+    // to be rejected because they use not compatible "raw" value,
+    // and different vendors may define different sub-options.
+    // The option definition should be applied to avoid these problems,
+    // for instance by defining at the global scope the option as binary.
+    // In client-classes the option may be redefined as carrying vendor
+    // dependent sub-options.
+    "option-def": [ {
+        "name": "vendor-encapsulated-options",
+        "code": 43,
+        "type": "binary"
+    } ],
 
     // We need to specify the the database used to store leases. As of
     // September 2016, four database backends are supported: MySQL,
@@ -66,20 +83,32 @@
     // when they get their own client-id. Kea can disable RFC6842 support.
     "echo-client-id": false,
 
-    // Some clients don't use stable client identifier, but rather generate them
-    // during each boot. This may cause a client that reboots frequently to get
-    // multiple leases, which may not be desirable. As such, sometimes admins
-    // prefer to tell their DHCPv4 server to ignore client-id value altogether
-    // and rely exclusively on MAC address. This is a parameter that is defined
-    // globally, but can be overridden on a subnet level.
+    // Some clients don't use stable client identifier, but rather
+    // generate them during each boot. This may cause a client that
+    // reboots frequently to get multiple leases, which may not be
+    // desirable. As such, sometimes admins prefer to tell their DHCPv4
+    // server to ignore client-id value altogether and rely exclusively
+    // on MAC address. This is a parameter that is defined globally, but
+    // can be overridden on a subnet level.
     "match-client-id": true,
 
     // The following list defines subnets. Each subnet consists of at
-    // least subnet and pool entries.
+    // least subnet and pool entries. One extra feature that requires some
+    // explanation is user-context. This is a structure that you can define
+    // in subnets and pools. It is parsed by Kea, but not used directly.
+    // It is intended to keep anything you may want to put there - comments,
+    // extra designations, floor or department names etc. These structures
+    // will be made available to Kea hooks.
     "subnet4": [
         {
-            "pools": [ { "pool":  "192.0.2.1 - 192.0.2.200" } ],
-            "subnet": "192.0.2.0/24"
+            "pools": [ {
+                "pool":  "192.0.2.1 - 192.0.2.200",
+                "user-context": { "info": "what a large pool" }
+            } ],
+            "subnet": "192.0.2.0/24",
+            "user-context": {
+                "comment": "Our first subnet!"
+            }
         },
         {
             // This particular subnet has match-client-id value changed.
@@ -93,9 +122,10 @@
             "pools": [ { "pool": "192.0.4.1 - 192.0.4.254" } ],
             "subnet": "192.0.4.0/24",
 
-            // Sometimes the relay may use an IPv4 address that does not match
-            // the subnet. This is discouraged, but there are valid cases when it
-            // makes sense. One case is when there is a shared subnet.
+            // Sometimes the relay may use an IPv4 address that does
+            // not match the subnet. This is discouraged, but there are
+            // valid cases when it makes sense. One case is when there
+            // is a shared subnet.
             "relay": {
                 "ip-address": "192.168.1.1"
             }
@@ -103,8 +133,9 @@
     ]
 },
 
-  // The following configures logging. It assumes that messages with at least
-  // informational level (info, warn, error and fatal) should be logged to stdout.
+  // The following configures logging. It assumes that messages with
+  // at least informational level (info, warn, error and fatal) should
+  // be logged to stdout.
   "Logging": {
       "loggers": [
           {

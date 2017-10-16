@@ -95,7 +95,7 @@ public:
     /// Returns the name of a hook given the index.  This is most likely to be
     /// used in log messages.
     ///
-    /// @param index Index of the hoold
+    /// @param index Index of the hook
     ///
     /// @return Name of the hook.
     ///
@@ -112,6 +112,17 @@ public:
     ///
     /// @throw NoSuchHook if the hook name is unknown to the caller.
     int getIndex(const std::string& name) const;
+
+    /// @brief Find hook index
+    ///
+    /// Provides exception safe method of retrieving an index of the
+    /// specified hook.
+    ///
+    /// @param name Name of the hook
+    ///
+    /// @return Index of the hook if the hook point exists, or -1 if the
+    /// hook point doesn't exist.
+    int findIndex(const std::string& name) const;
 
     /// @brief Return number of hooks
     ///
@@ -140,6 +151,36 @@ public:
     ///
     /// @return Pointer to the global ServerHooks object.
     static ServerHooksPtr getServerHooksPtr();
+
+    /// @brief Generates hook point name for the given control command name.
+    ///
+    /// This function is called to generate the name of the hook point
+    /// when the hook point is used to install command handlers for the
+    /// given control command.
+    ///
+    /// The name of the hook point is generated as follows:
+    /// - command name is prefixed with a dollar sign,
+    /// - all hyphens are replaced with underscores.
+    ///
+    /// For example, if the command_name is 'foo-bar', the resulting hook
+    /// point name will be '$foo_bar'.
+    ///
+    /// @param command_name Command name for which the hook point name is
+    ///        to be generated.
+    ///
+    /// @return Hook point name, or an empty string if the command name
+    /// can't be converted to a hook name (e.g. when it lacks dollar sign).
+    static std::string commandToHookName(const std::string& command_name);
+
+    /// @brief Returns command name for a specified hook name.
+    ///
+    /// This function removes leading dollar sign and replaces underscores
+    /// with hyphens.
+    ///
+    /// @param hook_name Hook name for which command name should be returned.
+    ///
+    /// @return Command name.
+    static std::string hookToCommandName(const std::string& hook_name);
 
 private:
     /// @brief Constructor

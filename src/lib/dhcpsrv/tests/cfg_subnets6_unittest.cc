@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015,2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30,6 +30,82 @@ OptionPtr
 generateInterfaceId(const std::string& text) {
     OptionBuffer buffer(text.begin(), text.end());
     return OptionPtr(new Option(Option::V6, D6O_INTERFACE_ID, buffer));
+}
+
+// This test verifies that specific subnet can be retrieved by specifying
+// subnet identifier or subnet prefix.
+TEST(CfgSubnets6Test, getSpecificSubnet) {
+    CfgSubnets6 cfg;
+
+    // Create 3 subnets.
+    Subnet6Ptr subnet1(new Subnet6(IOAddress("2001:db8:1::"), 48, 1, 2, 3, 4,
+                                   SubnetID(5)));
+    Subnet6Ptr subnet2(new Subnet6(IOAddress("2001:db8:2::"), 48, 1, 2, 3, 4,
+                                   SubnetID(8)));
+    Subnet6Ptr subnet3(new Subnet6(IOAddress("2001:db8:3::"), 48, 1, 2, 3, 4,
+                                   SubnetID(10)));
+
+    // Store the subnets in a vector to make it possible to loop over
+    // all configured subnets.
+    std::vector<Subnet6Ptr> subnets;
+    subnets.push_back(subnet1);
+    subnets.push_back(subnet2);
+    subnets.push_back(subnet3);
+
+    // Add all subnets to the configuration.
+    for (auto subnet = subnets.cbegin(); subnet != subnets.cend(); ++subnet) {
+        ASSERT_NO_THROW(cfg.add(*subnet)) << "failed to add subnet with id: "
+            << (*subnet)->getID();
+    }
+
+    // Iterate over all subnets and make sure they can be retrieved by
+    // subnet identifier.
+    for (auto subnet = subnets.rbegin(); subnet != subnets.rend(); ++subnet) {
+        ConstSubnet6Ptr subnet_returned = cfg.getBySubnetId((*subnet)->getID());
+        ASSERT_TRUE(subnet_returned) << "failed to return subnet with id: "
+            << (*subnet)->getID();
+        EXPECT_EQ((*subnet)->getID(), subnet_returned->getID());
+        EXPECT_EQ((*subnet)->toText(), subnet_returned->toText());
+    }
+
+    // Repeat the previous test, but this time retrieve subnets by their
+    // prefixes.
+    for (auto subnet = subnets.rbegin(); subnet != subnets.rend(); ++subnet) {
+        ConstSubnet6Ptr subnet_returned = cfg.getByPrefix((*subnet)->toText());
+        ASSERT_TRUE(subnet_returned) << "failed to return subnet with id: "
+            << (*subnet)->getID();
+        EXPECT_EQ((*subnet)->getID(), subnet_returned->getID());
+        EXPECT_EQ((*subnet)->toText(), subnet_returned->toText());
+    }
+
+    // Make sure that null pointers are returned for non-existing subnets.
+    EXPECT_FALSE(cfg.getBySubnetId(SubnetID(123)));
+    EXPECT_FALSE(cfg.getByPrefix("3000::/16"));
+}
+
+// This test verifies that a single subnet can be removed from the configuration.
+TEST(CfgSubnets6Test, deleteSubnet) {
+    CfgSubnets6 cfg;
+
+    // Create 3 subnets.
+    Subnet6Ptr subnet1(new Subnet6(IOAddress("2001:db8:1::"), 48, 1, 2, 3, 4));
+    Subnet6Ptr subnet2(new Subnet6(IOAddress("2001:db8:2::"), 48, 1, 2, 3, 4));
+    Subnet6Ptr subnet3(new Subnet6(IOAddress("2001:db8:3::"), 48, 1, 2, 3, 4));
+
+    ASSERT_NO_THROW(cfg.add(subnet1));
+    ASSERT_NO_THROW(cfg.add(subnet2));
+    ASSERT_NO_THROW(cfg.add(subnet3));
+
+    // There should be three subnets.
+    ASSERT_EQ(3, cfg.getAll()->size());
+    // We're going to remove the subnet #2. Let's make sure it exists before
+    // we remove it.
+    ASSERT_TRUE(cfg.getByPrefix("2001:db8:2::/48"));
+
+    // Remove the subnet and make sure it is gone.
+    ASSERT_NO_THROW(cfg.del(subnet2));
+    ASSERT_EQ(2, cfg.getAll()->size());
+    EXPECT_FALSE(cfg.getByPrefix("2001:db8:2::/48"));
 }
 
 // This test checks that the subnet can be selected using a relay agent's
@@ -244,7 +320,7 @@ TEST(CfgSubnets6Test, selectSubnetByRelayAddressAndClassify) {
 
 // Test that client classes are considered when the subnet is selected by the
 // interface name.
-TEST(CfgSubnets6Test, selectSubnetByInterfaceNameAndClaassify) {
+TEST(CfgSubnets6Test, selectSubnetByInterfaceNameAndClassify) {
     CfgSubnets6 cfg;
 
     Subnet6Ptr subnet1(new Subnet6(IOAddress("2000::"), 48, 1, 2, 3, 4));
@@ -374,7 +450,6 @@ TEST(CfgSubnets6Test, unparseSubnet) {
         "    \"subnet\": \"2001:db8:1::/48\",\n"
         "    \"relay\": { \"ip-address\": \"::\" },\n"
         "    \"interface-id\": \"relay.eth0\",\n"
-        "    \"interface\": \"\",\n"
         "    \"renew-timer\": 1,\n"
         "    \"rebind-timer\": 2,\n"
         "    \"preferred-lifetime\": 3,\n"
@@ -389,7 +464,6 @@ TEST(CfgSubnets6Test, unparseSubnet) {
         "    \"id\": 124,\n"
         "    \"subnet\": \"2001:db8:2::/48\",\n"
         "    \"relay\": { \"ip-address\": \"2001:db8:ff::2\" },\n"
-        "    \"interface-id\": \"\",\n"
         "    \"interface\": \"lo\",\n"
         "    \"renew-timer\": 1,\n"
         "    \"rebind-timer\": 2,\n"
@@ -404,7 +478,6 @@ TEST(CfgSubnets6Test, unparseSubnet) {
         "    \"id\": 125,\n"
         "    \"subnet\": \"2001:db8:3::/48\",\n"
         "    \"relay\": { \"ip-address\": \"::\" },\n"
-        "    \"interface-id\": \"\",\n"
         "    \"interface\": \"eth1\",\n"
         "    \"renew-timer\": 1,\n"
         "    \"rebind-timer\": 2,\n"
@@ -434,15 +507,13 @@ TEST(CfgSubnets6Test, unparsePool) {
     subnet->addPool(pool1);
     subnet->addPool(pool2);
     cfg.add(subnet);
-    
+
     // Unparse
     std::string expected = "[\n"
         "{\n"
         "    \"id\": 123,\n"
         "    \"subnet\": \"2001:db8:1::/48\",\n"
         "    \"relay\": { \"ip-address\": \"::\" },\n"
-        "    \"interface-id\": \"\",\n"
-        "    \"interface\": \"\",\n"
         "    \"renew-timer\": 1,\n"
         "    \"rebind-timer\": 2,\n"
         "    \"preferred-lifetime\": 3,\n"
@@ -480,15 +551,13 @@ TEST(CfgSubnets6Test, unparsePdPool) {
     subnet->addPool(pdpool1);
     subnet->addPool(pdpool2);
     cfg.add(subnet);
-    
+
     // Unparse
     std::string expected = "[\n"
         "{\n"
         "    \"id\": 123,\n"
         "    \"subnet\": \"2001:db8:1::/48\",\n"
         "    \"relay\": { \"ip-address\": \"::\" },\n"
-        "    \"interface-id\": \"\",\n"
-        "    \"interface\": \"\",\n"
         "    \"renew-timer\": 1,\n"
         "    \"rebind-timer\": 2,\n"
         "    \"preferred-lifetime\": 3,\n"
@@ -501,8 +570,6 @@ TEST(CfgSubnets6Test, unparsePdPool) {
         "            \"prefix\": \"2001:db8:2::\",\n"
         "            \"prefix-len\": 48,\n"
         "            \"delegated-len\": 64,\n"
-        "            \"excluded-prefix\": \"::\",\n"
-        "            \"excluded-prefix-len\": 0,\n"
         "            \"option-data\": [ ]\n"
         "        },{\n"
         "            \"prefix\": \"2001:db8:3::\",\n"
@@ -516,6 +583,24 @@ TEST(CfgSubnets6Test, unparsePdPool) {
         "    \"option-data\": [ ]\n"
         "} ]\n";
     runToElementTest<CfgSubnets6>(expected, cfg);
+}
+
+// This test verifies that it is possible to retrieve a subnet using subnet-id.
+TEST(CfgSubnets6Test, getSubnet) {
+    CfgSubnets6 cfg;
+
+    // Let's configure 3 subnets
+    Subnet6Ptr subnet1(new Subnet6(IOAddress("2001:db8:1::"), 48, 1, 2, 3, 4, 100));
+    Subnet6Ptr subnet2(new Subnet6(IOAddress("2001:db8:2::"), 48, 1, 2, 3, 4, 200));
+    Subnet6Ptr subnet3(new Subnet6(IOAddress("2001:db8:3::"), 48, 1, 2, 3, 4, 300));
+    cfg.add(subnet1);
+    cfg.add(subnet2);
+    cfg.add(subnet3);
+
+    EXPECT_EQ(subnet1, cfg.getSubnet(100));
+    EXPECT_EQ(subnet2, cfg.getSubnet(200));
+    EXPECT_EQ(subnet3, cfg.getSubnet(300));
+    EXPECT_EQ(Subnet6Ptr(), cfg.getSubnet(400)); // no such subnet
 }
 
 } // end of anonymous namespace

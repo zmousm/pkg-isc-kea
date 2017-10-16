@@ -22,15 +22,48 @@ namespace dhcp {
 
 void
 CfgSubnets6::add(const Subnet6Ptr& subnet) {
-    /// @todo: Check that this new subnet does not cross boundaries of any
-    /// other already defined subnet.
-    if (isDuplicate(*subnet)) {
+    if (getBySubnetId(subnet->getID())) {
         isc_throw(isc::dhcp::DuplicateSubnetID, "ID of the new IPv6 subnet '"
                   << subnet->getID() << "' is already in use");
+
+    } else if (getByPrefix(subnet->toText())) {
+        /// @todo: Check that this new subnet does not cross boundaries of any
+        /// other already defined subnet.
+        isc_throw(isc::dhcp::DuplicateSubnetID, "subnet with the prefix of '"
+                  << subnet->toText() << "' already exists");
     }
+
     LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE, DHCPSRV_CFGMGR_ADD_SUBNET6)
               .arg(subnet->toText());
     subnets_.push_back(subnet);
+}
+
+void
+CfgSubnets6::del(const ConstSubnet6Ptr& subnet) {
+    auto& index = subnets_.get<SubnetSubnetIdIndexTag>();
+    auto subnet_it = index.find(subnet->getID());
+    if (subnet_it == index.end()) {
+        isc_throw(BadValue, "no subnet with ID of '" << subnet->getID()
+                  << "' found");
+    }
+    index.erase(subnet_it);
+
+    LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE, DHCPSRV_CFGMGR_DEL_SUBNET6)
+        .arg(subnet->toText());
+}
+
+ConstSubnet6Ptr
+CfgSubnets6::getBySubnetId(const SubnetID& subnet_id) const {
+    const auto& index = subnets_.get<SubnetSubnetIdIndexTag>();
+    auto subnet_it = index.find(subnet_id);
+    return ((subnet_it != index.cend()) ? (*subnet_it) : ConstSubnet6Ptr());
+}
+
+ConstSubnet6Ptr
+CfgSubnets6::getByPrefix(const std::string& subnet_text) const {
+    const auto& index = subnets_.get<SubnetPrefixIndexTag>();
+    auto subnet_it = index.find(subnet_text);
+    return ((subnet_it != index.cend()) ? (*subnet_it) : ConstSubnet6Ptr());
 }
 
 Subnet6Ptr
@@ -166,15 +199,17 @@ CfgSubnets6::selectSubnet(const OptionPtr& interface_id,
     return (Subnet6Ptr());
 }
 
-bool
-CfgSubnets6::isDuplicate(const Subnet6& subnet) const {
-    for (Subnet6Collection::const_iterator subnet_it = subnets_.begin();
-         subnet_it != subnets_.end(); ++subnet_it) {
-        if ((*subnet_it)->getID() == subnet.getID()) {
-            return (true);
+Subnet6Ptr
+CfgSubnets6::getSubnet(const SubnetID id) const {
+
+    /// @todo: Once this code is migrated to multi-index container, use
+    /// an index rather than full scan.
+    for (auto subnet = subnets_.begin(); subnet != subnets_.end(); ++subnet) {
+        if ((*subnet)->getID() == id) {
+            return (*subnet);
         }
     }
-    return (false);
+    return (Subnet6Ptr());
 }
 
 void
@@ -240,171 +275,7 @@ CfgSubnets6::toElement() const {
     // Iterate subnets
     for (Subnet6Collection::const_iterator subnet = subnets_.cbegin();
          subnet != subnets_.cend(); ++subnet) {
-        // Prepare the map
-        ElementPtr map = Element::createMap();
-        // Set subnet id
-        SubnetID id = (*subnet)->getID();
-        map->set("id", Element::create(static_cast<long long>(id)));
-        // Set relay info
-        const Subnet::RelayInfo& relay_info = (*subnet)->getRelayInfo();
-        ElementPtr relay = Element::createMap();
-        relay->set("ip-address", Element::create(relay_info.addr_.toText()));
-        map->set("relay", relay);
-        // Set subnet
-        map->set("subnet", Element::create((*subnet)->toText()));
-        // Set interface
-        const std::string& iface = (*subnet)->getIface();
-        map->set("interface", Element::create(iface));
-        // Set interface-id
-        const OptionPtr& ifaceid = (*subnet)->getInterfaceId();
-        if (ifaceid) {
-            std::vector<uint8_t> bin = ifaceid->getData();
-            std::string ifid;
-            ifid.resize(bin.size());
-            if (!bin.empty()) {
-                std::memcpy(&ifid[0], &bin[0], bin.size());
-            }
-            map->set("interface-id", Element::create(ifid));
-        } else {
-            map->set("interface-id", Element::create(std::string()));
-        }
-        // Set renew-timer
-        map->set("renew-timer",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getT1().get())));
-        // Set rebind-timer
-        map->set("rebind-timer",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getT2().get())));
-        // Set preferred-lifetime
-        map->set("preferred-lifetime",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getPreferred().get())));
-        // Set valid-lifetime
-        map->set("valid-lifetime",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getValid().get())));
-        // Set rapid-commit
-        bool rapid_commit = (*subnet)->getRapidCommit();
-        map->set("rapid-commit", Element::create(rapid_commit));
-        // Set pools
-        const PoolCollection& pools = (*subnet)->getPools(Lease::TYPE_NA);
-        ElementPtr pool_list = Element::createList();
-        for (PoolCollection::const_iterator pool = pools.cbegin();
-             pool != pools.cend(); ++pool) {
-            // Prepare the map for a pool (@todo move this code to pool.cc)
-            ElementPtr pool_map = Element::createMap();
-            // Set pool
-            const IOAddress& first = (*pool)->getFirstAddress();
-            const IOAddress& last = (*pool)->getLastAddress();
-            std::string range = first.toText() + "-" + last.toText();
-            // Try to output a prefix (vs a range)
-            int prefix_len = prefixLengthFromRange(first, last);
-            if (prefix_len >= 0) {
-                std::ostringstream oss;
-                oss << first.toText() << "/" << prefix_len;
-                range = oss.str();
-            }
-            pool_map->set("pool", Element::create(range));
-            // Set user-context
-            ConstElementPtr context = (*pool)->getContext();
-            if (!isNull(context)) {
-                pool_map->set("user-context", context);
-            }
-            // Set pool options
-            ConstCfgOptionPtr opts = (*pool)->getCfgOption();
-            pool_map->set("option-data", opts->toElement());
-            // Push on the pool list
-            pool_list->add(pool_map);
-        }
-        map->set("pools", pool_list);
-        // Set pd-pools
-        const PoolCollection& pdpools = (*subnet)->getPools(Lease::TYPE_PD);
-        ElementPtr pdpool_list = Element::createList();
-        for (PoolCollection::const_iterator pool = pdpools.cbegin();
-             pool != pdpools.cend(); ++pool) {
-            // Get it as a Pool6 (@todo move this code to pool.cc)
-            const Pool6* pdpool = dynamic_cast<Pool6*>(pool->get());
-            if (!pdpool) {
-                isc_throw(ToElementError, "invalid pd-pool pointer");
-            }
-            // Prepare the map for a pd-pool
-            ElementPtr pool_map = Element::createMap();
-            // Set prefix
-            const IOAddress& prefix = pdpool->getFirstAddress();
-            pool_map->set("prefix", Element::create(prefix.toText()));
-            // Set prefix-len (get it from min - max)
-            const IOAddress& last = pdpool->getLastAddress();
-            int prefix_len = prefixLengthFromRange(prefix, last);
-            if (prefix_len < 0) {
-                // The pool is bad: give up
-                isc_throw(ToElementError, "invalid prefix range "
-                          << prefix.toText() << "-" << last.toText());
-            }
-            pool_map->set("prefix-len", Element::create(prefix_len));
-            // Set delegated-len
-            uint8_t len = pdpool->getLength();
-            pool_map->set("delegated-len",
-                          Element::create(static_cast<int>(len)));
-            // Set excluded prefix
-            const Option6PDExcludePtr& xopt =
-                pdpool->getPrefixExcludeOption();
-            if (xopt) {
-                const IOAddress& xprefix =
-                    xopt->getExcludedPrefix(prefix, len);
-                pool_map->set("excluded-prefix",
-                              Element::create(xprefix.toText()));
-                uint8_t xlen = xopt->getExcludedPrefixLength();
-                pool_map->set("excluded-prefix-len",
-                              Element::create(static_cast<int>(xlen)));
-            } else {
-                pool_map->set("excluded-prefix",
-                              Element::create(std::string("::")));
-                pool_map->set("excluded-prefix-len", Element::create(0));
-            }
-            // Set user-context
-            ConstElementPtr context = pdpool->getContext();
-            if (!isNull(context)) {
-                pool_map->set("user-context", context);
-            }
-            // Set pool options
-            ConstCfgOptionPtr opts = pdpool->getCfgOption();
-            pool_map->set("option-data", opts->toElement());
-            // Push on the pool list
-            pdpool_list->add(pool_map);
-        }
-        map->set("pd-pools", pdpool_list);
-        // Set host reservation-mode
-        Subnet::HRMode hrmode = (*subnet)->getHostReservationMode();
-        std::string mode;
-        switch (hrmode) {
-        case Subnet::HR_DISABLED:
-            mode = "disabled";
-            break;
-        case Subnet::HR_OUT_OF_POOL:
-            mode = "out-of-pool";
-            break;
-        case Subnet::HR_ALL:
-            mode = "all";
-            break;
-        default:
-            isc_throw(ToElementError,
-                      "invalid host reservation mode: " << hrmode);
-        }
-        map->set("reservation-mode", Element::create(mode));
-        // Set client-class
-        const ClientClasses& cclasses = (*subnet)->getClientClasses();
-        if (cclasses.size() > 1) {
-            isc_throw(ToElementError, "client-class has too many items: "
-                      << cclasses.size());
-        } else if (!cclasses.empty()) {
-            map->set("client-class", Element::create(*cclasses.cbegin()));
-        }
-        // Set options
-        ConstCfgOptionPtr opts = (*subnet)->getCfgOption();
-        map->set("option-data", opts->toElement());
-        // Push on the list
-        result->add(map);
+        result->add((*subnet)->toElement());
     }
     return (result);
 }

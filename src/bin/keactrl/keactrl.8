@@ -35,9 +35,10 @@ keactrl \- Shell script for managing Kea
 .SH "DESCRIPTION"
 .PP
 keactrl is a shell script which controls the startup, shutdown and reconfiguration of the Kea servers (\fBkea\-dhcp4\fR,
-\fBkea\-dhcp6\fR
+\fBkea\-dhcp6\fR,
+\fBkea\-dhcp\-ddns\fR
 and
-\fBkea\-dhcp\-ddns\fR)\&. It also provides the means for checking the current status of the servers and determining the configuration files in use\&.
+\fBkea\-ctrl\-agent\fR)\&. It also provides the means for checking the current status of the servers and determining the configuration files in use\&.
 .SH "CONFIGURATION FILE"
 .PP
 Depending on requirements, not all of the available servers need be run\&. The keactrl configuration file sets which servers are enabled and which are disabled\&. By default the configuration file is
@@ -100,6 +101,11 @@ DHCPv6 server (\fBkea\-dhcp6\fR)\&.
 dhcp_ddns
 .RS 4
 DHCP DDNS server (\fBkea\-dhcp\-ddns\fR)\&.
+.RE
+.PP
+ctrl_agent
+.RS 4
+Control Agent (\fBkea\-ctrl\-agent\fR)\&.
 .RE
 .PP
 all

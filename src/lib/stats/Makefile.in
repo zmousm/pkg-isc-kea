@@ -85,6 +85,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -128,10 +129,12 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(libkea_stats_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
+am__DEPENDENCIES_1 =
 libkea_stats_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
-	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la
+	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
+	$(am__DEPENDENCIES_1)
 am_libkea_stats_la_OBJECTS = libkea_stats_la-observation.lo \
 	libkea_stats_la-context.lo libkea_stats_la-stats_mgr.lo
 libkea_stats_la_OBJECTS = $(am_libkea_stats_la_OBJECTS)
@@ -451,7 +454,8 @@ libkea_stats_la_CPPFLAGS = $(AM_CPPFLAGS)
 libkea_stats_la_LDFLAGS = -no-undefined -version-info 1:0:0
 libkea_stats_la_LIBADD = $(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
-	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la
+	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
+	$(BOOST_LIBS)
 libkea_stats_includedir = $(pkgincludedir)/stats
 libkea_stats_include_HEADERS = stats_mgr.h
 all: all-recursive

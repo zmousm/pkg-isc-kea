@@ -87,6 +87,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -104,11 +105,13 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_2 = $(am__EXEEXT_1)
 PROGRAMS = $(noinst_PROGRAMS)
 am__run_unittests_SOURCES_DIST = command_interpreter_unittests.cc \
-	data_unittests.cc data_file_unittests.cc run_unittests.cc \
+	data_unittests.cc data_file_unittests.cc \
+	json_feed_unittests.cc run_unittests.cc \
 	simple_parser_unittest.cc
 @HAVE_GTEST_TRUE@am_run_unittests_OBJECTS = run_unittests-command_interpreter_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-data_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-data_file_unittests.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-json_feed_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-run_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-simple_parser_unittest.$(OBJEXT)
 run_unittests_OBJECTS = $(am_run_unittests_OBJECTS)
@@ -116,6 +119,7 @@ am__DEPENDENCIES_1 =
 @HAVE_GTEST_TRUE@run_unittests_DEPENDENCIES =  \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/unittests/libutil_unittests.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/libkea-util.la \
@@ -399,12 +403,14 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@run_unittests_SOURCES =  \
 @HAVE_GTEST_TRUE@	command_interpreter_unittests.cc \
 @HAVE_GTEST_TRUE@	data_unittests.cc data_file_unittests.cc \
-@HAVE_GTEST_TRUE@	run_unittests.cc simple_parser_unittest.cc
+@HAVE_GTEST_TRUE@	json_feed_unittests.cc run_unittests.cc \
+@HAVE_GTEST_TRUE@	simple_parser_unittest.cc
 @HAVE_GTEST_TRUE@run_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 @HAVE_GTEST_TRUE@run_unittests_LDFLAGS = $(AM_LDFLAGS) $(GTEST_LDFLAGS)
 @HAVE_GTEST_TRUE@run_unittests_LDADD =  \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/unittests/libutil_unittests.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/libkea-util.la \
@@ -468,6 +474,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-command_interpreter_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-data_file_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-data_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-json_feed_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-run_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-simple_parser_unittest.Po@am__quote@
 
@@ -533,6 +540,20 @@ run_unittests-data_file_unittests.obj: data_file_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='data_file_unittests.cc' object='run_unittests-data_file_unittests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-data_file_unittests.obj `if test -f 'data_file_unittests.cc'; then $(CYGPATH_W) 'data_file_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/data_file_unittests.cc'; fi`
+
+run_unittests-json_feed_unittests.o: json_feed_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-json_feed_unittests.o -MD -MP -MF $(DEPDIR)/run_unittests-json_feed_unittests.Tpo -c -o run_unittests-json_feed_unittests.o `test -f 'json_feed_unittests.cc' || echo '$(srcdir)/'`json_feed_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-json_feed_unittests.Tpo $(DEPDIR)/run_unittests-json_feed_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='json_feed_unittests.cc' object='run_unittests-json_feed_unittests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-json_feed_unittests.o `test -f 'json_feed_unittests.cc' || echo '$(srcdir)/'`json_feed_unittests.cc
+
+run_unittests-json_feed_unittests.obj: json_feed_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-json_feed_unittests.obj -MD -MP -MF $(DEPDIR)/run_unittests-json_feed_unittests.Tpo -c -o run_unittests-json_feed_unittests.obj `if test -f 'json_feed_unittests.cc'; then $(CYGPATH_W) 'json_feed_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/json_feed_unittests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-json_feed_unittests.Tpo $(DEPDIR)/run_unittests-json_feed_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='json_feed_unittests.cc' object='run_unittests-json_feed_unittests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-json_feed_unittests.obj `if test -f 'json_feed_unittests.cc'; then $(CYGPATH_W) 'json_feed_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/json_feed_unittests.cc'; fi`
 
 run_unittests-run_unittests.o: run_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-run_unittests.o -MD -MP -MF $(DEPDIR)/run_unittests-run_unittests.Tpo -c -o run_unittests-run_unittests.o `test -f 'run_unittests.cc' || echo '$(srcdir)/'`run_unittests.cc

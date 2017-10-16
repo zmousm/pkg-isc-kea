@@ -5,11 +5,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Path to the temporary configuration file.
-CFG_FILE=/home/wlodek/dev/releases/120_3/src/bin/shell/tests/test_config.json
+CFG_FILE=/home/wlodek/dev/kea/src/bin/shell/tests/test_config.json
 # Path to the Control Agent log file.
-LOG_FILE=/home/wlodek/dev/releases/120_3/src/bin/shell/tests/test.log
+LOG_FILE=/home/wlodek/dev/kea/src/bin/shell/tests/test.log
 # Expected version
-EXPECTED_VERSION="1.2.0"
+EXPECTED_VERSION="1.3.0-beta"
 
 # Control Agent configuration to be stored in the configuration file.
 # todo: use actual configuration once we support it.
@@ -39,15 +39,15 @@ CONFIG="{
 # Using bin and bin_path would be confusing, so we omit defining bin
 # and bin_path on purpose.
 ca_bin="kea-ctrl-agent"
-ca_bin_path=/home/wlodek/dev/releases/120_3/src/bin/agent
+ca_bin_path=/home/wlodek/dev/kea/src/bin/agent
 
 shell_bin="kea-shell"
-shell_bin_path=/home/wlodek/dev/releases/120_3/src/bin/shell
+shell_bin_path=/home/wlodek/dev/kea/src/bin/shell
 
-tmpfile_path=/home/wlodek/dev/releases/120_3/src/bin/shell/tests
+tmpfile_path=/home/wlodek/dev/kea/src/bin/shell/tests
 
 # Import common test library.
-. /home/wlodek/dev/releases/120_3/src/lib/testutils/dhcp_test_lib.sh
+. /home/wlodek/dev/kea/src/lib/testutils/dhcp_test_lib.sh
 
 # This test verifies that Control Agent is shut down gracefully when it
 # receives a SIGINT or SIGTERM signal.

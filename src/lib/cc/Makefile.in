@@ -85,6 +85,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -130,9 +131,11 @@ am__installdirs = "$(DESTDIR)$(libdir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libkea_cc_la_DEPENDENCIES =  \
+	$(top_builddir)/src/lib/util/libkea-util.la \
+	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(am__DEPENDENCIES_1)
-am_libkea_cc_la_OBJECTS = data.lo command_interpreter.lo \
+am_libkea_cc_la_OBJECTS = data.lo command_interpreter.lo json_feed.lo \
 	simple_parser.lo
 libkea_cc_la_OBJECTS = $(am_libkea_cc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -446,8 +449,10 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 lib_LTLIBRARIES = libkea-cc.la
 libkea_cc_la_SOURCES = data.cc data.h cfg_to_element.h \
 	dhcp_config_error.h command_interpreter.cc \
-	command_interpreter.h simple_parser.cc simple_parser.h
-libkea_cc_la_LIBADD =  \
+	command_interpreter.h json_feed.cc json_feed.h \
+	simple_parser.cc simple_parser.h
+libkea_cc_la_LIBADD = $(top_builddir)/src/lib/util/libkea-util.la \
+	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(BOOST_LIBS)
 libkea_cc_la_LDFLAGS = -no-undefined -version-info 2:0:0
@@ -539,6 +544,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_interpreter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/data.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/json_feed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_parser.Plo@am__quote@
 
 .cc.o:

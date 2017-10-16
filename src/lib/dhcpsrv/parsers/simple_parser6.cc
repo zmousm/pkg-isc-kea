@@ -4,8 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <dhcp6/simple_parser6.h>
 #include <cc/data.h>
+#include <dhcpsrv/parsers/simple_parser6.h>
 #include <boost/foreach.hpp>
 
 using namespace isc::data;
@@ -45,7 +45,8 @@ const SimpleDefaults SimpleParser6::OPTION6_DEF_DEFAULTS = {
 /// for those option-data declarations.
 const SimpleDefaults SimpleParser6::OPTION6_DEFAULTS = {
     { "space",        Element::string,  "dhcp6"},
-    { "csv-format",   Element::boolean, "true"}
+    { "csv-format",   Element::boolean, "true"},
+    { "always-send",  Element::boolean, "false"}
 };
 
 /// @brief This table defines default global values for DHCPv6
@@ -72,16 +73,45 @@ const SimpleDefaults SimpleParser6::SUBNET6_DEFAULTS = {
     { "interface-id",     Element::string,  "" },
 };
 
+/// @brief This table defines default values for each IPv6 subnet.
+const SimpleDefaults SimpleParser6::SHARED_SUBNET6_DEFAULTS = {
+    { "id",               Element::integer, "0" } // 0 means autogenerate
+};
+
+/// @brief This table defines default values for each IPv6 shared network.
+const SimpleDefaults SimpleParser6::SHARED_NETWORK6_DEFAULTS = {
+    { "client-class",     Element::string,  "" },
+    { "interface",        Element::string, "" },
+    { "interface-id",     Element::string,  "" },
+    { "reservation-mode", Element::string, "all" },
+    { "rapid-commit",     Element::boolean, "false" } // rapid-commit disabled by default
+};
+
+
+/// @brief This table defines default values for interfaces for DHCPv6.
+const SimpleDefaults SimpleParser6::IFACE6_DEFAULTS = {
+    { "re-detect", Element::boolean, "true" }
+};
+
 /// @brief List of parameters that can be inherited from the global to subnet6 scope.
 ///
 /// Some parameters may be defined on both global (directly in Dhcp6) and
 /// subnet (Dhcp6/subnet6/...) scope. If not defined in the subnet scope,
 /// the value is being inherited (derived) from the global scope. This
 /// array lists all of such parameters.
-const ParamsList SimpleParser6::INHERIT_GLOBAL_TO_SUBNET6 = {
-    "renew-timer",
-    "rebind-timer",
+///
+/// This list is also used for inheriting from global to shared networks
+/// and from shared networks to subnets within it.
+const ParamsList SimpleParser6::INHERIT_TO_SUBNET6 = {
+    "client-class",
+    "interface",
+    "interface-id",
     "preferred-lifetime",
+    "rapid-commit",
+    "rebind-timer",
+    "relay",
+    "renew-timer",
+    "reservation-mode",
     "valid-lifetime"
 };
 /// @}
@@ -113,10 +143,30 @@ size_t SimpleParser6::setAllDefaults(isc::data::ElementPtr global) {
     }
 
     // Now set the defaults for defined subnets
-    // Now set the defaults for defined subnets
     ConstElementPtr subnets = global->get("subnet6");
     if (subnets) {
         cnt += setListDefaults(subnets, SUBNET6_DEFAULTS);
+    }
+
+    // Set the defaults for interfaces config
+    ConstElementPtr ifaces_cfg = global->get("interfaces-config");
+    if (ifaces_cfg) {
+        ElementPtr mutable_cfg = boost::const_pointer_cast<Element>(ifaces_cfg);
+        cnt += setDefaults(mutable_cfg, IFACE6_DEFAULTS);
+    }
+
+    // Set defaults for shared networks
+    ConstElementPtr shared = global->get("shared-networks");
+    if (shared) {
+        BOOST_FOREACH(ElementPtr net, shared->listValue()) {
+
+            cnt += setDefaults(net, SHARED_NETWORK6_DEFAULTS);
+
+            ConstElementPtr subs = net->get("subnet6");
+            if (subs) {
+                cnt += setListDefaults(subs, SHARED_SUBNET6_DEFAULTS);
+            }
+        }
     }
 
     return (cnt);
@@ -129,7 +179,30 @@ size_t SimpleParser6::deriveParameters(isc::data::ElementPtr global) {
     if (subnets) {
         BOOST_FOREACH(ElementPtr single_subnet, subnets->listValue()) {
             cnt += SimpleParser::deriveParams(global, single_subnet,
-                                              INHERIT_GLOBAL_TO_SUBNET6);
+                                              INHERIT_TO_SUBNET6);
+        }
+    }
+
+    // Deriving parameters for shared networks is a bit more involved.
+    // First, the shared-network level derives from global, and then
+    // subnets within derive from it.
+    ConstElementPtr shared = global->get("shared-networks");
+    if (shared) {
+        BOOST_FOREACH(ElementPtr net, shared->listValue()) {
+            // First try to inherit the parameters from shared network,
+            // if defined there.
+            // Then try to inherit them from global.
+            cnt += SimpleParser::deriveParams(global, net,
+                                              INHERIT_TO_SUBNET6);
+
+            // Now we need to go thrugh all the subnets in this net.
+            subnets = net->get("subnet6");
+            if (subnets) {
+                BOOST_FOREACH(ElementPtr single_subnet, subnets->listValue()) {
+                    cnt += SimpleParser::deriveParams(net, single_subnet,
+                                                      INHERIT_TO_SUBNET6);
+                }
+            }
         }
     }
 

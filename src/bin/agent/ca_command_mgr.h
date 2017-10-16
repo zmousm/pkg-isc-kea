@@ -11,7 +11,6 @@
 #include <exceptions/exceptions.h>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <array>
 
 namespace isc {
 namespace agent {
@@ -30,8 +29,6 @@ public:
 /// In addition to the standard capabilities of the @ref HookedCommandMgr
 /// it is also intended to forward commands to the respective Kea servers
 /// when the command is not supported directly by the Control Agent.
-///
-/// @todo This Command Manager doesn't yet support forwarding commands.
 ///
 /// The @ref CtrlAgentCommandMgr is implemented as a singleton. The commands
 /// are registered using @c CtrlAgentCommandMgr::instance().registerCommand().
@@ -108,9 +105,6 @@ private:
     /// The instance should be created using @ref CtrlAgentCommandMgr::instance,
     /// thus the constructor is private.
     CtrlAgentCommandMgr();
-
-    /// @brief Buffer into which responses to forwarded commands are stored.
-    std::array<char, 65535> receive_buf_;
 
 };
 

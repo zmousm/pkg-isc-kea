@@ -117,6 +117,54 @@ TEST(ParserTest, keywordJSON) {
     testParser(txt, ParserContext::PARSER_JSON);
 }
 
+// This test checks that the DhcpDdns configuration is accepted
+// by the parser.
+TEST(ParserTest, keywordDhcpDdns) {
+    string txt =
+        "{ \"DhcpDdns\" : \n"
+           "{ \n"
+            " \"ip-address\": \"192.168.77.1\", \n"
+            " \"port\": 777 , \n "
+            " \"ncr-protocol\": \"UDP\", \n"
+            "\"tsig-keys\": [], \n"
+            "\"forward-ddns\" : {}, \n"
+            "\"reverse-ddns\" : {} \n"
+            "} \n"
+         "} \n";
+     testParser(txt, ParserContext::PARSER_AGENT);
+}
+
+// This test checks that the Dhcp6 configuration is accepted
+// by the parser.
+TEST(ParserTest, keywordDhcp6) {
+     string txt = "{ \"Dhcp6\": { \"interfaces-config\": {"
+                  " \"interfaces\": [ \"type\", \"htype\" ] },\n"
+                  "\"preferred-lifetime\": 3000,\n"
+                  "\"rebind-timer\": 2000, \n"
+                  "\"renew-timer\": 1000, \n"
+                  "\"subnet6\": [ { "
+                  "    \"pools\": [ { \"pool\": \"2001:db8:1::/64\" } ],"
+                  "    \"subnet\": \"2001:db8:1::/48\", "
+                  "    \"interface\": \"test\" } ],\n"
+                   "\"valid-lifetime\": 4000 } }";
+     testParser(txt, ParserContext::PARSER_AGENT);
+}
+
+// This test checks that the Dhcp4 configuration is accepted
+// by the parser.
+TEST(ParserTest, keywordDhcp4) {
+    string txt = "{ \"Dhcp4\": { \"interfaces-config\": {"
+                  " \"interfaces\": [ \"type\", \"htype\" ] },\n"
+                  "\"rebind-timer\": 2000, \n"
+                  "\"renew-timer\": 1000, \n"
+                  "\"subnet4\": [ { "
+                  "  \"pools\": [ { \"pool\": \"192.0.2.1 - 192.0.2.100\" } ],"
+                  "  \"subnet\": \"192.0.2.0/24\", "
+                  "  \"interface\": \"test\" } ],\n"
+                   "\"valid-lifetime\": 4000 } }";
+     testParser(txt, ParserContext::PARSER_AGENT);
+}
+
 // This test checks if full config (with top level and Control-agent objects) can
 // be parsed with syntactic checking (and as pure JSON).
 TEST(ParserTest, keywordAgent) {
@@ -124,15 +172,15 @@ TEST(ParserTest, keywordAgent) {
         "    \"http-host\": \"localhost\",\n"
         "    \"http-port\": 8000,\n"
         "    \"control-sockets\": {"
-        "        \"dhcp4-server\": {"
+        "        \"dhcp4\": {"
         "            \"socket-type\": \"unix\","
         "            \"socket-name\": \"/path/to/the/unix/socket-v4\""
         "        },"
-        "        \"dhcp6-server\": {"
+        "        \"dhcp6\": {"
         "            \"socket-type\": \"unix\","
         "            \"socket-name\": \"/path/to/the/unix/socket-v6\""
         "        },"
-        "        \"d2-server\": {"
+        "        \"d2\": {"
         "            \"socket-type\": \"unix\","
         "            \"socket-name\": \"/path/to/the/unix/socket-d2\""
         "        }"
@@ -161,15 +209,15 @@ TEST(ParserTest, keywordSubAgent) {
         "    \"http-host\": \"localhost\",\n"
         "    \"http-port\": 8000,\n"
         "    \"control-sockets\": {"
-        "        \"dhcp4-server\": {"
+        "        \"dhcp4\": {"
         "            \"socket-type\": \"unix\","
         "            \"socket-name\": \"/path/to/the/unix/socket-v4\""
         "        },"
-        "        \"dhcp6-server\": {"
+        "        \"dhcp6\": {"
         "            \"socket-type\": \"unix\","
         "            \"socket-name\": \"/path/to/the/unix/socket-v6\""
         "        },"
-        "        \"d2-server\": {"
+        "        \"d2\": {"
         "            \"socket-type\": \"unix\","
         "            \"socket-name\": \"/path/to/the/unix/socket-d2\""
         "        }"
@@ -196,7 +244,7 @@ TEST(ParserTest, bashComments) {
                 "  \"http-host\": \"localhost\","
                 "  \"http-port\": 9000,\n"
                 "  \"control-sockets\": {\n"
-                "    \"d2-server\": {\n"
+                "    \"d2\": {\n"
                 "# this is a comment\n"
                 "\"socket-type\": \"unix\", \n"
                 "# This socket is mine. I can name it whatever\n"
@@ -214,7 +262,7 @@ TEST(ParserTest, cppComments) {
                 "  \"control-sockets\": {\n"
                 "    // Let's try talking to D2. Sadly, it never talks"
                 "    // to us back :( Maybe he doesn't like his name?\n"
-                "    \"d2-server\": {"
+                "    \"d2\": {"
                 "\"socket-type\": \"unix\", \n"
                 "\"socket-name\": \"Hector\" \n"
                 "} } } }";
@@ -228,7 +276,7 @@ TEST(ParserTest, bashCommentsInline) {
                 "  \"http-host\": \"localhost\","
                 "  \"http-port\": 9000,\n"
                 "  \"control-sockets\": {\n"
-                "    \"d2-server\": {"
+                "    \"d2\": {"
                 "\"socket-type\": \"unix\", # Maybe Hector is not really a \n"
                 "\"socket-name\": \"Hector\" # Unix process?\n"
                 "# Oh no! He's a windows one and just pretending!\n"
@@ -242,12 +290,12 @@ TEST(ParserTest, multilineComments) {
                 "  \"http-host\": \"localhost\","
                 "  \"http-port\": 9000,\n"
                 "  \"control-sockets\": {\n"
-                "    \"dhcp4-server\": {\n"
+                "    \"dhcp4\": {\n"
                 "        \"socket-type\": \"unix\"\n"
                 "    }\n"
                 "  /* Ok, forget about it. If Hector doesn't want to talk,\n"
                 "     we won't talk to him either. We now have quiet days. */\n"
-                "  /* \"d2-server\": {"
+                "  /* \"d2\": {"
                 "  \"socket-type\": \"unix\",\n"
                 "\"socket-name\": \"Hector\"\n"
                 "}*/ } } }";

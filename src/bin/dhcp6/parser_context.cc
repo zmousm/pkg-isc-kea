@@ -95,6 +95,21 @@ Parser6Context::loc2pos(isc::dhcp::location& loc)
 }
 
 void
+Parser6Context::require(const std::string& name,
+                        isc::data::Element::Position open_loc,
+                        isc::data::Element::Position close_loc)
+{
+    ConstElementPtr value = stack_.back()->get(name);
+    if (!value) {
+        isc_throw(Dhcp6ParseError,
+                  "missing parameter '" << name << "' ("
+                  << stack_.back()->getPosition() << ") ["
+                  << contextName() << " map between "
+                  << open_loc << " and " << close_loc << "]");
+    }
+}
+
+void
 Parser6Context::enter(const ParserContext& ctx)
 {
     cstack_.push_back(ctx_);
@@ -138,9 +153,11 @@ Parser6Context::contextName()
     case HOST_RESERVATION_IDENTIFIERS:
         return ("host-reservation-identifiers");
     case HOOKS_LIBRARIES:
-        return ("hooks-librairies");
+        return ("hooks-libraries");
     case SUBNET6:
         return ("subnet6");
+    case RESERVATION_MODE:
+        return ("reservation-mode");
     case OPTION_DEF:
         return ("option-def");
     case OPTION_DATA:
@@ -177,7 +194,9 @@ Parser6Context::contextName()
         return ("ncr-format");
     case REPLACE_CLIENT_NAME:
         return ("replace-client-name");
-    default:
+    case SHARED_NETWORK:
+        return ("shared-networks");
+     default:
         return ("__unknown__");
     }
 }

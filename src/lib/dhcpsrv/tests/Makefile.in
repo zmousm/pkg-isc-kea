@@ -102,6 +102,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -158,8 +159,10 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 	cfg_hosts_unittest.cc cfg_iface_unittest.cc \
 	cfg_mac_source_unittest.cc cfg_option_unittest.cc \
 	cfg_option_def_unittest.cc cfg_rsoo_unittest.cc \
-	cfg_subnets4_unittest.cc cfg_subnets6_unittest.cc \
-	cfgmgr_unittest.cc client_class_def_unittest.cc \
+	cfg_shared_networks4_unittest.cc \
+	cfg_shared_networks6_unittest.cc cfg_subnets4_unittest.cc \
+	cfg_subnets6_unittest.cc cfgmgr_unittest.cc \
+	client_class_def_unittest.cc \
 	client_class_def_parser_unittest.cc \
 	csv_lease_file4_unittest.cc csv_lease_file6_unittest.cc \
 	d2_client_unittest.cc d2_udp_unittest.cc daemon_unittest.cc \
@@ -181,10 +184,11 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 	ncr_generator_unittest.cc pgsql_exchange_unittest.cc \
 	pgsql_host_data_source_unittest.cc pgsql_lease_mgr_unittest.cc \
 	cql_lease_mgr_unittest.cc pool_unittest.cc \
-	srv_config_unittest.cc subnet_unittest.cc \
-	test_get_callout_handle.cc test_get_callout_handle.h \
-	triplet_unittest.cc test_utils.cc test_utils.h \
-	timer_mgr_unittest.cc
+	shared_network_parser_unittest.cc shared_network_unittest.cc \
+	shared_networks_list_parser_unittest.cc srv_config_unittest.cc \
+	subnet_unittest.cc test_get_callout_handle.cc \
+	test_get_callout_handle.h triplet_unittest.cc test_utils.cc \
+	test_utils.h timer_mgr_unittest.cc
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@am__objects_1 = libdhcpsrv_unittests-mysql_lease_mgr_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@	libdhcpsrv_unittests-mysql_host_data_source_unittest.$(OBJEXT)
 @HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@am__objects_2 = libdhcpsrv_unittests-pgsql_exchange_unittest.$(OBJEXT) \
@@ -210,6 +214,8 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_option_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_option_def_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_rsoo_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_shared_networks4_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_shared_networks6_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_subnets4_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfg_subnets6_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cfgmgr_unittest.$(OBJEXT) \
@@ -245,6 +251,9 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-ncr_generator_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	$(am__objects_2) $(am__objects_3) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-pool_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-shared_network_parser_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-shared_network_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-shared_networks_list_parser_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-srv_config_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-subnet_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-test_get_callout_handle.$(OBJEXT) \
@@ -657,7 +666,10 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	cfg_mac_source_unittest.cc \
 @HAVE_GTEST_TRUE@	cfg_option_unittest.cc \
 @HAVE_GTEST_TRUE@	cfg_option_def_unittest.cc \
-@HAVE_GTEST_TRUE@	cfg_rsoo_unittest.cc cfg_subnets4_unittest.cc \
+@HAVE_GTEST_TRUE@	cfg_rsoo_unittest.cc \
+@HAVE_GTEST_TRUE@	cfg_shared_networks4_unittest.cc \
+@HAVE_GTEST_TRUE@	cfg_shared_networks6_unittest.cc \
+@HAVE_GTEST_TRUE@	cfg_subnets4_unittest.cc \
 @HAVE_GTEST_TRUE@	cfg_subnets6_unittest.cc cfgmgr_unittest.cc \
 @HAVE_GTEST_TRUE@	client_class_def_unittest.cc \
 @HAVE_GTEST_TRUE@	client_class_def_parser_unittest.cc \
@@ -688,6 +700,9 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	dhcp_parsers_unittest.cc $(am__append_2) \
 @HAVE_GTEST_TRUE@	ncr_generator_unittest.cc $(am__append_3) \
 @HAVE_GTEST_TRUE@	$(am__append_4) pool_unittest.cc \
+@HAVE_GTEST_TRUE@	shared_network_parser_unittest.cc \
+@HAVE_GTEST_TRUE@	shared_network_unittest.cc \
+@HAVE_GTEST_TRUE@	shared_networks_list_parser_unittest.cc \
 @HAVE_GTEST_TRUE@	srv_config_unittest.cc subnet_unittest.cc \
 @HAVE_GTEST_TRUE@	test_get_callout_handle.cc \
 @HAVE_GTEST_TRUE@	test_get_callout_handle.h triplet_unittest.cc \
@@ -818,6 +833,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_option_def_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_option_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_rsoo_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_subnets4_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfg_subnets6_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfgmgr_unittest.Po@am__quote@
@@ -858,6 +875,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-pgsql_lease_mgr_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-pool_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-run_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-srv_config_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-subnet_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-test_get_callout_handle.Po@am__quote@
@@ -1158,6 +1178,34 @@ libdhcpsrv_unittests-cfg_rsoo_unittest.obj: cfg_rsoo_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cfg_rsoo_unittest.cc' object='libdhcpsrv_unittests-cfg_rsoo_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cfg_rsoo_unittest.obj `if test -f 'cfg_rsoo_unittest.cc'; then $(CYGPATH_W) 'cfg_rsoo_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cfg_rsoo_unittest.cc'; fi`
+
+libdhcpsrv_unittests-cfg_shared_networks4_unittest.o: cfg_shared_networks4_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cfg_shared_networks4_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Tpo -c -o libdhcpsrv_unittests-cfg_shared_networks4_unittest.o `test -f 'cfg_shared_networks4_unittest.cc' || echo '$(srcdir)/'`cfg_shared_networks4_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cfg_shared_networks4_unittest.cc' object='libdhcpsrv_unittests-cfg_shared_networks4_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cfg_shared_networks4_unittest.o `test -f 'cfg_shared_networks4_unittest.cc' || echo '$(srcdir)/'`cfg_shared_networks4_unittest.cc
+
+libdhcpsrv_unittests-cfg_shared_networks4_unittest.obj: cfg_shared_networks4_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cfg_shared_networks4_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Tpo -c -o libdhcpsrv_unittests-cfg_shared_networks4_unittest.obj `if test -f 'cfg_shared_networks4_unittest.cc'; then $(CYGPATH_W) 'cfg_shared_networks4_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cfg_shared_networks4_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks4_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cfg_shared_networks4_unittest.cc' object='libdhcpsrv_unittests-cfg_shared_networks4_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cfg_shared_networks4_unittest.obj `if test -f 'cfg_shared_networks4_unittest.cc'; then $(CYGPATH_W) 'cfg_shared_networks4_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cfg_shared_networks4_unittest.cc'; fi`
+
+libdhcpsrv_unittests-cfg_shared_networks6_unittest.o: cfg_shared_networks6_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cfg_shared_networks6_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Tpo -c -o libdhcpsrv_unittests-cfg_shared_networks6_unittest.o `test -f 'cfg_shared_networks6_unittest.cc' || echo '$(srcdir)/'`cfg_shared_networks6_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cfg_shared_networks6_unittest.cc' object='libdhcpsrv_unittests-cfg_shared_networks6_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cfg_shared_networks6_unittest.o `test -f 'cfg_shared_networks6_unittest.cc' || echo '$(srcdir)/'`cfg_shared_networks6_unittest.cc
+
+libdhcpsrv_unittests-cfg_shared_networks6_unittest.obj: cfg_shared_networks6_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cfg_shared_networks6_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Tpo -c -o libdhcpsrv_unittests-cfg_shared_networks6_unittest.obj `if test -f 'cfg_shared_networks6_unittest.cc'; then $(CYGPATH_W) 'cfg_shared_networks6_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cfg_shared_networks6_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cfg_shared_networks6_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cfg_shared_networks6_unittest.cc' object='libdhcpsrv_unittests-cfg_shared_networks6_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cfg_shared_networks6_unittest.obj `if test -f 'cfg_shared_networks6_unittest.cc'; then $(CYGPATH_W) 'cfg_shared_networks6_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cfg_shared_networks6_unittest.cc'; fi`
 
 libdhcpsrv_unittests-cfg_subnets4_unittest.o: cfg_subnets4_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cfg_subnets4_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cfg_subnets4_unittest.Tpo -c -o libdhcpsrv_unittests-cfg_subnets4_unittest.o `test -f 'cfg_subnets4_unittest.cc' || echo '$(srcdir)/'`cfg_subnets4_unittest.cc
@@ -1704,6 +1752,48 @@ libdhcpsrv_unittests-pool_unittest.obj: pool_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pool_unittest.cc' object='libdhcpsrv_unittests-pool_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pool_unittest.obj `if test -f 'pool_unittest.cc'; then $(CYGPATH_W) 'pool_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pool_unittest.cc'; fi`
+
+libdhcpsrv_unittests-shared_network_parser_unittest.o: shared_network_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-shared_network_parser_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Tpo -c -o libdhcpsrv_unittests-shared_network_parser_unittest.o `test -f 'shared_network_parser_unittest.cc' || echo '$(srcdir)/'`shared_network_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_network_parser_unittest.cc' object='libdhcpsrv_unittests-shared_network_parser_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-shared_network_parser_unittest.o `test -f 'shared_network_parser_unittest.cc' || echo '$(srcdir)/'`shared_network_parser_unittest.cc
+
+libdhcpsrv_unittests-shared_network_parser_unittest.obj: shared_network_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-shared_network_parser_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Tpo -c -o libdhcpsrv_unittests-shared_network_parser_unittest.obj `if test -f 'shared_network_parser_unittest.cc'; then $(CYGPATH_W) 'shared_network_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_network_parser_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-shared_network_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_network_parser_unittest.cc' object='libdhcpsrv_unittests-shared_network_parser_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-shared_network_parser_unittest.obj `if test -f 'shared_network_parser_unittest.cc'; then $(CYGPATH_W) 'shared_network_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_network_parser_unittest.cc'; fi`
+
+libdhcpsrv_unittests-shared_network_unittest.o: shared_network_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-shared_network_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Tpo -c -o libdhcpsrv_unittests-shared_network_unittest.o `test -f 'shared_network_unittest.cc' || echo '$(srcdir)/'`shared_network_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_network_unittest.cc' object='libdhcpsrv_unittests-shared_network_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-shared_network_unittest.o `test -f 'shared_network_unittest.cc' || echo '$(srcdir)/'`shared_network_unittest.cc
+
+libdhcpsrv_unittests-shared_network_unittest.obj: shared_network_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-shared_network_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Tpo -c -o libdhcpsrv_unittests-shared_network_unittest.obj `if test -f 'shared_network_unittest.cc'; then $(CYGPATH_W) 'shared_network_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_network_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-shared_network_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_network_unittest.cc' object='libdhcpsrv_unittests-shared_network_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-shared_network_unittest.obj `if test -f 'shared_network_unittest.cc'; then $(CYGPATH_W) 'shared_network_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_network_unittest.cc'; fi`
+
+libdhcpsrv_unittests-shared_networks_list_parser_unittest.o: shared_networks_list_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-shared_networks_list_parser_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Tpo -c -o libdhcpsrv_unittests-shared_networks_list_parser_unittest.o `test -f 'shared_networks_list_parser_unittest.cc' || echo '$(srcdir)/'`shared_networks_list_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_networks_list_parser_unittest.cc' object='libdhcpsrv_unittests-shared_networks_list_parser_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-shared_networks_list_parser_unittest.o `test -f 'shared_networks_list_parser_unittest.cc' || echo '$(srcdir)/'`shared_networks_list_parser_unittest.cc
+
+libdhcpsrv_unittests-shared_networks_list_parser_unittest.obj: shared_networks_list_parser_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-shared_networks_list_parser_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Tpo -c -o libdhcpsrv_unittests-shared_networks_list_parser_unittest.obj `if test -f 'shared_networks_list_parser_unittest.cc'; then $(CYGPATH_W) 'shared_networks_list_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_networks_list_parser_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-shared_networks_list_parser_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_networks_list_parser_unittest.cc' object='libdhcpsrv_unittests-shared_networks_list_parser_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-shared_networks_list_parser_unittest.obj `if test -f 'shared_networks_list_parser_unittest.cc'; then $(CYGPATH_W) 'shared_networks_list_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_networks_list_parser_unittest.cc'; fi`
 
 libdhcpsrv_unittests-srv_config_unittest.o: srv_config_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-srv_config_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-srv_config_unittest.Tpo -c -o libdhcpsrv_unittests-srv_config_unittest.o `test -f 'srv_config_unittest.cc' || echo '$(srcdir)/'`srv_config_unittest.cc

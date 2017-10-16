@@ -51,10 +51,10 @@ public:
             test_subnets4_.push_back(subnet);
         }
         // Create IPv6 subnets.
+        IOAddress prefix("2001:db8:1::");
         for (int i = 0; i < TEST_SUBNETS_NUM; ++i) {
             // This is a base prefix. All other prefixes will be created by
             // modifying this one.
-            IOAddress prefix("2001:db8:1::0");
             std::vector<uint8_t> prefix_bytes = prefix.toBytes();
             // Modify 5th byte of the prefix, so 2001:db8:1::0 becomes
             // 2001:db8:2::0 etc.
@@ -239,7 +239,6 @@ TEST_F(SrvConfigTest, summarySubnets) {
     addSubnet6(1);
     EXPECT_EQ("added IPv4 subnets: 2; added IPv6 subnets: 2",
               conf_.getConfigSummary(SrvConfig::CFGSEL_SUBNET));
-
 }
 
 // Verifies that we can get and set the client class dictionary
@@ -437,7 +436,8 @@ TEST_F(SrvConfigTest, unparse) {
 
     std::string defaults = "\"decline-probation-period\": 0,\n";
     defaults += "\"dhcp4o6-port\": 0,\n";
-    defaults += "\"interfaces-config\": { \"interfaces\": [ ] },\n";
+    defaults += "\"interfaces-config\": { \"interfaces\": [ ],\n";
+    defaults += " \"re-detect\": false },\n";
     defaults += "\"option-def\": [ ],\n";
     defaults += "\"option-data\": [ ],\n";
     defaults += "\"expired-leases-processing\": ";
@@ -448,11 +448,13 @@ TEST_F(SrvConfigTest, unparse) {
     defaults += conf.getD2ClientConfig()->toElement()->str() + ",\n";
 
     std::string defaults4 = "\"echo-client-id\": true,\n";
+    defaults4 += "\"shared-networks\": [ ],\n";
     defaults4 += "\"subnet4\": [ ],\n";
     defaults4 += "\"host-reservation-identifiers\": ";
     defaults4 += "[ \"hw-address\", \"duid\", \"circuit-id\", \"client-id\" ],\n";
 
     std::string defaults6 = "\"relay-supplied-options\": [ \"65\" ],\n";
+    defaults6 += "\"shared-networks\": [ ],\n";
     defaults6 += "\"subnet6\": [ ],\n";
     defaults6 += "\"server-id\": ";
     defaults6 += conf.getCfgDUID()->toElement()->str() + ",\n";
