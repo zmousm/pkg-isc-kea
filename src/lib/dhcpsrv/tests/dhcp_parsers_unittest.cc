@@ -18,6 +18,7 @@
 #include <dhcpsrv/subnet.h>
 #include <dhcpsrv/cfg_mac_source.h>
 #include <dhcpsrv/parsers/dhcp_parsers.h>
+#include <dhcpsrv/parsers/option_data_parser.h>
 #include <dhcpsrv/tests/test_libraries.h>
 #include <dhcpsrv/testutils/config_result_check.h>
 #include <exceptions/exceptions.h>
@@ -192,7 +193,7 @@ TEST_F(DhcpParserTest, uint32ParserTest) {
     Uint32StoragePtr storage(new Uint32Storage());
     Uint32Parser parser(name, storage);
 
-    // Verify that parser with rejects a non-interger element.
+    // Verify that parser with rejects a non-integer element.
     ElementPtr wrong_element = Element::create("I am a string");
     EXPECT_THROW(parser.build(wrong_element), isc::BadValue);
 
@@ -451,7 +452,7 @@ public:
         // Set global defaults first.
         cnt = SimpleParser::setDefaults(global, global_defaults);
 
-        // Now set option defintion defaults for each specified option definition
+        // Now set option definition defaults for each specified option definition
         ConstElementPtr option_defs = global->get("option-def");
         if (option_defs) {
             BOOST_FOREACH(ElementPtr single_def, option_defs->listValue()) {
@@ -520,7 +521,7 @@ public:
     /// and parse them.
     /// @param config is the configuration string to parse
     ///
-    /// @return retuns 0 if the configuration parsed successfully,
+    /// @return returns 0 if the configuration parsed successfully,
     /// non-zero otherwise failure.
     int parseConfiguration(const std::string& config, bool v6 = false) {
         int rcode_ = 1;
@@ -621,13 +622,15 @@ const SimpleDefaults ParseConfigTest::OPTION4_DEF_DEFAULTS = {
 /// This table defines default values for options in DHCPv6
 const SimpleDefaults ParseConfigTest::OPTION6_DEFAULTS = {
     { "space",        Element::string,  "dhcp6"},
-    { "csv-format",   Element::boolean, "true"}
+    { "csv-format",   Element::boolean, "true"},
+    { "always-send",  Element::boolean,"false"}
 };
 
 /// This table defines default values for options in DHCPv4
 const SimpleDefaults ParseConfigTest::OPTION4_DEFAULTS = {
     { "space",        Element::string,  "dhcp4"},
-    { "csv-format",   Element::boolean, "true"}
+    { "csv-format",   Element::boolean, "true"},
+    { "always-send",  Element::boolean, "false"}
 };
 
 /// This table defines default values for both DHCPv4 and DHCPv6
@@ -861,7 +864,8 @@ TEST_F(ParseConfigTest, basicOptionDataTest) {
         "    \"space\": \"isc\","
         "    \"code\": 100,"
         "    \"data\": \"192.0.2.0\","
-        "    \"csv-format\": true"
+        "    \"csv-format\": true,"
+        "    \"always-send\": false"
         " } ]"
         "}";
 
@@ -1242,7 +1246,7 @@ TEST_F(ParseConfigTest, optionDataMinimal) {
 
 // This test verifies that the option data configuration with a minimal
 // set of parameters works as expected when option definition is
-// created in the configruation file.
+// created in the configuration file.
 TEST_F(ParseConfigTest, optionDataMinimalWithOptionDef) {
     // Configuration string.
     std::string config =
@@ -1338,10 +1342,17 @@ TEST_F(ParseConfigTest, emptyOptionData) {
 }
 
 // This test verifies an option data without suboptions is supported
-TEST_F(ParseConfigTest, optionDataNoSubOpion) {
-    // Configuration string.
+TEST_F(ParseConfigTest, optionDataNoSubOption) {
+    // Configuration string. A global definition for option 43 is needed.
     const std::string config =
-        "{ \"option-data\": [ {"
+        "{ \"option-def\": [ {"
+        " \"name\": \"vendor-encapsulated-options\","
+        " \"code\": 43,"
+        " \"type\": \"empty\","
+        " \"space\": \"dhcp4\","
+        " \"encapsulate\": \"vendor-encapsulated-options\""
+        " } ],"
+        " \"option-data\": [ {"
         "    \"name\": \"vendor-encapsulated-options\""
         " } ]"
         "}";
@@ -1585,7 +1596,7 @@ TEST_F(ParseConfigTest, reconfigureSameHooksLibraries) {
     ASSERT_TRUE(rcode == 0) << error_text_;
 
     // The list has not changed between the two parse operations. However,
-    // the paramters (or the files they could point to) could have
+    // the parameters (or the files they could point to) could have
     // changed, so the libraries are reloaded anyway.
     const HooksConfig& cfg2 =
         CfgMgr::instance().getStagingCfg()->getHooksConfig();
@@ -2268,7 +2279,7 @@ TEST_F(ParseConfigTest, validRelayInfo4) {
     ElementPtr json = Element::fromJSON(config_str);
 
     // We need to set the default ip-address to something.
-    Subnet::RelayInfoPtr result(new Subnet::RelayInfo(asiolink::IOAddress("0.0.0.0")));
+    Network::RelayInfoPtr result(new Network::RelayInfo(asiolink::IOAddress("0.0.0.0")));
 
     RelayInfoParser parser(Option::V4);
 
@@ -2301,7 +2312,7 @@ TEST_F(ParseConfigTest, bogusRelayInfo4) {
     ElementPtr json_bogus3 = Element::fromJSON(config_str_bogus3);
 
     // We need to set the default ip-address to something.
-    Subnet::RelayInfoPtr result(new Subnet::RelayInfo(IOAddress::IPV4_ZERO_ADDRESS()));
+    Network::RelayInfoPtr result(new Network::RelayInfo(IOAddress::IPV4_ZERO_ADDRESS()));
 
     RelayInfoParser parser(Option::V4);
 
@@ -2326,7 +2337,7 @@ TEST_F(ParseConfigTest, validRelayInfo6) {
     ElementPtr json = Element::fromJSON(config_str);
 
     // We need to set the default ip-address to something.
-    Subnet::RelayInfoPtr result(new Subnet::RelayInfo(asiolink::IOAddress("::")));
+    Network::RelayInfoPtr result(new Network::RelayInfo(asiolink::IOAddress("::")));
 
     RelayInfoParser parser(Option::V6);
     // Subnet4 parser will pass :: to the RelayInfoParser
@@ -2358,7 +2369,7 @@ TEST_F(ParseConfigTest, bogusRelayInfo6) {
     ElementPtr json_bogus3 = Element::fromJSON(config_str_bogus3);
 
     // We need to set the default ip-address to something.
-    Subnet::RelayInfoPtr result(new Subnet::RelayInfo(asiolink::IOAddress("::")));
+    Network::RelayInfoPtr result(new Network::RelayInfo(asiolink::IOAddress("::")));
 
     RelayInfoParser parser(Option::V6);
 

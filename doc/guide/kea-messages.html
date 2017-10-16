@@ -1,10 +1,10 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kea Messages Manual</title><link rel="stylesheet" type="text/css" href="kea-guide.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><meta name="description" content="This is the messages manual for Kea version 1.2.0. The most up-to-date version of this document, along with other documents for Kea, can be found at ."></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book"><div class="titlepage"><div><div><h1 class="title"><a name="idm6298672"></a>Kea Messages Manual</h1></div><div><p class="releaseinfo">This is the messages manual for Kea version
-        1.2.0.</p></div><div><p class="copyright">Copyright © 2011-2017 Internet Systems Consortium, Inc.</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
-        This is the messages manual for Kea version 1.2.0.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kea Messages Manual</title><link rel="stylesheet" type="text/css" href="kea-guide.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><meta name="description" content="This is the messages manual for Kea version 1.3.0-beta. The most up-to-date version of this document, along with other documents for Kea, can be found at ."></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book"><div class="titlepage"><div><div><h1 class="title"><a name="idm6306096"></a>Kea Messages Manual</h1></div><div><p class="releaseinfo">This is the messages manual for Kea version
+        1.3.0-beta.</p></div><div><p class="copyright">Copyright © 2011-2017 Internet Systems Consortium, Inc.</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+        This is the messages manual for Kea version 1.3.0-beta.
             The most up-to-date version of this document, along with
             other documents for Kea, can be found at
         <a class="ulink" href="http://kea.isc.org/docs" target="_top">http://kea.isc.org/docs</a>.
-      </p></div></div></div><hr></div><div class="toc"><dl class="toc"><dt><span class="chapter"><a href="#intro">1. Introduction</a></span></dt><dt><span class="chapter"><a href="#messages">2. Kea Log Messages</a></span></dt><dd><dl><dt><span class="section"><a href="#ALLOC">ALLOC Module</a></span></dt><dt><span class="section"><a href="#ASIODNS">ASIODNS Module</a></span></dt><dt><span class="section"><a href="#COMMAND">COMMAND Module</a></span></dt><dt><span class="section"><a href="#CTRL">CTRL Module</a></span></dt><dt><span class="section"><a href="#DCTL">DCTL Module</a></span></dt><dt><span class="section"><a href="#DHCP4">DHCP4 Module</a></span></dt><dt><span class="section"><a href="#DHCP6">DHCP6 Module</a></span></dt><dt><span class="section"><a href="#DHCPRSV">DHCPRSV Module</a></span></dt><dt><span class="section"><a href="#DHCPSRV">DHCPSRV Module</a></span></dt><dt><span class="section"><a href="#DHCP">DHCP Module</a></span></dt><dt><span class="section"><a href="#EVAL">EVAL Module</a></span></dt><dt><span class="section"><a href="#HOOKS">HOOKS Module</a></span></dt><dt><span class="section"><a href="#HOSTS">HOSTS Module</a></span></dt><dt><span class="section"><a href="#HTTP">HTTP Module</a></span></dt><dt><span class="section"><a href="#LFC">LFC Module</a></span></dt><dt><span class="section"><a href="#LOGIMPL">LOGIMPL Module</a></span></dt><dt><span class="section"><a href="#LOG">LOG Module</a></span></dt><dt><span class="section"><a href="#USER">USER Module</a></span></dt></dl></dd></dl></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="intro"></a>Chapter 1. Introduction</h1></div></div></div><p>
+      </p></div></div></div><hr></div><div class="toc"><dl class="toc"><dt><span class="chapter"><a href="#intro">1. Introduction</a></span></dt><dt><span class="chapter"><a href="#messages">2. Kea Log Messages</a></span></dt><dd><dl><dt><span class="section"><a href="#ALLOC">ALLOC Module</a></span></dt><dt><span class="section"><a href="#ASIODNS">ASIODNS Module</a></span></dt><dt><span class="section"><a href="#COMMAND">COMMAND Module</a></span></dt><dt><span class="section"><a href="#CTRL">CTRL Module</a></span></dt><dt><span class="section"><a href="#DCTL">DCTL Module</a></span></dt><dt><span class="section"><a href="#DHCP4">DHCP4 Module</a></span></dt><dt><span class="section"><a href="#DHCP6">DHCP6 Module</a></span></dt><dt><span class="section"><a href="#DHCPSRV">DHCPSRV Module</a></span></dt><dt><span class="section"><a href="#DHCP">DHCP Module</a></span></dt><dt><span class="section"><a href="#EVAL">EVAL Module</a></span></dt><dt><span class="section"><a href="#HOOKS">HOOKS Module</a></span></dt><dt><span class="section"><a href="#HOSTS">HOSTS Module</a></span></dt><dt><span class="section"><a href="#HTTP">HTTP Module</a></span></dt><dt><span class="section"><a href="#LEASE">LEASE Module</a></span></dt><dt><span class="section"><a href="#LFC">LFC Module</a></span></dt><dt><span class="section"><a href="#LOGIMPL">LOGIMPL Module</a></span></dt><dt><span class="section"><a href="#LOG">LOG Module</a></span></dt><dt><span class="section"><a href="#USER">USER Module</a></span></dt></dl></dd></dl></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="intro"></a>Chapter 1. Introduction</h1></div></div></div><p>
       This document lists each message that can be logged by the
       programs in the Kea package.  Each entry in this manual
       is of the form:
@@ -32,6 +32,11 @@ the lease reclamation routine acts upon expired leases. If a lease being
 reclaimed has a corresponding DNS entry it needs to be removed.
 This message indicates that removal of the DNS entry has failed.
 Nevertheless the lease will be reclaimed.
+</p></dd><dt><a name="ALLOC_ENGINE_RESERVATIONS_SKIPPED"></a><span class="term">ALLOC_ENGINE_RESERVATIONS_SKIPPED %1 not using reservations in subnet %2 because client's classes do not match</span></dt><dd><p>
+This debug message is issued when the allocation engine will not use host
+reservations in a given subnet because this subnet is not allowed for
+the given client due to client classification. The first argument includes
+client identification information. The second argument identifies a subnet.
 </p></dd><dt><a name="ALLOC_ENGINE_V4_ALLOC_ERROR"></a><span class="term">ALLOC_ENGINE_V4_ALLOC_ERROR %1: error during attempt to allocate an IPv4 address: %2</span></dt><dd><p>
 An error occurred during an attempt to allocate an IPv4 address, the
 reason for the failure being contained in the message.  The server will
@@ -555,12 +560,6 @@ open and this command is issued, the daemon will not be able to process it.
 This debug message indicates that the daemon started supporting specified
 command. The handler for the registered command includes a parameter holding
 entire command to be processed.
-</p></dd><dt><a name="COMMAND_HOOK_RECEIVE_SKIP"></a><span class="term">COMMAND_HOOK_RECEIVE_SKIP command %1 has been handled by the hook library which returned the skip state</span></dt><dd><p>
-This debug message is issued when a hook library has processed the control
-command and returned the skip status. The callout should have set the
-'response' argument which contains the result of processing the command.
-The Command Manager skips processing of this command and simply returns
-the response generated by the hook library.
 </p></dd><dt><a name="COMMAND_PROCESS_ERROR1"></a><span class="term">COMMAND_PROCESS_ERROR1 Error while processing command: %1</span></dt><dd><p>
 This warning message indicates that the server encountered an error while
 processing received command. Additional information will be provided, if
@@ -587,47 +586,42 @@ ones.
 This error indicates that the server detected incoming connection and executed
 accept system call on said socket, but this call returned an error. Additional
 information may be provided by the system as second parameter.
+</p></dd><dt><a name="COMMAND_SOCKET_CLOSED_BY_FOREIGN_HOST"></a><span class="term">COMMAND_SOCKET_CLOSED_BY_FOREIGN_HOST Closed command socket %1 by foreign host</span></dt><dd><p>
+This is an information message indicating that the command connection has been
+closed by a command control client.
+</p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_CANCEL_FAIL"></a><span class="term">COMMAND_SOCKET_CONNECTION_CANCEL_FAIL Failed to cancel read operation on socket %1: %2</span></dt><dd><p>
+This error message is issued to indicate an error to cancel asynchronous read
+of the control command over the control socket. The cancel operation is performed
+when the timeout occurs during communication with a client. The error message
+includes details about the reason for failure.
 </p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_CLOSED"></a><span class="term">COMMAND_SOCKET_CONNECTION_CLOSED Closed socket %1 for existing command connection</span></dt><dd><p>
 This is an informational message that the socket created for handling
 client's connection is closed. This usually means that the client disconnected,
 but may also mean a timeout.
-</p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_OPENED"></a><span class="term">COMMAND_SOCKET_CONNECTION_OPENED Opened socket %1 for incoming command connection on socket %2</span></dt><dd><p>
+</p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_CLOSE_FAIL"></a><span class="term">COMMAND_SOCKET_CONNECTION_CLOSE_FAIL Failed to close command connection: %1</span></dt><dd><p>
+This error message is issued when an error occurred when closing a
+command connection and/or removing it from the connections pool. The
+detailed error is provided as an argument.
+</p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_OPENED"></a><span class="term">COMMAND_SOCKET_CONNECTION_OPENED Opened socket %1 for incoming command connection</span></dt><dd><p>
 This is an informational message that a new incoming command connection was
 detected and a dedicated socket was opened for that connection.
-</p></dd><dt><a name="COMMAND_SOCKET_DUP_WARN"></a><span class="term">COMMAND_SOCKET_DUP_WARN Failed to duplicate socket for response: %1</span></dt><dd><p>
-This debug message indicates that the commandReader was unable to duplicate
-the connection socket prior to executing the command. This is most likely a
-system resource issue.  The command should still be processed and the response
-sent, unless the command caused the command channel to be closed (e.g. a
-reconfiguration command).
-</p></dd><dt><a name="COMMAND_SOCKET_FAIL_NONBLOCK"></a><span class="term">COMMAND_SOCKET_FAIL_NONBLOCK Failed to set non-blocking mode for socket %1 created for incoming connection on socket %2: %3</span></dt><dd><p>
-This error message indicates that the server failed to set non-blocking mode
-on just created socket. That socket was created for accepting specific
-incoming connection. Additional information may be provided as third parameter.
+</p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_SHUTDOWN_FAIL"></a><span class="term">COMMAND_SOCKET_CONNECTION_SHUTDOWN_FAIL Encountered error %1 while trying to gracefully shutdown socket</span></dt><dd><p>
+This message indicates an error while trying to gracefully shutdown command
+connection. The type of the error is included in the message.
+</p></dd><dt><a name="COMMAND_SOCKET_CONNECTION_TIMEOUT"></a><span class="term">COMMAND_SOCKET_CONNECTION_TIMEOUT Timeout occurred for connection over socket %1</span></dt><dd><p>
+This is an informational message that indicates that the timeout has
+occurred for one of the command channel connections. The response
+sent by the server indicates a timeout and is then closed.
 </p></dd><dt><a name="COMMAND_SOCKET_READ"></a><span class="term">COMMAND_SOCKET_READ Received %1 bytes over command socket %2</span></dt><dd><p>
 This debug message indicates that specified number of bytes was received
 over command socket identified by specified file descriptor.
 </p></dd><dt><a name="COMMAND_SOCKET_READ_FAIL"></a><span class="term">COMMAND_SOCKET_READ_FAIL Encountered error %1 while reading from command socket %2</span></dt><dd><p>
 This error message indicates that an error was encountered while
 reading from command socket.
-</p></dd><dt><a name="COMMAND_SOCKET_RESPONSE_TOOLARGE"></a><span class="term">COMMAND_SOCKET_RESPONSE_TOOLARGE Server's response was larger (%1) than supported 64KB</span></dt><dd><p>
-This error message indicates that the server received a command and generated
-an answer for it, but that response was larger than supported 64KB. Server
-will attempt to send the first 64KB of the response. Depending on the nature
-of this response, this may indicate a software or configuration error. Future
-Kea versions are expected to have better support for large responses.
-</p></dd><dt><a name="COMMAND_SOCKET_UNIX_CLOSE"></a><span class="term">COMMAND_SOCKET_UNIX_CLOSE Command socket closed: UNIX, fd=%1, path=%2</span></dt><dd><p>
-This informational message indicates that the daemon closed a command
-processing socket. This was a UNIX socket. It was opened with the file
-descriptor and path specified.
-</p></dd><dt><a name="COMMAND_SOCKET_UNIX_OPEN"></a><span class="term">COMMAND_SOCKET_UNIX_OPEN Command socket opened: UNIX, fd=%1, path=%2</span></dt><dd><p>
-This informational message indicates that the daemon opened a command
-processing socket. This is a UNIX socket. It was opened with the file
-descriptor and path specified.
-</p></dd><dt><a name="COMMAND_SOCKET_WRITE"></a><span class="term">COMMAND_SOCKET_WRITE Sent response of %1 bytes over command socket %2</span></dt><dd><p>
+</p></dd><dt><a name="COMMAND_SOCKET_WRITE"></a><span class="term">COMMAND_SOCKET_WRITE Sent response of %1 bytes (%2 bytes left to send) over command socket %3</span></dt><dd><p>
 This debug message indicates that the specified number of bytes was sent
 over command socket identifier by the specified file descriptor.
-</p></dd><dt><a name="COMMAND_SOCKET_WRITE_FAIL"></a><span class="term">COMMAND_SOCKET_WRITE_FAIL Error while writing %1 bytes to command socket %2 : %3</span></dt><dd><p>
+</p></dd><dt><a name="COMMAND_SOCKET_WRITE_FAIL"></a><span class="term">COMMAND_SOCKET_WRITE_FAIL Error while writing to command socket %1 : %2</span></dt><dd><p>
 This error message indicates that an error was encountered while
 attempting to send a response to the command socket.
 </p></dd></dl></div><p>
@@ -642,10 +636,6 @@ received command to one of the Kea servers.
 This debug message is issued when the Control Agent failed forwarding a
 received command to one of the Kea servers. The second argument provides
 the details of the error.
-</p></dd><dt><a name="CTRL_AGENT_COMMAND_PROCESS_SKIP"></a><span class="term">CTRL_AGENT_COMMAND_PROCESS_SKIP command %1 already processed by hooks libraries, skipping</span></dt><dd><p>
-This debug message is issued when the Control Agent skips processing
-received command because it has determined that the hooks libraries
-already processed the command.
 </p></dd><dt><a name="CTRL_AGENT_CONFIG_CHECK_FAIL"></a><span class="term">CTRL_AGENT_CONFIG_CHECK_FAIL Control Agent configuration check failed: %1</span></dt><dd><p>
 This error message indicates that the CA had failed configuration
 check. Details are provided. Additional details may be available
@@ -808,19 +798,6 @@ This debug message is issued when the server starts parsing the received
 buffer holding the DHCPv4 message. The arguments specify the source and
 destination IPv4 addresses as well as the interface over which the buffer has
 been received.
-</p></dd><dt><a name="DHCP4_BUFFER_WAIT"></a><span class="term">DHCP4_BUFFER_WAIT waiting for next DHCPv4 packet with timeout %1 ms</span></dt><dd><p>
-This debug message is issued when the server enters the state when it
-waits for new packets. The argument specifies the timeout for the server
-to wait for the packet. When this time elapses the server will pass
-through its main loop to perform handling of any pending signals
-and timers. After that, it will enter the wait state again.
-</p></dd><dt><a name="DHCP4_BUFFER_WAIT_INTERRUPTED"></a><span class="term">DHCP4_BUFFER_WAIT_INTERRUPTED interrupted wait for the next packet due to timeout, signal or external socket callback (timeout value is %1)</span></dt><dd><p>
-This debug message is issued when the server interrupts waiting
-for reception of the next DHCPv6 message due to timeout, signal
-or reception of the data over socket other than used for DHCPv4
-message transmission. The server will now handle signals
-received and ready timers before waiting for next packets again.
-The argument specifies the timeout value in milliseconds.
 </p></dd><dt><a name="DHCP4_BUFFER_WAIT_SIGNAL"></a><span class="term">DHCP4_BUFFER_WAIT_SIGNAL signal received while waiting for next packet, next waiting signal is %1</span></dt><dd><p>
 This debug message is issued when the server was waiting for the
 packet, but the wait has been interrupted by the signal received
@@ -845,12 +822,10 @@ renewing existing lease. The server is explicitly configured to not use
 client identifier to lookup existing leases for the client and will not
 record client identifier in the lease database. This mode of operation
 is useful when clients don't use stable client identifiers, e.g. multi
-stage booting. Note that the client identifier may be used for other
-operations than lease allocation, e.g. identifying host reservations
-for the client using client identifier. The first argument includes the
-client and transaction identification information. The second argument
-specifies the identifier of the subnet where the client is connected
-and for which this mode of operation is configured on the server.
+stage booting. The first argument includes the client and transaction
+identification information. The second argument specifies the identifier
+of the subnet where the client is connected and for which this mode of
+operation is configured on the server.
 </p></dd><dt><a name="DHCP4_CLIENT_FQDN_DATA"></a><span class="term">DHCP4_CLIENT_FQDN_DATA %1: Client sent FQDN option: %2</span></dt><dd><p>
 This debug message includes the detailed information extracted from the
 Client FQDN option sent in the query. The first argument includes the
@@ -1055,13 +1030,6 @@ lease in response to client's DHCPREQUEST message. The lease information will
 be sent to the client in the DHCPACK message. The first argument contains the
 client and the transaction identification information. The second argument
 contains the allocated IPv4 address.
-</p></dd><dt><a name="DHCP4_NAME_GEN_UPDATE_FAIL"></a><span class="term">DHCP4_NAME_GEN_UPDATE_FAIL %1: failed to update the lease after generating name %2 for a client: %3</span></dt><dd><p>
-This message indicates the failure when trying to update the lease and/or
-options in the server's response with the hostname generated by the server
-from the acquired IPv4 address. The message argument indicates the reason
-for the failure. The first argument includes the client and the transaction
-identification information. The second argument specifies the hostname.
-The third argument contains the error details.
 </p></dd><dt><a name="DHCP4_NCR_CREATE"></a><span class="term">DHCP4_NCR_CREATE %1: DDNS updates enabled, therefore sending name change requests</span></dt><dd><p>
 This debug message is issued when the server is starting to send
 name change requests to the D2 module to update records for the client
@@ -1236,6 +1204,12 @@ the DHCPv4 server failed to create a parser to decode the contents
 of the named configuration element, or the creation succeeded but the
 parsing actions and committal of changes failed.  The reason for the
 failure is given in the message.
+</p></dd><dt><a name="DHCP4_POST_ALLOCATION_NAME_UPDATE_FAIL"></a><span class="term">DHCP4_POST_ALLOCATION_NAME_UPDATE_FAIL %1: failed to update hostname %2 in a lease after address allocation: %3</span></dt><dd><p>
+This message indicates the failure when trying to update the lease and/or
+options in the server's response with the hostname generated by the server
+or reserved for the client belonging to a shared network. The latter is
+the case when the server dynamically switches to another subnet (than
+initially selected for allocation) from the same shared network.
 </p></dd><dt><a name="DHCP4_QUERY_DATA"></a><span class="term">DHCP4_QUERY_DATA %1, packet details: %2</span></dt><dd><p>
 A debug message printing the details of the received packet. The first
 argument includes the client and the transaction identification
@@ -1400,19 +1374,6 @@ This debug message is issued when the server starts parsing the received
 buffer holding the DHCPv6 message. The arguments specify the source and
 destination addresses as well as the interface over which the buffer has
 been received.
-</p></dd><dt><a name="DHCP6_BUFFER_WAIT"></a><span class="term">DHCP6_BUFFER_WAIT waiting for next DHCPv6 packet with timeout %1 ms</span></dt><dd><p>
-This debug message is issued when the server enters the state when it
-waits for new packets. The argument specifies the timeout for the server
-to wait for the packet. When this time elapses the server will pass
-through its main loop to perform handling of any pending signals
-and timers. After that, it will enter the wait state again.
-</p></dd><dt><a name="DHCP6_BUFFER_WAIT_INTERRUPTED"></a><span class="term">DHCP6_BUFFER_WAIT_INTERRUPTED interrupted wait for the next packet due to timeout, signal or external socket callback (timeout value is %1)</span></dt><dd><p>
-This debug message is issued when the server interrupts waiting
-for reception of the next DHCPv6 message due to timeout, signal
-or reception of the data over socket other than used for DHCPv6
-message transmission. The server will now handle signals
-received and ready timers before waiting for next packets again.
-The argument specifies the timeout value in milliseconds.
 </p></dd><dt><a name="DHCP6_BUFFER_WAIT_SIGNAL"></a><span class="term">DHCP6_BUFFER_WAIT_SIGNAL signal received while waiting for next packet, next waiting signal is %1</span></dt><dd><p>
 This debug message is issued when the server was waiting for the
 packet, but the wait has been interrupted by the signal received
@@ -1443,13 +1404,6 @@ This error message indicates that the DHCPv6 configuration has failed.
 If this is an initial configuration (during server's startup) the server
 will fail to start. If this is a dynamic reconfiguration attempt the
 server will continue to use an old configuration.
-</p></dd><dt><a name="DHCP6_CONFIG_NEW_SUBNET"></a><span class="term">DHCP6_CONFIG_NEW_SUBNET a new subnet has been added to configuration: %1</span></dt><dd><p>
-This is an informational message reporting that the configuration has
-been extended to include the specified subnet.
-</p></dd><dt><a name="DHCP6_CONFIG_OPTION_DUPLICATE"></a><span class="term">DHCP6_CONFIG_OPTION_DUPLICATE multiple options with the code: %1 added to the subnet: %2</span></dt><dd><p>
-This warning message is issued on an attempt to configure multiple options with the
-same option code for the particular subnet. Adding multiple options is uncommon
-for DHCPv6, but it is not prohibited.
 </p></dd><dt><a name="DHCP6_CONFIG_RECEIVED"></a><span class="term">DHCP6_CONFIG_RECEIVED received configuration: %1</span></dt><dd><p>
 A debug message listing the configuration received by the DHCPv6 server.
 The source of that configuration depends on used configuration backend.
@@ -1579,7 +1533,7 @@ DHCP server failed.
 </p></dd><dt><a name="DHCP6_FLEX_ID"></a><span class="term">DHCP6_FLEX_ID flexible identifier generated for incoming packet: %1</span></dt><dd><p>
 This debug message is printed when host reservation type is set to flexible identifier
 and the expression specified in its configuration generated (was evaluated to)
-an indetifier for incoming packet. This debug message is mainly intended as a
+an identifier for incoming packet. This debug message is mainly intended as a
 debugging assistance for flexible identifier.
 </p></dd><dt><a name="DHCP6_HANDLE_SIGNAL_EXCEPTION"></a><span class="term">DHCP6_HANDLE_SIGNAL_EXCEPTION An exception was thrown while handing signal: %1</span></dt><dd><p>
 This error message is printed when an exception was raised during signal
@@ -2012,14 +1966,6 @@ use it to extend their leases. As a result, they will have to go through
 a rebinding phase to re-acquire their leases and associate them with a
 new server id.
 </p></dd></dl></div><p>
-    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="DHCPRSV"></a>DHCPRSV Module</h2></div></div></div><p>
-      </p><div class="variablelist"><dl class="variablelist"><dt><a name="DHCPRSV_MEMFILE_CONVERTING_LEASE_FILES"></a><span class="term">DHCPRSV_MEMFILE_CONVERTING_LEASE_FILES running LFC now to convert lease files to the current schema: %1.%2</span></dt><dd><p>
-A warning message issued when the server has detected lease files that need
-to be either upgraded or downgraded to match the server's schema, and that
-the server is automatically running the LFC process to perform the conversion.
-This should only occur the first time the server is launched following a Kea
-installation upgrade (or downgrade).
-</p></dd></dl></div><p>
     </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="DHCPSRV"></a>DHCPSRV Module</h2></div></div></div><p>
       </p><div class="variablelist"><dl class="variablelist"><dt><a name="DHCPSRV_CFGMGR_ADD_IFACE"></a><span class="term">DHCPSRV_CFGMGR_ADD_IFACE listening on interface %1</span></dt><dd><p>
 An info message issued when a new interface is being added to the collection of
@@ -2052,6 +1998,17 @@ identifier. It is recommended to not modify the server identifier, unless
 there is a good reason for it, to avoid increased number of renewals and
 a need for rebinding (increase of multicast traffic, which may be received
 by multiple servers).
+</p></dd><dt><a name="DHCPSRV_CFGMGR_DEL_SUBNET4"></a><span class="term">DHCPSRV_CFGMGR_DEL_SUBNET4 IPv4 subnet %1 removed</span></dt><dd><p>
+This debug message is issued when a subnet is successfully removed from the
+server configuration. The argument identifies the subnet removed.
+</p></dd><dt><a name="DHCPSRV_CFGMGR_DEL_SUBNET6"></a><span class="term">DHCPSRV_CFGMGR_DEL_SUBNET6 IPv6 subnet %1 removed</span></dt><dd><p>
+This debug message is issued when a subnet is successfully removed from the
+</p></dd><dt><a name="DHCPSRV_CFGMGR_NEW_SUBNET4"></a><span class="term">DHCPSRV_CFGMGR_NEW_SUBNET4 a new subnet has been added to configuration: %1</span></dt><dd><p>
+This is an informational message reporting that the configuration has
+been extended to include the specified IPv4 subnet.
+</p></dd><dt><a name="DHCPSRV_CFGMGR_NEW_SUBNET6"></a><span class="term">DHCPSRV_CFGMGR_NEW_SUBNET6 a new subnet has been added to configuration: %1</span></dt><dd><p>
+This is an informational message reporting that the configuration has
+been extended to include the specified subnet.
 </p></dd><dt><a name="DHCPSRV_CFGMGR_NO_SUBNET4"></a><span class="term">DHCPSRV_CFGMGR_NO_SUBNET4 no suitable subnet is defined for address hint %1</span></dt><dd><p>
 This debug message is output when the DHCP configuration manager has received
 a request for an IPv4 subnet for the specified address, but no such
@@ -2068,6 +2025,10 @@ because it is the only subnet defined.
 This is a debug message reporting that the DHCP configuration manager has
 returned the specified IPv6 subnet when given the address hint specified
 because it is the only subnet defined.
+</p></dd><dt><a name="DHCPSRV_CFGMGR_OPTION_DUPLICATE"></a><span class="term">DHCPSRV_CFGMGR_OPTION_DUPLICATE multiple options with the code: %1 added to the subnet: %2</span></dt><dd><p>
+This warning message is issued on an attempt to configure multiple options with the
+same option code for the particular subnet. Adding multiple options is uncommon
+for DHCPv6, but it is not prohibited.
 </p></dd><dt><a name="DHCPSRV_CFGMGR_SOCKET_RAW_UNSUPPORTED"></a><span class="term">DHCPSRV_CFGMGR_SOCKET_RAW_UNSUPPORTED use of raw sockets is unsupported on this OS, UDP sockets will be used</span></dt><dd><p>
 This warning message is logged when the user specified that the
 DHCPv4 server should use the raw sockets to receive the DHCP
@@ -2308,6 +2269,12 @@ with the specified address to the memory file backend database.
 </p></dd><dt><a name="DHCPSRV_MEMFILE_COMMIT"></a><span class="term">DHCPSRV_MEMFILE_COMMIT committing to memory file database</span></dt><dd><p>
 The code has issued a commit call.  For the memory file database, this is
 a no-op.
+</p></dd><dt><a name="DHCPSRV_MEMFILE_CONVERTING_LEASE_FILES"></a><span class="term">DHCPSRV_MEMFILE_CONVERTING_LEASE_FILES running LFC now to convert lease files to the current schema: %1.%2</span></dt><dd><p>
+A warning message issued when the server has detected lease files that need
+to be either upgraded or downgraded to match the server's schema, and that
+the server is automatically running the LFC process to perform the conversion.
+This should only occur the first time the server is launched following a Kea
+installation upgrade (or downgrade).
 </p></dd><dt><a name="DHCPSRV_MEMFILE_DB"></a><span class="term">DHCPSRV_MEMFILE_DB opening memory file lease database: %1</span></dt><dd><p>
 This informational message is logged when a DHCP server (either V4 or
 V6) is about to open a memory file lease database.  The parameters of
@@ -2453,6 +2420,22 @@ lease from the memory file database for the specified address.
 </p></dd><dt><a name="DHCPSRV_MEMFILE_UPDATE_ADDR6"></a><span class="term">DHCPSRV_MEMFILE_UPDATE_ADDR6 updating IPv6 lease for address %1</span></dt><dd><p>
 A debug message issued when the server is attempting to update IPv6
 lease from the memory file database for the specified address.
+</p></dd><dt><a name="DHCPSRV_MEMFILE_WIPE_LEASES4"></a><span class="term">DHCPSRV_MEMFILE_WIPE_LEASES4 removing all IPv4 leases from subnet %1</span></dt><dd><p>
+This informational message is printed when removal of all leases from
+specified IPv4 subnet is commencing. This is a result of receiving administrative
+command.
+</p></dd><dt><a name="DHCPSRV_MEMFILE_WIPE_LEASES4_FINISHED"></a><span class="term">DHCPSRV_MEMFILE_WIPE_LEASES4_FINISHED removing all IPv4 leases from subnet %1 finished, removed %2 leases</span></dt><dd><p>
+This informational message is printed when removal of all leases from
+a specified IPv4 subnet has finished. The number of removed leases is
+printed.
+</p></dd><dt><a name="DHCPSRV_MEMFILE_WIPE_LEASES6"></a><span class="term">DHCPSRV_MEMFILE_WIPE_LEASES6 removing all IPv6 leases from subnet %1</span></dt><dd><p>
+This informational message is printed when removal of all leases from
+specified IPv6 subnet is commencing. This is a result of receiving administrative
+command.
+</p></dd><dt><a name="DHCPSRV_MEMFILE_WIPE_LEASES6_FINISHED"></a><span class="term">DHCPSRV_MEMFILE_WIPE_LEASES6_FINISHED removing all IPv6 leases from subnet %1 finished, removed %2 leases</span></dt><dd><p>
+This informational message is printed when removal of all leases from
+a specified IPv6 subnet has finished. The number of removed leases is
+printed.
 </p></dd><dt><a name="DHCPSRV_MULTIPLE_RAW_SOCKETS_PER_IFACE"></a><span class="term">DHCPSRV_MULTIPLE_RAW_SOCKETS_PER_IFACE current configuration will result in opening multiple broadcast capable sockets on some interfaces and some DHCP messages may be duplicated</span></dt><dd><p>
 A warning message issued when the current configuration indicates that multiple
 sockets, capable of receiving broadcast traffic, will be opened on some of the
@@ -2553,7 +2536,7 @@ assign them to the clients communicating with the server.
 The code has issued a rollback call.  All outstanding transaction will
 be rolled back and not committed to the database.
 </p></dd><dt><a name="DHCPSRV_MYSQL_START_TRANSACTION"></a><span class="term">DHCPSRV_MYSQL_START_TRANSACTION starting new MySQL transaction</span></dt><dd><p>
-A debug message issued whena new MySQL transaction is being started.
+A debug message issued when a new MySQL transaction is being started.
 This message is typically not issued when inserting data into a
 single table because the server doesn't explicitly start
 transactions in this case. This message is issued when data is
@@ -2693,13 +2676,13 @@ a DNS entries for a particular lease has been queued. The first argument
 includes the client identification information. The second argument
 indicates whether the DNS entry is to be added or removed. The third
 argument carries the details of the NameChangeRequest.
-</p></dd><dt><a name="DHCPSRV_QUEUE_NCR_FAILED"></a><span class="term">DHCPSRV_QUEUE_NCR_FAILED %1: queueing %2 name change request failed for lease %3: %4</span></dt><dd><p>
+</p></dd><dt><a name="DHCPSRV_QUEUE_NCR_FAILED"></a><span class="term">DHCPSRV_QUEUE_NCR_FAILED %1: queuing %2 name change request failed for lease %3: %4</span></dt><dd><p>
 This error message is logged when sending a name change request
 to DHCP DDNS failed. The first argument includes the client identification
 information. The second argument indicates whether the DNS entry is to be
 added or removed. The third argument specifies the leased address. The
 last argument provides the reason for failure.
-</p></dd><dt><a name="DHCPSRV_QUEUE_NCR_SKIP"></a><span class="term">DHCPSRV_QUEUE_NCR_SKIP %1: skip queueing name change request for lease: %2</span></dt><dd><p>
+</p></dd><dt><a name="DHCPSRV_QUEUE_NCR_SKIP"></a><span class="term">DHCPSRV_QUEUE_NCR_SKIP %1: skip queuing name change request for lease: %2</span></dt><dd><p>
 This debug message is issued when the server decides to not queue the name
 change request because the lease doesn't include the FQDN, the forward and
 reverse update is disabled for this lease or the DNS updates are disabled
@@ -2722,40 +2705,11 @@ run a periodic operation associated with the given timer.
 An example of such operation is a periodic cleanup of
 expired leases. The name of the timer is included in the
 message.
-</p></dd><dt><a name="DHCPSRV_TIMERMGR_SOCKET_CLEAR_FAILED"></a><span class="term">DHCPSRV_TIMERMGR_SOCKET_CLEAR_FAILED clearing watch socket for timer %1 failed: %2</span></dt><dd><p>
-An error message indicating that the specified timer elapsed,
-the operation associated with the timer was executed but the
-server was unable to signal this to the worker thread responsible
-for dispatching timers. The thread will continue but it will
-not be able to dispatch any operations for this timer. The
-server reconfiguration or restart may solve the problem
-but the situation may repeat.
-</p></dd><dt><a name="DHCPSRV_TIMERMGR_SOCKET_MARK_FAILED"></a><span class="term">DHCPSRV_TIMERMGR_SOCKET_MARK_FAILED marking watch socket for timer %1 failed: %2</span></dt><dd><p>
-An error message indicating that the specified timer elapsed,
-but the server was unable to flag that the handler function
-should be executed for this timer. The callback will not
-be executed this time and most likely the subsequent attempts
-will not be successful too. This error is highly unlikely.
-The name of the timer and the reason for failure is included
-in the message.
-</p></dd><dt><a name="DHCPSRV_TIMERMGR_START_THREAD"></a><span class="term">DHCPSRV_TIMERMGR_START_THREAD starting thread for timers</span></dt><dd><p>
-A debug message issued when the Timer Manager is starting a
-worker thread to run started timers. The worker thread is
-typically started right after all timers have been registered
-and runs until timers need to be reconfigured, e.g. their
-interval is changed, new timers are registered or existing
-timers are unregistered.
 </p></dd><dt><a name="DHCPSRV_TIMERMGR_START_TIMER"></a><span class="term">DHCPSRV_TIMERMGR_START_TIMER starting timer: %1</span></dt><dd><p>
 A debug message issued when the registered interval timer is
 being started. If this operation is successful the timer will
 periodically execute the operation associated with it. The
 name of the started timer is included in the message.
-</p></dd><dt><a name="DHCPSRV_TIMERMGR_STOP_THREAD"></a><span class="term">DHCPSRV_TIMERMGR_STOP_THREAD stopping thread for timers</span></dt><dd><p>
-A debug message issued when the Timer Manager is stopping
-the worker thread which executes interval timers. When the
-thread is stopped no timers will be executed. The thread is
-typically stopped at the server reconfiguration or when the
-server shuts down.
 </p></dd><dt><a name="DHCPSRV_TIMERMGR_STOP_TIMER"></a><span class="term">DHCPSRV_TIMERMGR_STOP_TIMER stopping timer: %1</span></dt><dd><p>
 A debug message issued when the registered interval timer is
 being stopped. The timer remains registered and can be restarted
@@ -3301,7 +3255,7 @@ is issued.  It identifies the hook to which the callout is attached, the
 index of the library (in the list of loaded libraries) that registered
 it and the address of the callout.  The error is otherwise ignored.
 The error message includes the callout execution time in milliseconds.
-</p></dd><dt><a name="HOOKS_CALLOUT_EXCEPTION"></a><span class="term">HOOKS_CALLOUT_EXCEPTION exception thrown by callout on hook %1 registered by library with index %2 (callout address %3): %4 (callout duration: $5)</span></dt><dd><p>
+</p></dd><dt><a name="HOOKS_CALLOUT_EXCEPTION"></a><span class="term">HOOKS_CALLOUT_EXCEPTION exception thrown by callout on hook %1 registered by library with index %2 (callout address %3): %4 (callout duration: %5)</span></dt><dd><p>
 If a callout throws an exception when called, this error message is
 issued.  It identifies the hook to which the callout is attached, the
 index of the library (in the list of loaded libraries) that registered
@@ -3480,7 +3434,7 @@ This debug message includes the details of the host found using the
 specific prefix/prefix length. The arguments specify prefix, prefix
 length and host details respectively.
 </p></dd><dt><a name="HOSTS_CFG_GET_ONE_PREFIX_NULL"></a><span class="term">HOSTS_CFG_GET_ONE_PREFIX_NULL host not found using prefix %1/%2</span></dt><dd><p>
-This debug messsage is issued when no host was found for a specified
+This debug message is issued when no host was found for a specified
 prefix and prefix length.
 </p></dd><dt><a name="HOSTS_CFG_GET_ONE_SUBNET_ID_ADDRESS4"></a><span class="term">HOSTS_CFG_GET_ONE_SUBNET_ID_ADDRESS4 get one host with reservation for subnet id %1 and IPv4 address %2</span></dt><dd><p>
 This debug message is issued when starting to retrieve a host connected to the
@@ -3593,6 +3547,46 @@ This debug message is issued when the server is starting to send a HTTP
 response to a remote endpoint. The first argument holds basic information
 about the response (HTTP version number and status code). The second
 argument specifies an address of the remote endpoint.
+</p></dd></dl></div><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="LEASE"></a>LEASE Module</h2></div></div></div><p>
+      </p><div class="variablelist"><dl class="variablelist"><dt><a name="LEASE_CMDS_ADD4"></a><span class="term">LEASE_CMDS_ADD4 lease4-add command successful (parameters: %1)</span></dt><dd><p>
+The lease4-add command has been successful. Parameters of the host
+added are logged.
+</p></dd><dt><a name="LEASE_CMDS_ADD4_FAILED"></a><span class="term">LEASE_CMDS_ADD4_FAILED lease4-add command failed (parameters: %1, reason: %2)</span></dt><dd><p>
+The lease4-add command has failed. Both the reason as well as the
+parameters passed are logged.
+</p></dd><dt><a name="LEASE_CMDS_ADD6"></a><span class="term">LEASE_CMDS_ADD6 lease6-add command successful (parameters: %1)</span></dt><dd><p>
+The lease6-add command has been successful. Parameters of the host
+added are logged.
+</p></dd><dt><a name="LEASE_CMDS_ADD6_FAILED"></a><span class="term">LEASE_CMDS_ADD6_FAILED Lease6-add command failed (parameters: %1, reason: %2)</span></dt><dd><p>
+The lease6-add command has failed. Both the reason as well as the
+parameters passed are logged.
+</p></dd><dt><a name="LEASE_CMDS_DEINIT_FAILED"></a><span class="term">LEASE_CMDS_DEINIT_FAILED unloading Lease Commands hooks library failed: %1</span></dt><dd><p>
+This error message indicates an error during unloading the Lease Commands
+hooks library. The details of the error are provided as argument of
+the log message.
+</p></dd><dt><a name="LEASE_CMDS_DEINIT_OK"></a><span class="term">LEASE_CMDS_DEINIT_OK unloading Lease Commands hooks library successful</span></dt><dd><p>
+This info message indicates that the Lease Commands hooks library has been
+removed successfully.
+</p></dd><dt><a name="LEASE_CMDS_DEL4"></a><span class="term">LEASE_CMDS_DEL4 lease4-del command successful (parameters: %1)</span></dt><dd><p>
+The attempt to delete an IPv4 lease (lease4-del command) has been successful.
+Parameters of the host removed are logged.
+</p></dd><dt><a name="LEASE_CMDS_DEL4_FAILED"></a><span class="term">LEASE_CMDS_DEL4_FAILED lease4-del command failed (parameters: %1, reason: %2)</span></dt><dd><p>
+The attempt to delete an IPv4 lease (lease4-del command) has failed. Both the
+reason as well as the parameters passed are logged.
+</p></dd><dt><a name="LEASE_CMDS_DEL6"></a><span class="term">LEASE_CMDS_DEL6 lease4-del command successful (parameters: %1)</span></dt><dd><p>
+The attempt to delete an IPv4 lease (lease4-del command) has been successful.
+Parameters of the host removed are logged.
+</p></dd><dt><a name="LEASE_CMDS_DEL6_FAILED"></a><span class="term">LEASE_CMDS_DEL6_FAILED lease6-del command failed (parameters: %1, reason: %2)</span></dt><dd><p>
+The attempt to delete an IPv6 lease (lease4-del command) has failed. Both the
+reason as well as the parameters passed are logged.
+</p></dd><dt><a name="LEASE_CMDS_INIT_FAILED"></a><span class="term">LEASE_CMDS_INIT_FAILED loading Lease Commands hooks library failed: %1</span></dt><dd><p>
+This error message indicates an error during loading the Lease Commands
+hooks library. The details of the error are provided as argument of
+the log message.
+</p></dd><dt><a name="LEASE_CMDS_INIT_OK"></a><span class="term">LEASE_CMDS_INIT_OK loading Lease Commands hooks library successful</span></dt><dd><p>
+This info message indicates that the Lease Commands hooks library has been
+loaded successfully. Enjoy!
 </p></dd></dl></div><p>
     </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="LFC"></a>LFC Module</h2></div></div></div><p>
       </p><div class="variablelist"><dl class="variablelist"><dt><a name="LFC_FAIL_PID_CREATE"></a><span class="term">LFC_FAIL_PID_CREATE : %1</span></dt><dd><p>

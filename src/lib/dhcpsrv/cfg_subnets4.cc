@@ -9,6 +9,7 @@
 #include <dhcpsrv/cfg_subnets4.h>
 #include <dhcpsrv/dhcpsrv_log.h>
 #include <dhcpsrv/lease_mgr_factory.h>
+#include <dhcpsrv/shared_network.h>
 #include <dhcpsrv/subnet_id.h>
 #include <dhcpsrv/addr_utilities.h>
 #include <asiolink/io_address.h>
@@ -23,15 +24,48 @@ namespace dhcp {
 
 void
 CfgSubnets4::add(const Subnet4Ptr& subnet) {
-    /// @todo: Check that this new subnet does not cross boundaries of any
-    /// other already defined subnet.
-    if (isDuplicate(*subnet)) {
+    if (getBySubnetId(subnet->getID())) {
         isc_throw(isc::dhcp::DuplicateSubnetID, "ID of the new IPv4 subnet '"
                   << subnet->getID() << "' is already in use");
+
+    } else if (getByPrefix(subnet->toText())) {
+        /// @todo: Check that this new subnet does not cross boundaries of any
+        /// other already defined subnet.
+        isc_throw(isc::dhcp::DuplicateSubnetID, "subnet with the prefix of '"
+                  << subnet->toText() << "' already exists");
     }
+
     LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE, DHCPSRV_CFGMGR_ADD_SUBNET4)
               .arg(subnet->toText());
     subnets_.push_back(subnet);
+}
+
+void
+CfgSubnets4::del(const ConstSubnet4Ptr& subnet) {
+    auto& index = subnets_.get<SubnetSubnetIdIndexTag>();
+    auto subnet_it = index.find(subnet->getID());
+    if (subnet_it == index.end()) {
+        isc_throw(BadValue, "no subnet with ID of '" << subnet->getID()
+                  << "' found");
+    }
+    index.erase(subnet_it);
+
+    LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE, DHCPSRV_CFGMGR_DEL_SUBNET4)
+        .arg(subnet->toText());
+}
+
+ConstSubnet4Ptr
+CfgSubnets4::getBySubnetId(const SubnetID& subnet_id) const {
+    const auto& index = subnets_.get<SubnetSubnetIdIndexTag>();
+    auto subnet_it = index.find(subnet_id);
+    return ((subnet_it != index.cend()) ? (*subnet_it) : ConstSubnet4Ptr());
+}
+
+ConstSubnet4Ptr
+CfgSubnets4::getByPrefix(const std::string& subnet_text) const {
+    const auto& index = subnets_.get<SubnetPrefixIndexTag>();
+    auto subnet_it = index.find(subnet_text);
+    return ((subnet_it != index.cend()) ? (*subnet_it) : ConstSubnet4Ptr());
 }
 
 Subnet4Ptr
@@ -86,17 +120,29 @@ CfgSubnets4::selectSubnet(const SubnetSelector& selector) const {
     }
 
     // If relayed message has been received, try to match the giaddr with the
-    // relay address specified for a subnet. It is also possible that the relay
-    // address will not match with any of the relay addresses across all
-    // subnets, but we need to verify that for all subnets before we can try
-    // to use the giaddr to match with the subnet prefix.
+    // relay address specified for a subnet and/or shared network. It is also
+    // possible that the relay address will not match with any of the relay
+    // addresses across all subnets, but we need to verify that for all subnets
+    // before we can try to use the giaddr to match with the subnet prefix.
     if (!selector.giaddr_.isV4Zero()) {
         for (Subnet4Collection::const_iterator subnet = subnets_.begin();
              subnet != subnets_.end(); ++subnet) {
 
-            // Check if the giaddr is equal to the one defined for the subnet.
-            if (selector.giaddr_ != (*subnet)->getRelayInfo().addr_) {
-                continue;
+            // If relay information is specified for this subnet, it must match.
+            // Otherwise, we ignore this subnet.
+            if (!(*subnet)->getRelayInfo().addr_.isV4Zero()) {
+                if (selector.giaddr_ != (*subnet)->getRelayInfo().addr_) {
+                    continue;
+                }
+
+            } else {
+                // Relay information is not specified on the subnet level,
+                // so let's try matching on the shared network level.
+                SharedNetwork4Ptr network;
+                (*subnet)->getSharedNetwork(network);
+                if (!network || (selector.giaddr_ != network->getRelayInfo().addr_)) {
+                    continue;
+                }
             }
 
             // If a subnet meets the client class criteria return it.
@@ -165,33 +211,57 @@ CfgSubnets4::selectSubnet(const SubnetSelector& selector) const {
 
 Subnet4Ptr
 CfgSubnets4::selectSubnet(const std::string& iface,
-                 const ClientClasses& client_classes) const {
+                          const ClientClasses& client_classes) const {
     for (Subnet4Collection::const_iterator subnet = subnets_.begin();
          subnet != subnets_.end(); ++subnet) {
 
-        // If there's no interface specified for this subnet, proceed to
-        // the next subnet.
-        if ((*subnet)->getIface().empty()) {
-            continue;
+        Subnet4Ptr subnet_selected;
+
+        // First, try subnet specific interface name.
+        if (!(*subnet)->getIface().empty()) {
+            if ((*subnet)->getIface() == iface) {
+                subnet_selected = (*subnet);
+            }
+
+        } else {
+            // Interface not specified for a subnet, so let's try if
+            // we can match with shared network specific setting of
+            // the interface.
+            SharedNetwork4Ptr network;
+            (*subnet)->getSharedNetwork(network);
+            if (network && !network->getIface().empty() &&
+                (network->getIface() == iface)) {
+                subnet_selected = (*subnet);
+            }
         }
 
-        // If it's specified, but does not match, proceed to the next
-        // subnet.
-        if ((*subnet)->getIface() != iface) {
-            continue;
-        }
+        if (subnet_selected) {
 
-        // If a subnet meets the client class criteria return it.
-        if ((*subnet)->clientSupported(client_classes)) {
-            LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE,
-                      DHCPSRV_CFGMGR_SUBNET4_IFACE)
-                .arg((*subnet)->toText())
-                .arg(iface);
-            return (*subnet);
+            // If a subnet meets the client class criteria return it.
+            if (subnet_selected->clientSupported(client_classes)) {
+                LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE,
+                          DHCPSRV_CFGMGR_SUBNET4_IFACE)
+                    .arg((*subnet)->toText())
+                    .arg(iface);
+                return (subnet_selected);
+            }
         }
     }
 
     // Failed to find a subnet.
+    return (Subnet4Ptr());
+}
+
+Subnet4Ptr
+CfgSubnets4::getSubnet(const SubnetID id) const {
+
+    /// @todo: Once this code is migrated to multi-index container, use
+    /// an index rather than full scan.
+    for (auto subnet = subnets_.begin(); subnet != subnets_.end(); ++subnet) {
+        if ((*subnet)->getID() == id) {
+            return (*subnet);
+        }
+    }
     return (Subnet4Ptr());
 }
 
@@ -217,17 +287,6 @@ CfgSubnets4::selectSubnet(const IOAddress& address,
 
     // Failed to find a subnet.
     return (Subnet4Ptr());
-}
-
-bool
-CfgSubnets4::isDuplicate(const Subnet4& subnet) const {
-    for (Subnet4Collection::const_iterator subnet_it = subnets_.begin();
-         subnet_it != subnets_.end(); ++subnet_it) {
-        if ((*subnet_it)->getID() == subnet.getID()) {
-            return (true);
-        }
-    }
-    return (false);
 }
 
 void
@@ -284,104 +343,7 @@ CfgSubnets4::toElement() const {
     // Iterate subnets
     for (Subnet4Collection::const_iterator subnet = subnets_.cbegin();
          subnet != subnets_.cend(); ++subnet) {
-        // Prepare the map
-        ElementPtr map = Element::createMap();
-        // Set subnet id
-        SubnetID id = (*subnet)->getID();
-        map->set("id", Element::create(static_cast<long long>(id)));
-        // Set relay info
-        const Subnet::RelayInfo& relay_info = (*subnet)->getRelayInfo();
-        ElementPtr relay = Element::createMap();
-        relay->set("ip-address", Element::create(relay_info.addr_.toText()));
-        map->set("relay", relay);
-        // Set subnet
-        map->set("subnet", Element::create((*subnet)->toText()));
-        // Set interface
-        const std::string& iface = (*subnet)->getIface();
-        map->set("interface", Element::create(iface));
-        // Set renew-timer
-        map->set("renew-timer",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getT1().get())));
-        // Set rebind-timer
-        map->set("rebind-timer",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getT2().get())));
-        // Set valid-lifetime
-        map->set("valid-lifetime",
-                 Element::create(static_cast<long long>
-                                 ((*subnet)->getValid().get())));
-        // Set pools
-        const PoolCollection& pools = (*subnet)->getPools(Lease::TYPE_V4);
-        ElementPtr pool_list = Element::createList();
-        for (PoolCollection::const_iterator pool = pools.cbegin();
-             pool != pools.cend(); ++pool) {
-            // Prepare the map for a pool (@todo move this code to pool.cc)
-            ElementPtr pool_map = Element::createMap();
-            // Set pool
-            const IOAddress& first = (*pool)->getFirstAddress();
-            const IOAddress& last = (*pool)->getLastAddress();
-            std::string range = first.toText() + "-" + last.toText();
-            // Try to output a prefix (vs a range)
-            int prefix_len = prefixLengthFromRange(first, last);
-            if (prefix_len >= 0) {
-                std::ostringstream oss;
-                oss << first.toText() << "/" << prefix_len;
-                range = oss.str();
-            }
-            pool_map->set("pool", Element::create(range));
-            // Set user-context
-            ConstElementPtr context = (*pool)->getContext();
-            if (!isNull(context)) {
-                pool_map->set("user-context", context);
-            }
-            // Set pool options (not yet supported)
-            // Push on the pool list
-            pool_list->add(pool_map);
-        }
-        map->set("pools", pool_list);
-        // Set host reservation-mode
-        Subnet::HRMode hrmode = (*subnet)->getHostReservationMode();
-        std::string mode;
-        switch (hrmode) {
-        case Subnet::HR_DISABLED:
-            mode = "disabled";
-            break;
-        case Subnet::HR_OUT_OF_POOL:
-            mode = "out-of-pool";
-            break;
-        case Subnet::HR_ALL:
-            mode = "all";
-            break;
-        default:
-            isc_throw(ToElementError,
-                      "invalid host reservation mode: " << hrmode);
-        }
-        map->set("reservation-mode", Element::create(mode));
-        // Set match-client-id
-        map->set("match-client-id",
-                 Element::create((*subnet)->getMatchClientId()));
-        // Set next-server
-        map->set("next-server",
-                 Element::create((*subnet)->getSiaddr().toText()));
-        // Set DHCP4o6
-        const Cfg4o6& d4o6 = (*subnet)->get4o6();
-        isc::data::merge(map, d4o6.toElement());
-        // Set client-class
-        const ClientClasses& cclasses = (*subnet)->getClientClasses();
-        if (cclasses.size() > 1) {
-            isc_throw(ToElementError, "client-class has too many items: "
-                      << cclasses.size());
-        } else if (!cclasses.empty()) {
-            map->set("client-class", Element::create(*cclasses.cbegin()));
-        }
-        // Set options
-        ConstCfgOptionPtr opts = (*subnet)->getCfgOption();
-        map->set("option-data", opts->toElement());
-        // Not supported: interface-id
-        // Not supported: rapid-commit
-        // Push on the list
-        result->add(map);
+        result->add((*subnet)->toElement());
     }
     return (result);
 }

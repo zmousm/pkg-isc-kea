@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+# Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -48,7 +48,7 @@ This debug message indicates that the first value is popped from
 the value stack, negated and then pushed onto the value stack.
 The string is displayed in text.
 
-# For use with TokenOption based classes.  These include TokenOpton,
+# For use with TokenOption based classes.  These include TokenOption,
 # TokenRelay4Option and TokenRelay6Option.
 
 % EVAL_DEBUG_OPTION Pushing option %1 with value %2

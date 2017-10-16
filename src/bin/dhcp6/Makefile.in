@@ -94,6 +94,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -111,7 +112,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libdhcp6_la_LIBADD =
 am_libdhcp6_la_OBJECTS = dhcp6_log.lo dhcp6_srv.lo ctrl_dhcp6_srv.lo \
 	json_config_parser.lo dhcp6to4_ipc.lo dhcp6_lexer.lo \
-	dhcp6_parser.lo parser_context.lo simple_parser6.lo
+	dhcp6_parser.lo parser_context.lo
 nodist_libdhcp6_la_OBJECTS = dhcp6_messages.lo
 libdhcp6_la_OBJECTS = $(am_libdhcp6_la_OBJECTS) \
 	$(nodist_libdhcp6_la_OBJECTS)
@@ -504,8 +505,7 @@ libdhcp6_la_SOURCES = dhcp6_log.cc dhcp6_log.h dhcp6_srv.cc \
 	json_config_parser.cc json_config_parser.h dhcp6to4_ipc.cc \
 	dhcp6to4_ipc.h dhcp6_lexer.ll location.hh position.hh stack.hh \
 	dhcp6_parser.cc dhcp6_parser.h parser_context.cc \
-	parser_context.h parser_context_decl.h simple_parser6.cc \
-	simple_parser6.h
+	parser_context.h parser_context_decl.h
 nodist_libdhcp6_la_SOURCES = dhcp6_messages.h dhcp6_messages.cc
 kea_dhcp6_SOURCES = main.cc
 kea_dhcp6_LDADD = libdhcp6.la \
@@ -651,7 +651,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/json_config_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_context.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_parser6.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

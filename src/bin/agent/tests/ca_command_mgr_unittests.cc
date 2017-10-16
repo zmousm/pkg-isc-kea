@@ -154,29 +154,30 @@ public:
 
     /// @brief Adds configuration of the control socket.
     ///
-    /// @param server_type Server type for which socket configuration is to
-    /// be added.
+    /// @param service Service for which socket configuration is to be added.
     void
-    configureControlSocket(const CtrlAgentCfgContext::ServerType& server_type) {
+    configureControlSocket(const std::string& service) {
         CtrlAgentCfgContextPtr ctx = getCtrlAgentCfgContext();
         ASSERT_TRUE(ctx);
 
         ElementPtr control_socket = Element::createMap();
         control_socket->set("socket-name",
                             Element::create(unixSocketFilePath()));
-        ctx->setControlSocketInfo(control_socket, server_type);
+        ctx->setControlSocketInfo(control_socket, service);
     }
 
     /// @brief Create and bind server side socket.
     ///
     /// @param response Stub response to be sent from the server socket to the
     /// client.
-    void bindServerSocket(const std::string& response) {
+    /// @param use_thread Indicates if the IO service will be ran in thread.
+    void bindServerSocket(const std::string& response,
+                          const bool use_thread = false) {
         server_socket_.reset(new test::TestServerUnixSocket(*getIOService(),
                                                             unixSocketFilePath(),
-                                                            TEST_TIMEOUT,
                                                             response));
-        server_socket_->bindServerSocket();
+        server_socket_->startTimer(TEST_TIMEOUT);
+        server_socket_->bindServerSocket(use_thread);
     }
 
     /// @brief Creates command with no arguments.
@@ -214,7 +215,7 @@ public:
     /// server socket after which the IO service should be stopped.
     /// @param expected_responses Number of responses after which the test finishes.
     /// @param server_response Stub response to be sent by the server.
-    void testForward(const CtrlAgentCfgContext::ServerType& server_type,
+    void testForward(const std::string& configured_service,
                      const std::string& service,
                      const int expected_result0,
                      const int expected_result1 = -1,
@@ -222,43 +223,35 @@ public:
                      const size_t expected_responses = 1,
                      const std::string& server_response = "{ \"result\": 0 }") {
         // Configure client side socket.
-        configureControlSocket(server_type);
+        configureControlSocket(configured_service);
         // Create server side socket.
-        bindServerSocket(server_response);
+        bindServerSocket(server_response, true);
 
         // The client side communication is synchronous. To be able to respond
-        // to this we need to run the server side socket at the same time.
-        // Running IO service in a thread guarantees that the server responds
-        // as soon as it receives the control command.
-        isc::util::thread::Thread th(boost::bind(&CtrlAgentCommandMgrTest::runIO,
-                                                 getIOService(), server_socket_,
-                                                 expected_responses));
+        // to this we need to run the server side socket at the same time as the
+        // client. Running IO service in a thread guarantees that the server
+        //responds as soon as it receives the control command.
+        isc::util::thread::Thread th(boost::bind(&IOService::run,
+                                                 getIOService().get()));
+
+
+        // Wait for the IO service in thread to actually run.
+        server_socket_->waitForRunning();
 
         ConstElementPtr command = createCommand("foo", service);
         ConstElementPtr answer = mgr_.handleCommand("foo", ConstElementPtr(),
                                                     command);
 
+        // Cancel all asynchronous operations and let the handlers to be invoked
+        // with operation_aborted error code.
+        server_socket_->stopServer();
+        getIOService()->stopWork();
+
+        // Wait for the thread to finish.
         th.wait();
 
+        EXPECT_EQ(expected_responses, server_socket_->getResponseNum());
         checkAnswer(answer, expected_result0, expected_result1, expected_result2);
-    }
-
-    /// @brief Runs IO service until number of sent responses is lower than
-    /// expected.
-    ///
-    /// @param server_socket Pointer to the server socket.
-    /// @param expected_responses Number of expected responses.
-    static void runIO(IOServicePtr& io_service,
-                      const test::TestServerUnixSocketPtr& server_socket,
-                      const size_t expected_responses) {
-        while (server_socket->getResponseNum() < expected_responses) {
-            io_service->run_one();
-        }
-    }
-
-
-    CtrlAgentCommandMgrTest* getTestSelf() {
-        return (this);
     }
 
     /// @brief a convenience reference to control agent command manager
@@ -289,37 +282,33 @@ TEST_F(CtrlAgentCommandMgrTest, listCommands) {
 
 /// Check that control command is successfully forwarded to the DHCPv4 server.
 TEST_F(CtrlAgentCommandMgrTest, forwardToDHCPv4Server) {
-    testForward(CtrlAgentCfgContext::TYPE_DHCP4, "dhcp4",
-                isc::config::CONTROL_RESULT_SUCCESS);
+    testForward("dhcp4", "dhcp4", isc::config::CONTROL_RESULT_SUCCESS);
 }
 
 /// Check that control command is successfully forwarded to the DHCPv6 server.
 TEST_F(CtrlAgentCommandMgrTest, forwardToDHCPv6Server) {
-    testForward(CtrlAgentCfgContext::TYPE_DHCP6, "dhcp6",
-                isc::config::CONTROL_RESULT_SUCCESS);
+    testForward("dhcp6", "dhcp6", isc::config::CONTROL_RESULT_SUCCESS);
 }
 
 /// Check that the same command is forwarded to multiple servers.
 TEST_F(CtrlAgentCommandMgrTest, forwardToBothDHCPServers) {
-    configureControlSocket(CtrlAgentCfgContext::TYPE_DHCP6);
+    configureControlSocket("dhcp6");
 
-    testForward(CtrlAgentCfgContext::TYPE_DHCP4, "dhcp4,dhcp6",
-                isc::config::CONTROL_RESULT_SUCCESS,
-                isc::config::CONTROL_RESULT_SUCCESS,
-                -1, 2);
+    testForward("dhcp4", "dhcp4,dhcp6", isc::config::CONTROL_RESULT_SUCCESS,
+                isc::config::CONTROL_RESULT_SUCCESS, -1, 2);
 }
 
 /// Check that the command may forwarded to the second server even if
 /// forwarding to a first server fails.
 TEST_F(CtrlAgentCommandMgrTest, failForwardToServer) {
-    testForward(CtrlAgentCfgContext::TYPE_DHCP6, "dhcp4,dhcp6",
+    testForward("dhcp6", "dhcp4,dhcp6",
                 isc::config::CONTROL_RESULT_ERROR,
                 isc::config::CONTROL_RESULT_SUCCESS);
 }
 
 /// Check that control command is not forwarded if the service is not specified.
 TEST_F(CtrlAgentCommandMgrTest, noService) {
-    testForward(CtrlAgentCfgContext::TYPE_DHCP6, "",
+    testForward("dhcp6", "",
                 isc::config::CONTROL_RESULT_COMMAND_UNSUPPORTED,
                 -1, -1, 0);
 }
@@ -327,7 +316,19 @@ TEST_F(CtrlAgentCommandMgrTest, noService) {
 /// Check that error is returned to the client when the server to which the
 /// command was forwarded sent an invalid message.
 TEST_F(CtrlAgentCommandMgrTest, invalidAnswer) {
-    testForward(CtrlAgentCfgContext::TYPE_DHCP6, "dhcp6",
+    testForward("dhcp6", "dhcp6",
+                isc::config::CONTROL_RESULT_ERROR, -1, -1, 1,
+                "{ \"result\": }");
+}
+
+/// Check that connection is dropped if it takes too long. The test checks
+/// client's behavior when partial JSON is returned. Client will be waiting
+/// for the '}' and will timeout because it is never received.
+/// @todo Currently this test is disabled because we don't have configurable
+/// timeout value. It is hardcoded to 5 sec, which is too long for the
+/// unit test to run.
+TEST_F(CtrlAgentCommandMgrTest, DISABLED_connectionTimeout) {
+    testForward("dhcp6", "dhcp6",
                 isc::config::CONTROL_RESULT_ERROR, -1, -1, 1,
                 "{ \"result\": 0");
 }
@@ -345,7 +346,7 @@ TEST_F(CtrlAgentCommandMgrTest, noClientSocket) {
 /// Check that error is returned to the client if the remote server to
 /// which the control command is to be forwarded is not available.
 TEST_F(CtrlAgentCommandMgrTest, noServerSocket) {
-    configureControlSocket(CtrlAgentCfgContext::TYPE_DHCP6);
+    configureControlSocket("dhcp6");
 
     ConstElementPtr command = createCommand("foo", "dhcp6");
     ConstElementPtr answer = mgr_.handleCommand("foo", ConstElementPtr(),
@@ -358,21 +359,29 @@ TEST_F(CtrlAgentCommandMgrTest, noServerSocket) {
 // value is specified.
 TEST_F(CtrlAgentCommandMgrTest, forwardListCommands) {
     // Configure client side socket.
-    configureControlSocket(CtrlAgentCfgContext::TYPE_DHCP4);
+    configureControlSocket("dhcp4");
     // Create server side socket.
-    bindServerSocket("{ \"result\" : 3 }");
+    bindServerSocket("{ \"result\" : 3 }", true);
 
     // The client side communication is synchronous. To be able to respond
     // to this we need to run the server side socket at the same time.
     // Running IO service in a thread guarantees that the server responds
     // as soon as it receives the control command.
-    isc::util::thread::Thread th(boost::bind(&CtrlAgentCommandMgrTest::runIO,
-                                             getIOService(), server_socket_, 1));
+    isc::util::thread::Thread th(boost::bind(&IOService::run, getIOService().get()));
+
+    // Wait for the IO service in thread to actually run.
+    server_socket_->waitForRunning();
 
     ConstElementPtr command = createCommand("list-commands", "dhcp4");
     ConstElementPtr answer = mgr_.handleCommand("list-commands", ConstElementPtr(),
                                                 command);
 
+    // Cancel all asynchronous operations and let the handlers to be invoked
+    // with operation_aborted error code.
+    server_socket_->stopServer();
+    getIOService()->stopWork();
+
+    // Wait for the thread to finish.
     th.wait();
 
     // Answer of 3 is specific to the stub response we send when the

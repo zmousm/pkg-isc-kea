@@ -46,21 +46,6 @@ buffer holding the DHCPv6 message. The arguments specify the source and
 destination addresses as well as the interface over which the buffer has
 been received.
 
-% DHCP6_BUFFER_WAIT waiting for next DHCPv6 packet with timeout %1 ms
-This debug message is issued when the server enters the state when it
-waits for new packets. The argument specifies the timeout for the server
-to wait for the packet. When this time elapses the server will pass
-through its main loop to perform handling of any pending signals
-and timers. After that, it will enter the wait state again.
-
-% DHCP6_BUFFER_WAIT_INTERRUPTED interrupted wait for the next packet due to timeout, signal or external socket callback (timeout value is %1)
-This debug message is issued when the server interrupts waiting
-for reception of the next DHCPv6 message due to timeout, signal
-or reception of the data over socket other than used for DHCPv6
-message transmission. The server will now handle signals
-received and ready timers before waiting for next packets again.
-The argument specifies the timeout value in milliseconds.
-
 % DHCP6_BUFFER_WAIT_SIGNAL signal received while waiting for next packet, next waiting signal is %1
 This debug message is issued when the server was waiting for the
 packet, but the wait has been interrupted by the signal received
@@ -96,15 +81,6 @@ This error message indicates that the DHCPv6 configuration has failed.
 If this is an initial configuration (during server's startup) the server
 will fail to start. If this is a dynamic reconfiguration attempt the
 server will continue to use an old configuration.
-
-% DHCP6_CONFIG_NEW_SUBNET a new subnet has been added to configuration: %1
-This is an informational message reporting that the configuration has
-been extended to include the specified subnet.
-
-% DHCP6_CONFIG_OPTION_DUPLICATE multiple options with the code: %1 added to the subnet: %2
-This warning message is issued on an attempt to configure multiple options with the
-same option code for the particular subnet. Adding multiple options is uncommon
-for DHCPv6, but it is not prohibited.
 
 % DHCP6_CONFIG_RECEIVED received configuration: %1
 A debug message listing the configuration received by the DHCPv6 server.
@@ -258,7 +234,7 @@ DHCP server failed.
 % DHCP6_FLEX_ID flexible identifier generated for incoming packet: %1
 This debug message is printed when host reservation type is set to flexible identifier
 and the expression specified in its configuration generated (was evaluated to)
-an indetifier for incoming packet. This debug message is mainly intended as a
+an identifier for incoming packet. This debug message is mainly intended as a
 debugging assistance for flexible identifier.
 
 % DHCP6_HANDLE_SIGNAL_EXCEPTION An exception was thrown while handing signal: %1

@@ -6,7 +6,9 @@
 
 #include <config.h>
 
+#include <asiolink/interval_timer.h>
 #include <asiolink/io_address.h>
+#include <asiolink/io_service.h>
 #include <cc/command_interpreter.h>
 #include <dhcp/dhcp4.h>
 #include <dhcp/hwaddr.h>
@@ -85,17 +87,15 @@ public:
 
     /// @brief Runs timers for specified time.
     ///
-    /// Internally, this method calls @c IfaceMgr::receive4 to run the
-    /// callbacks for the installed timers.
-    ///
+    /// @param io_service Pointer to the IO service to be ran.
     /// @param timeout_ms Amount of time after which the method returns.
-    void runTimersWithTimeout(const long timeout_ms) {
-        isc::util::Stopwatch stopwatch;
-        while (stopwatch.getTotalMilliseconds() < timeout_ms) {
-            // Block for up to one millisecond waiting for the timers'
-            // callbacks to be executed.
-            IfaceMgr::instancePtr()->receive4(0, 1000);
-        }
+    void runTimersWithTimeout(const IOServicePtr& io_service, const long timeout_ms) {
+        IntervalTimer timer(*io_service);
+        timer.setup([this, &io_service]() {
+            io_service->stop();
+        }, timeout_ms, IntervalTimer::ONE_SHOT);
+        io_service->run();
+        io_service->get_io_service().reset();
     }
 
     /// Name of a config file used during tests
@@ -181,6 +181,31 @@ TEST_F(JSONFileBackendTest, jsonFile) {
     EXPECT_EQ("192.0.4.101", pools3.at(0)->getFirstAddress().toText());
     EXPECT_EQ("192.0.4.150", pools3.at(0)->getLastAddress().toText());
     EXPECT_EQ(Lease::TYPE_V4, pools3.at(0)->getType());
+}
+
+// This test verifies that the configurations for various servers
+// can coexist and that the DHCPv4 configuration parsers will simply
+// ignore them.
+TEST_F(JSONFileBackendTest, serverConfigurationsCoexistence) {
+    std::string config = "{ \"Dhcp4\": {"
+        "\"rebind-timer\": 2000, "
+        "\"renew-timer\": 1000, \n"
+        "\"valid-lifetime\": 4000 }, "
+        "\"Dhcp6\": { },"
+        "\"DhcpDdns\": { },"
+        "\"Control-agent\": { }"
+        "}";
+
+    writeFile(TEST_FILE, config);
+
+    // Now initialize the server
+    boost::scoped_ptr<ControlledDhcpv4Srv> srv;
+    ASSERT_NO_THROW(
+        srv.reset(new ControlledDhcpv4Srv(0))
+    );
+
+    // And configure it using the config file.
+    EXPECT_NO_THROW(srv->init(TEST_FILE));
 }
 
 // This test checks if configuration can be read from a JSON file
@@ -571,7 +596,7 @@ TEST_F(JSONFileBackendTest, timers) {
 
     // Poll the timers for a while to make sure that each of them is executed
     // at least once.
-    ASSERT_NO_THROW(runTimersWithTimeout(5000));
+    ASSERT_NO_THROW(runTimersWithTimeout(srv->getIOService(), 5000));
 
     // Verify that the leases in the database have been processed as expected.
 

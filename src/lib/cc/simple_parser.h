@@ -7,6 +7,7 @@
 #ifndef SIMPLE_PARSER_H
 #define SIMPLE_PARSER_H
 
+#include <asiolink/io_address.h>
 #include <cc/data.h>
 #include <cc/dhcp_config_error.h>
 #include <vector>
@@ -114,8 +115,6 @@ class SimpleParser {
     static const data::Element::Position&
     getPosition(const std::string& name, const data::ConstElementPtr parent);
 
-protected:
-
     /// @brief Returns a string parameter from a scope
     ///
     /// Unconditionally returns a parameter.
@@ -152,9 +151,25 @@ protected:
     static bool getBoolean(isc::data::ConstElementPtr scope,
                            const std::string& name);
 
+
+    /// @brief Returns a IOAddress parameter from a scope
+    ///
+    /// Unconditionally returns a parameter.
+    ///
+    /// @param scope specified parameter will be extracted from this scope
+    /// @param name name of the parameter
+    /// @return an IOAddress representing the value of the parameter
+    /// @throw DhcpConfigError if the parameter is not there or is not of
+    /// appropriate type (or its conversion to IOAddress fails due to not
+    /// being a proper address).
+    static isc::asiolink::IOAddress
+    getAddress(const ConstElementPtr& scope, const std::string& name);
+
+protected:
+
     /// @brief Returns an integer value with range checking from a scope
     ///
-    /// This template should be instantied in parsers when useful
+    /// This template should be instantiated in parsers when useful
     ///
     /// @tparam int_type the integer type e.g. uint32_t
     /// @param scope specified parameter will be extracted from this scope
@@ -178,7 +193,7 @@ protected:
 
     /// @brief Returns a converted value from a scope
     ///
-    /// This template should be instantied in parsers when useful
+    /// This template should be instantiated in parsers when useful
     ///
     /// @tparam target_type the type of the result
     /// @tparam convert the conversion function std::string -> target_type
@@ -204,6 +219,7 @@ protected:
         }
     }
 
+public:
     /// @brief Returns a value converted to uint32_t
     ///
     /// Instantiation of getIntType() to uint32_t
@@ -212,7 +228,8 @@ protected:
     /// @param name name of the parameter
     /// @return an uint32_t value
     /// @throw isc::dhcp::DhcpConfigError when it is not an uint32_t
-    uint32_t getUint32(isc::data::ConstElementPtr scope, const std::string& name) {
+    uint32_t getUint32(isc::data::ConstElementPtr scope,
+                       const std::string& name) {
         return (getIntType<uint32_t>(scope, name));
     }
 
@@ -224,7 +241,8 @@ protected:
     /// @param name name of the parameter
     /// @return an uint16_t value
     /// @throw isc::dhcp::DhcpConfigError when it is not an uint16_t
-    uint16_t getUint16(isc::data::ConstElementPtr scope, const std::string& name) {
+    uint16_t getUint16(isc::data::ConstElementPtr scope,
+                       const std::string& name) {
         return (getIntType<uint16_t>(scope, name));
     }
 

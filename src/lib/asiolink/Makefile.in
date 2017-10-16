@@ -86,6 +86,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -459,11 +460,12 @@ CLEANFILES = *.gcno *.gcda
 lib_LTLIBRARIES = libkea-asiolink.la
 libkea_asiolink_la_LDFLAGS = -no-undefined -version-info 4:0:0
 libkea_asiolink_la_SOURCES = asiolink.h asio_wrapper.h dummy_io_cb.h \
-	interval_timer.cc interval_timer.h io_address.cc io_address.h \
-	io_asio_socket.h io_endpoint.cc io_endpoint.h io_error.h \
-	io_service.h io_service.cc io_socket.h io_socket.cc \
+	interval_timer.cc interval_timer.h io_acceptor.h io_address.cc \
+	io_address.h io_asio_socket.h io_endpoint.cc io_endpoint.h \
+	io_error.h io_service.h io_service.cc io_socket.h io_socket.cc \
 	tcp_acceptor.h tcp_endpoint.h tcp_socket.h udp_endpoint.h \
-	udp_socket.h unix_domain_socket.cc unix_domain_socket.h
+	udp_socket.h unix_domain_socket.cc unix_domain_socket.h \
+	unix_domain_socket_acceptor.h unix_domain_socket_endpoint.h
 
 # Note: the ordering matters: -Wno-... must follow -Wextra (defined in
 # KEA_CXXFLAGS)

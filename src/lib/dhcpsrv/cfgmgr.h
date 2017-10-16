@@ -123,7 +123,7 @@ public:
     /// @name Methods managing the collection of configurations.
     ///
     /// The following methods manage the process of preparing a configuration
-    /// without affecting a currently used configuration and then commiting
+    /// without affecting a currently used configuration and then committing
     /// the configuration to replace current configuration atomically.
     /// They also allow for keeping a history of previous configurations so
     /// as the @c CfgMgr can revert to the historical configuration when
@@ -196,10 +196,26 @@ public:
     ///
     /// This function returns pointer to the current configuration. If the
     /// current configuration is not set it will create a default configuration
-    /// and return it. Current configuration returned is read-only.
+    /// and return it.
     ///
-    /// @return Non-null const pointer to the current configuration.
-    ConstSrvConfigPtr getCurrentCfg();
+    /// In the previous Kea releases this method used to return a const pointer
+    /// to the current configuration to ensure that it is not accidentally
+    /// modified while the server is running. This has been changed in Kea 1.3
+    /// release and now this function returns a non-const pointer. The reason
+    /// is that there are certain use cases when current configuration must
+    /// be modified without going through a full cycle of server
+    /// reconfiguration, e.g. add a subnet to the current configuration as
+    /// a result of receiving a command over control API. In such case the
+    /// performance of processing such command is critical and rebuilding the
+    /// whole configuration just for this small configuration change is out
+    /// of question.
+    ///
+    /// Nevertheless, such configuration updates should always be made with
+    /// caution and one has to make sure that the configuration data integrity
+    /// is preserved.
+    ///
+    /// @return Non-null pointer to the current configuration.
+    SrvConfigPtr getCurrentCfg();
 
     /// @brief Returns a pointer to the staging configuration.
     ///

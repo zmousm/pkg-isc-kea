@@ -270,7 +270,7 @@ HWAddrPtr Dhcpv4SrvTest::generateHWAddr(size_t size /*= 6*/) {
 }
 
 void Dhcpv4SrvTest::checkAddressParams(const Pkt4Ptr& rsp,
-                                       const SubnetPtr subnet,
+                                       const Subnet4Ptr subnet,
                                        bool t1_present,
                                        bool t2_present) {
 
@@ -607,6 +607,9 @@ Dhcpv4SrvTest::configure(const std::string& config, NakedDhcpv4Srv& srv,
     ConstElementPtr json;
     ASSERT_NO_THROW(json = parseJSON(config));
     ConstElementPtr status;
+
+    // Disable the re-detect flag
+    disableIfacesReDetect(json);
 
     // Configure the server and make sure the config is accepted
     EXPECT_NO_THROW(status = configureDhcp4Server(srv, json));

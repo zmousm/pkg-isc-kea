@@ -305,6 +305,11 @@ public:
         /// @brief Subnet selected for the client by the server.
         Subnet6Ptr subnet_;
 
+        /// @brief Subnet from which host reservations should be retrieved.
+        ///
+        /// It can be NULL, in which case @c subnet_ value is used.
+        Subnet6Ptr host_subnet_;
+
         /// @brief Client identifier
         DuidPtr duid_;
 
@@ -315,10 +320,12 @@ public:
         /// received by the server.
         IdentifierList host_identifiers_;
 
-        /// @brief A pointer to the object identifying host reservations.
+        /// @brief Holds a map of hosts belonging to the client within different
+        /// subnets.
         ///
-        /// May be NULL if there are no reservations.
-        ConstHostPtr host_;
+        /// Multiple hosts may appear when the client belongs to a shared
+        /// network.
+        std::map<SubnetID, ConstHostPtr> hosts_;
 
         /// @brief A boolean value which indicates that server takes
         ///        responsibility for the forward DNS Update for this lease
@@ -440,6 +447,11 @@ public:
         void createIAContext() {
             ias_.push_back(IAContext());
         };
+
+        /// @brief Returns host from the most preferred subnet.
+        ///
+        /// @return Pointer to the host object.
+        ConstHostPtr currentHost() const;
 
         /// @brief Default constructor.
         ClientContext6();
@@ -720,10 +732,13 @@ private:
     /// @param ctx Reference to a @ref ClientContext6 or @ref ClientContext4.
     /// @param host_get Pointer to the @ref HostMgr functions to be used
     /// to retrieve reservation by subnet identifier and host identifier.
+    /// @param ipv6_only Boolean value indicating if only IPv6 reservations
+    /// should be retrieved.
     /// @tparam ContextType Either @ref ClientContext6 or @ref ClientContext4.
     template<typename ContextType>
     static void findReservationInternal(ContextType& ctx,
-                                        const HostGetFunc& host_get);
+                                        const HostGetFunc& host_get,
+                                        const bool ipv6_only = false);
 
     /// @brief creates a lease and inserts it in LeaseMgr if necessary
     ///
@@ -1031,7 +1046,7 @@ public:
     /// that the big advantage of using the context structure to pass
     /// information to the allocation engine methods is that adding
     /// new information doesn't modify the API of the allocation engine.
-    struct ClientContext4 {
+    struct ClientContext4 : public boost::noncopyable {
         /// @brief Subnet selected for the client by the server.
         Subnet4Ptr subnet_;
 
@@ -1072,8 +1087,12 @@ public:
         /// @brief A pointer to an old lease that the client had before update.
         Lease4Ptr old_lease_;
 
-        /// @brief A pointer to the object identifying host reservations.
-        ConstHostPtr host_;
+        /// @brief Holds a map of hosts belonging to the client within different
+        /// subnets.
+        ///
+        /// Multiple hosts may appear when the client belongs to a shared
+        /// network.
+        std::map<SubnetID, ConstHostPtr> hosts_;
 
         /// @brief A pointer to the object representing a lease in conflict.
         ///
@@ -1101,6 +1120,11 @@ public:
                                const std::vector<uint8_t>& identifier) {
             host_identifiers_.push_back(IdentifierPair(id_type, identifier));
         }
+
+        /// @brief Returns host for currently selected subnet.
+        ///
+        /// @return Pointer to the host object.
+        ConstHostPtr currentHost() const;
 
         /// @brief Default constructor.
         ClientContext4();

@@ -1421,6 +1421,7 @@ AC_SUBST([am__untar])
 
 m4_include([m4macros/ax_boost_for_kea.m4])
 m4_include([m4macros/ax_cpp11.m4])
+m4_include([m4macros/ax_crypto.m4])
 m4_include([m4macros/ax_isc_rpath.m4])
 m4_include([m4macros/libtool.m4])
 m4_include([m4macros/ltoptions.m4])

@@ -178,8 +178,8 @@ AllocEngine6Test::findReservation(AllocEngine& engine,
     AllocEngine::ClientContext6& ctx) {
     engine.findReservation(ctx);
     // Let's check whether there's a hostname specified in the reservation
-    if (ctx.host_) {
-        std::string hostname = ctx.host_->getHostname();
+    if (ctx.currentHost()) {
+        std::string hostname = ctx.currentHost()->getHostname();
         // If there is, let's use it
         if (!hostname.empty()) {
             ctx.hostname_ = hostname;
@@ -528,6 +528,8 @@ AllocEngine4Test::initSubnet(const asiolink::IOAddress& pool_start,
 }
 
 AllocEngine4Test::AllocEngine4Test() {
+
+    CfgMgr::instance().clear();
 
     // This lease mgr needs to exist to before configuration commits.
     factory_.create("type=memfile universe=4 persist=false");

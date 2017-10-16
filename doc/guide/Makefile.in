@@ -84,6 +84,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -339,7 +340,7 @@ DISTCLEANFILES = $(HTMLDOCS) $(DOCS) kea-messages.xml
 @HAVE_DBLATEX_TRUE@DBLATEX_FLAGS = --xslt-opts=--path --xslt-opts=$(abs_top_builddir)/doc \
 @HAVE_DBLATEX_TRUE@	-P doc.collab.show=0 -P latex.output.revhistory=0 \
 @HAVE_DBLATEX_TRUE@	-P term.breakline=1 -P filename.as.url=0 \
-@HAVE_DBLATEX_TRUE@	-P imagedata.default.scale="maxwidth=50px,maxheigth=35px"
+@HAVE_DBLATEX_TRUE@	-P imagedata.default.scale="maxwidth=50px,maxheight=35px"
 
 all: all-am
 

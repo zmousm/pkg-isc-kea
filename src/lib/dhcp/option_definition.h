@@ -364,6 +364,15 @@ public:
     /// @return true if option has the format of DHCPv6 Vendor Class option.
     bool haveVendorClass6Format() const;
 
+    /// @brief Check if option has format of the SLP Service Scope
+    /// %Option.
+    ///
+    /// The scope list in the SLP Service Scope option is optional
+    /// (i.e., as the error message in the DHCPv6 Status code option).
+    ///
+    /// @return true if option has the format of SLP Service Scope %Option.
+    bool haveServiceScopeFormat() const;
+
     /// @brief Check if the option has format of DHCPv6 Status Code option.
     ///
     /// @return true if option has the format of DHCPv6 Status code option.
@@ -693,7 +702,7 @@ private:
     uint16_t code_;
     /// Option data type.
     OptionDataType type_;
-    /// Indicates wheter option is a single value or array.
+    /// Indicates whether option is a single value or array.
     bool array_type_;
     /// Name of the space being encapsulated by this option.
     std::string encapsulated_space_;

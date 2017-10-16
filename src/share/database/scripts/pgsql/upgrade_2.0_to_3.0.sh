@@ -5,7 +5,7 @@
 if [ -e ${prefix}/share/kea/scripts/admin-utils.sh ]; then
     . ${prefix}/share/kea/scripts/admin-utils.sh
 else
-    . /home/wlodek/dev/releases/120_3/src/bin/admin/admin-utils.sh
+    . /home/wlodek/dev/kea/src/bin/admin/admin-utils.sh
 fi
 
 VERSION=`pgsql_version "$@"`

@@ -1,6 +1,7 @@
 // Copyright (C) 2015-2017 Internet Systems Consortium, Inc. ("ISC")
 //
-// This Source Code Form is subject to the terms of the Mozilla Public // License, v. 2.0. If a copy of the MPL was not distributed with this
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #ifndef LIBDHCPSRV_ALLOC_ENGINE_UTILS_H
@@ -132,7 +133,7 @@ public:
         fqdn_rev_ = fqdn_rev;
     }
 
-    /// @brief Wrapper around call to AllocEngine6::findRervation
+    /// @brief Wrapper around call to AllocEngine6::findReservation
     ///
     /// If a reservation is found by the engine, the function sets
     /// ctx.hostname_ accordingly.
@@ -367,7 +368,7 @@ public:
         return (host);
     }
 
-    /// @brief Add a host reservation to the curent configuration
+    /// @brief Add a host reservation to the current configuration
     ///
     /// Adds the given host reservation to the current configuration by
     /// casting it to non-const.  We do it this way rather than adding it to

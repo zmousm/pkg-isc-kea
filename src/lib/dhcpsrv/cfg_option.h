@@ -184,6 +184,11 @@ typedef std::pair<OptionContainerTypeIndex::const_iterator,
                   OptionContainerTypeIndex::const_iterator> OptionContainerTypeRange;
 /// Type of the index #2 - option persistency flag.
 typedef OptionContainer::nth_index<2>::type OptionContainerPersistIndex;
+/// Pair of iterators to represent the range of options having the
+/// same persistency flag. The first element in this pair represents
+/// the beginning of the range, the second element represents the end.
+typedef std::pair<OptionContainerPersistIndex::const_iterator,
+                  OptionContainerPersistIndex::const_iterator> OptionContainerPersistRange;
 
 /// @brief Represents option data configuration for the DHCP server.
 ///
@@ -317,7 +322,7 @@ public:
     /// @brief Returns all options for the specified option space.
     ///
     /// This method will not return vendor options, i.e. having option space
-    /// name in the format of "vendor-X" where X is 32-bit unsiged integer.
+    /// name in the format of "vendor-X" where X is 32-bit unsigned integer.
     /// See @c getAll(uint32_t) for vendor options.
     ///
     /// @param option_space Name of the option space.

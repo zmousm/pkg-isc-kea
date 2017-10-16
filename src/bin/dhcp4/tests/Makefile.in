@@ -94,6 +94,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
+	$(top_srcdir)/m4macros/ax_crypto.m4 \
 	$(top_srcdir)/m4macros/ax_isc_rpath.m4 \
 	$(top_srcdir)/m4macros/libtool.m4 \
 	$(top_srcdir)/m4macros/ltoptions.m4 \
@@ -147,7 +148,7 @@ am__dhcp4_unittests_SOURCES_DIST = d2_unittest.h d2_unittest.cc \
 	out_of_range_unittest.cc decline_unittest.cc \
 	kea_controller_unittest.cc dhcp4to6_ipc_unittest.cc \
 	simple_parser4_unittest.cc get_config_unittest.cc \
-	get_config_unittest.h
+	get_config_unittest.h shared_network_unittest.cc
 @HAVE_GTEST_TRUE@am_dhcp4_unittests_OBJECTS =  \
 @HAVE_GTEST_TRUE@	dhcp4_unittests-d2_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	dhcp4_unittests-dhcp4_unittests.$(OBJEXT) \
@@ -171,7 +172,8 @@ am__dhcp4_unittests_SOURCES_DIST = d2_unittest.h d2_unittest.cc \
 @HAVE_GTEST_TRUE@	dhcp4_unittests-kea_controller_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	dhcp4_unittests-dhcp4to6_ipc_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	dhcp4_unittests-simple_parser4_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	dhcp4_unittests-get_config_unittest.$(OBJEXT)
+@HAVE_GTEST_TRUE@	dhcp4_unittests-get_config_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	dhcp4_unittests-shared_network_unittest.$(OBJEXT)
 nodist_dhcp4_unittests_OBJECTS =
 dhcp4_unittests_OBJECTS = $(am_dhcp4_unittests_OBJECTS) \
 	$(nodist_dhcp4_unittests_OBJECTS)
@@ -543,7 +545,8 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	kea_controller_unittest.cc \
 @HAVE_GTEST_TRUE@	dhcp4to6_ipc_unittest.cc \
 @HAVE_GTEST_TRUE@	simple_parser4_unittest.cc \
-@HAVE_GTEST_TRUE@	get_config_unittest.cc get_config_unittest.h
+@HAVE_GTEST_TRUE@	get_config_unittest.cc get_config_unittest.h \
+@HAVE_GTEST_TRUE@	shared_network_unittest.cc
 @HAVE_GTEST_TRUE@nodist_dhcp4_unittests_SOURCES = marker_file.h test_libraries.h
 @HAVE_GTEST_TRUE@dhcp4_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 @HAVE_GTEST_TRUE@dhcp4_unittests_LDFLAGS = $(AM_LDFLAGS) \
@@ -675,6 +678,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_unittests-out_of_range_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_unittests-parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_unittests-release_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_unittests-shared_network_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_unittests-simple_parser4_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libco1_la-callout_library_1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libco2_la-callout_library_2.Plo@am__quote@
@@ -1035,6 +1039,20 @@ dhcp4_unittests-get_config_unittest.obj: get_config_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='get_config_unittest.cc' object='dhcp4_unittests-get_config_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dhcp4_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dhcp4_unittests-get_config_unittest.obj `if test -f 'get_config_unittest.cc'; then $(CYGPATH_W) 'get_config_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/get_config_unittest.cc'; fi`
+
+dhcp4_unittests-shared_network_unittest.o: shared_network_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dhcp4_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT dhcp4_unittests-shared_network_unittest.o -MD -MP -MF $(DEPDIR)/dhcp4_unittests-shared_network_unittest.Tpo -c -o dhcp4_unittests-shared_network_unittest.o `test -f 'shared_network_unittest.cc' || echo '$(srcdir)/'`shared_network_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dhcp4_unittests-shared_network_unittest.Tpo $(DEPDIR)/dhcp4_unittests-shared_network_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_network_unittest.cc' object='dhcp4_unittests-shared_network_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dhcp4_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dhcp4_unittests-shared_network_unittest.o `test -f 'shared_network_unittest.cc' || echo '$(srcdir)/'`shared_network_unittest.cc
+
+dhcp4_unittests-shared_network_unittest.obj: shared_network_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dhcp4_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT dhcp4_unittests-shared_network_unittest.obj -MD -MP -MF $(DEPDIR)/dhcp4_unittests-shared_network_unittest.Tpo -c -o dhcp4_unittests-shared_network_unittest.obj `if test -f 'shared_network_unittest.cc'; then $(CYGPATH_W) 'shared_network_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_network_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dhcp4_unittests-shared_network_unittest.Tpo $(DEPDIR)/dhcp4_unittests-shared_network_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='shared_network_unittest.cc' object='dhcp4_unittests-shared_network_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dhcp4_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o dhcp4_unittests-shared_network_unittest.obj `if test -f 'shared_network_unittest.cc'; then $(CYGPATH_W) 'shared_network_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/shared_network_unittest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
