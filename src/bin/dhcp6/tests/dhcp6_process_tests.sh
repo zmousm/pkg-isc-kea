@@ -11,7 +11,7 @@ LOG_FILE=/home/wlodek/dev/kea/src/bin/dhcp6/tests/test.log
 # Path to the Kea lease file.
 LEASE_FILE=/home/wlodek/dev/kea/src/bin/dhcp6/tests/test_leases.csv
 # Expected version
-EXPECTED_VERSION="1.3.0-beta"
+EXPECTED_VERSION="1.3.0"
 # Kea configuration to be stored in the configuration file.
 CONFIG="{
     \"Dhcp6\":

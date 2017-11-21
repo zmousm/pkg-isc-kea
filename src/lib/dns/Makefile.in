@@ -329,6 +329,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -477,6 +479,7 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 # BUILT_SOURCES.
 CLEANFILES = *.gcno *.gcda s-rdatacode python/rrtype_constants_inc.cc \
 	python/rrclass_constants_inc.cc
+DISTCLEANFILES = gen-rdatacode.py
 
 # TODO: double-check that this is the only way
 # NOTE: when an rdata file is added, please also add to this list:
@@ -527,7 +530,7 @@ noinst_SCRIPTS = gen-rdatacode.py
 BUILT_SOURCES = rrclass.h rrtype.h rrparamregistry.cc rdataclass.h \
 	rdataclass.cc
 lib_LTLIBRARIES = libkea-dns++.la
-libkea_dns___la_LDFLAGS = -no-undefined -version-info 1:1:1 \
+libkea_dns___la_LDFLAGS = -no-undefined -version-info 2:0:0 \
 	$(AM_LDFLAGS) $(CRYPTO_LDFLAGS)
 
 # The following files used to be generated, but they are now part of the git tree:
@@ -572,27 +575,40 @@ libkea_dns___la_LIBADD =  \
 #rrclass.h rrtype.h rrparamregistry.cc rdataclass.h rdataclass.cc: s-rdatacode
 libdns___includedir = $(pkgincludedir)/dns
 libdns___include_HEADERS = \
+	dns_fwd.h \
 	edns.h \
 	exceptions.h \
-	dns_fwd.h \
 	labelsequence.h \
-	message.h \
-	masterload.h \
 	master_lexer.h \
+	master_lexer_inputsource.h \
+	master_lexer_state.h \
 	master_loader.h \
 	master_loader_callbacks.h \
+	masterload.h \
+	message.h \
 	messagerenderer.h \
 	name.h \
-	question.h \
+	nsec3hash.h \
 	opcode.h \
+	question.h \
 	rcode.h \
 	rdata.h \
+	rdata_pimpl_holder.h \
+	rdataclass.h \
+	rdatafields.h \
+	rrclass.h \
+	rrcollator.h \
 	rrparamregistry.h \
 	rrset.h \
-	rrset_collection_base.h \
 	rrset_collection.h \
+	rrset_collection_base.h \
 	rrttl.h \
+	rrtype.h \
+	serial.h \
+	tsig.h \
+	tsigerror.h \
 	tsigkey.h \
+	tsigrecord.h \
 	zone_checker.h
 
 all: $(BUILT_SOURCES)
@@ -1212,6 +1228,7 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f rdata/generic/detail/$(DEPDIR)/$(am__dirstamp)
 	-rm -f rdata/generic/detail/$(am__dirstamp)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"

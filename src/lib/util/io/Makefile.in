@@ -135,6 +135,10 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+libkea_util_io_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libkea_util_io_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -292,6 +296,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -440,6 +446,7 @@ libkea_util_io_la_SOURCES = fd.h fd.cc fd_share.h fd_share.cc \
 	socketsession.h socketsession.cc sockaddr_util.h \
 	pktinfo_utilities.h
 libkea_util_io_la_LIBADD = $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
+libkea_util_io_la_LDFLAGS = -no-undefined -version-info 0:0:0
 CLEANFILES = *.gcno *.gcda
 all: all-recursive
 
@@ -512,7 +519,7 @@ clean-libLTLIBRARIES:
 	}
 
 libkea-util-io.la: $(libkea_util_io_la_OBJECTS) $(libkea_util_io_la_DEPENDENCIES) $(EXTRA_libkea_util_io_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libkea_util_io_la_OBJECTS) $(libkea_util_io_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(libkea_util_io_la_LINK) -rpath $(libdir) $(libkea_util_io_la_OBJECTS) $(libkea_util_io_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

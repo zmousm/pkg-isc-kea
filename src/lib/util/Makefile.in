@@ -81,7 +81,11 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = src/lib/util
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(libkea_util_include_HEADERS)
+	$(top_srcdir)/depcomp $(libkea_util_encode_include_HEADERS) \
+	$(libkea_util_include_HEADERS) \
+	$(libkea_util_io_include_HEADERS) \
+	$(libkea_util_random_include_HEADERS) \
+	$(libkea_util_threads_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
@@ -127,7 +131,11 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(libkea_util_includedir)"
+	"$(DESTDIR)$(libkea_util_encode_includedir)" \
+	"$(DESTDIR)$(libkea_util_includedir)" \
+	"$(DESTDIR)$(libkea_util_io_includedir)" \
+	"$(DESTDIR)$(libkea_util_random_includedir)" \
+	"$(DESTDIR)$(libkea_util_threads_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libkea_util_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la
@@ -214,7 +222,11 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(libkea_util_include_HEADERS)
+HEADERS = $(libkea_util_encode_include_HEADERS) \
+	$(libkea_util_include_HEADERS) \
+	$(libkea_util_io_include_HEADERS) \
+	$(libkea_util_random_include_HEADERS) \
+	$(libkea_util_threads_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -305,6 +317,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -469,15 +483,60 @@ libkea_util_la_SOURCES = boost_time_utils.h boost_time_utils.cc \
 libkea_util_la_LIBADD = $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
 libkea_util_la_LDFLAGS = -no-undefined -version-info 2:1:0
 CLEANFILES = *.gcno *.gcda
+
+# Specify the headers for copying into the installation directory tree.
 libkea_util_includedir = $(pkgincludedir)/util
 libkea_util_include_HEADERS = \
-    buffer.h \
-    io_utilities.h \
-    optional_value.h \
-    pointer_util.h \
-    stopwatch.h \
-    strutil.h \
-    staged_value.h
+	boost_time_utils.h \
+	buffer.h \
+	csv_file.h \
+	filename.h \
+	io_utilities.h \
+	labeled_value.h \
+	memory_segment.h \
+	memory_segment_local.h \
+	optional_value.h \
+	pid_file.h \
+	pointer_util.h \
+	process_spawn.h \
+	range_utilities.h \
+	signal_set.h \
+	staged_value.h \
+	state_model.h \
+	stopwatch.h \
+	stopwatch_impl.h \
+	strutil.h \
+	time_utilities.h \
+	versioned_csv_file.h \
+	watch_socket.h
+
+libkea_util_encode_includedir = $(pkgincludedir)/util/encode
+libkea_util_encode_include_HEADERS = \
+	encode/base16_from_binary.h \
+	encode/base32hex.h \
+	encode/base32hex_from_binary.h \
+	encode/base64.h \
+	encode/binary_from_base16.h \
+	encode/binary_from_base32hex.h \
+	encode/hex.h
+
+libkea_util_io_includedir = $(pkgincludedir)/util/io
+libkea_util_io_include_HEADERS = \
+	io/fd.h \
+	io/fd_share.h \
+	io/pktinfo_utilities.h \
+	io/sockaddr_util.h \
+	io/socketsession.h
+
+libkea_util_random_includedir = $(pkgincludedir)/util/random
+libkea_util_random_include_HEADERS = \
+	random/qid_gen.h \
+	random/random_number_generator.h
+
+libkea_util_threads_includedir = $(pkgincludedir)/util/threads
+libkea_util_threads_include_HEADERS = \
+	threads/sync.h \
+	threads/thread.h
 
 all: all-recursive
 
@@ -627,6 +686,27 @@ clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf encode/.libs encode/_libs
 	-rm -rf random/.libs random/_libs
+install-libkea_util_encode_includeHEADERS: $(libkea_util_encode_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(libkea_util_encode_include_HEADERS)'; test -n "$(libkea_util_encode_includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_util_encode_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_util_encode_includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_util_encode_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_util_encode_includedir)" || exit $$?; \
+	done
+
+uninstall-libkea_util_encode_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libkea_util_encode_include_HEADERS)'; test -n "$(libkea_util_encode_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libkea_util_encode_includedir)'; $(am__uninstall_files_from_dir)
 install-libkea_util_includeHEADERS: $(libkea_util_include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(libkea_util_include_HEADERS)'; test -n "$(libkea_util_includedir)" || list=; \
@@ -648,6 +728,69 @@ uninstall-libkea_util_includeHEADERS:
 	@list='$(libkea_util_include_HEADERS)'; test -n "$(libkea_util_includedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(libkea_util_includedir)'; $(am__uninstall_files_from_dir)
+install-libkea_util_io_includeHEADERS: $(libkea_util_io_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(libkea_util_io_include_HEADERS)'; test -n "$(libkea_util_io_includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_util_io_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_util_io_includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_util_io_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_util_io_includedir)" || exit $$?; \
+	done
+
+uninstall-libkea_util_io_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libkea_util_io_include_HEADERS)'; test -n "$(libkea_util_io_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libkea_util_io_includedir)'; $(am__uninstall_files_from_dir)
+install-libkea_util_random_includeHEADERS: $(libkea_util_random_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(libkea_util_random_include_HEADERS)'; test -n "$(libkea_util_random_includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_util_random_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_util_random_includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_util_random_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_util_random_includedir)" || exit $$?; \
+	done
+
+uninstall-libkea_util_random_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libkea_util_random_include_HEADERS)'; test -n "$(libkea_util_random_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libkea_util_random_includedir)'; $(am__uninstall_files_from_dir)
+install-libkea_util_threads_includeHEADERS: $(libkea_util_threads_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(libkea_util_threads_include_HEADERS)'; test -n "$(libkea_util_threads_includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_util_threads_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_util_threads_includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_util_threads_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_util_threads_includedir)" || exit $$?; \
+	done
+
+uninstall-libkea_util_threads_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libkea_util_threads_include_HEADERS)'; test -n "$(libkea_util_threads_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libkea_util_threads_includedir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -808,7 +951,7 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_util_includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_util_encode_includedir)" "$(DESTDIR)$(libkea_util_includedir)" "$(DESTDIR)$(libkea_util_io_includedir)" "$(DESTDIR)$(libkea_util_random_includedir)" "$(DESTDIR)$(libkea_util_threads_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -869,7 +1012,11 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-libkea_util_includeHEADERS
+install-data-am: install-libkea_util_encode_includeHEADERS \
+	install-libkea_util_includeHEADERS \
+	install-libkea_util_io_includeHEADERS \
+	install-libkea_util_random_includeHEADERS \
+	install-libkea_util_threads_includeHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -916,7 +1063,11 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-libLTLIBRARIES \
-	uninstall-libkea_util_includeHEADERS
+	uninstall-libkea_util_encode_includeHEADERS \
+	uninstall-libkea_util_includeHEADERS \
+	uninstall-libkea_util_io_includeHEADERS \
+	uninstall-libkea_util_random_includeHEADERS \
+	uninstall-libkea_util_threads_includeHEADERS
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -928,14 +1079,23 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-libkea_util_includeHEADERS \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES \
-	uninstall-libkea_util_includeHEADERS
+	install-libLTLIBRARIES \
+	install-libkea_util_encode_includeHEADERS \
+	install-libkea_util_includeHEADERS \
+	install-libkea_util_io_includeHEADERS \
+	install-libkea_util_random_includeHEADERS \
+	install-libkea_util_threads_includeHEADERS install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-libkea_util_encode_includeHEADERS \
+	uninstall-libkea_util_includeHEADERS \
+	uninstall-libkea_util_io_includeHEADERS \
+	uninstall-libkea_util_random_includeHEADERS \
+	uninstall-libkea_util_threads_includeHEADERS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -78,12 +78,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-
-# Kea-shell is disabled, simply keep the files for make dist
-@KEA_SHELL_FALSE@am__append_1 = kea-shell kea_conn.py kea_connector2.py kea_connector3.py
 subdir = src/bin/shell
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/kea-shell.in $(am__pkgpython_PYTHON_DIST) \
+	$(srcdir)/kea-shell.in $(pkgpython_PYTHON) \
 	$(top_srcdir)/py-compile
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
@@ -159,8 +156,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__pkgpython_PYTHON_DIST = kea_conn.py kea_connector2.py \
-	kea_connector3.py
 am__py_compile = PYTHON=$(PYTHON) $(SHELL) $(py_compile)
 am__pep3147_tweak = \
   sed -e 's|\.py$$||' -e 's|[^/]*$$|__pycache__/&.*.py|'
@@ -258,6 +253,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -398,14 +395,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = . tests
-EXTRA_DIST = $(am__append_1) $(man_MANS) kea-shell.xml
-
-# Kea-shell is enabled, here are proper rules for it.
-@KEA_SHELL_TRUE@pkgpython_PYTHON = kea_conn.py kea_connector2.py kea_connector3.py
-@KEA_SHELL_TRUE@sbin_SCRIPTS = kea-shell
+pkgpython_PYTHON = kea_conn.py kea_connector2.py kea_connector3.py
+sbin_SCRIPTS = kea-shell
 CLEANFILES = *.pyc
 man_MANS = kea-shell.8
-DISTCLEANFILES = $(man_MANS)
+DISTCLEANFILES = $(sbin_SCRIPTS) $(man_MANS)
+EXTRA_DIST = $(man_MANS) kea-shell.xml
 CLEANDIRS = __pycache__
 all: all-recursive
 

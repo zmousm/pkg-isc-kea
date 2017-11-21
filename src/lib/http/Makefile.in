@@ -81,7 +81,7 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = src/lib/http
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(libkea_process_include_HEADERS)
+	$(top_srcdir)/depcomp $(libkea_http_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
@@ -127,7 +127,7 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(libkea_process_includedir)"
+	"$(DESTDIR)$(libkea_http_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libkea_http_la_DEPENDENCIES =  \
@@ -224,7 +224,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(libkea_process_include_HEADERS)
+HEADERS = $(libkea_http_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -315,6 +315,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -481,7 +483,7 @@ nodist_libkea_http_la_SOURCES = http_messages.cc http_messages.h
 libkea_http_la_CXXFLAGS = $(AM_CXXFLAGS)
 libkea_http_la_CPPFLAGS = $(AM_CPPFLAGS)
 libkea_http_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -version-info \
-	0:0:0
+	0:1:0
 libkea_http_la_LIBADD =  \
 	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
@@ -492,9 +494,25 @@ libkea_http_la_LIBADD =  \
 	$(LOG4CPLUS_LIBS) $(BOOST_LIBS)
 
 # Specify the headers for copying into the installation directory tree.
-libkea_process_includedir = $(pkgincludedir)/http
-libkea_process_include_HEADERS = \
-	http_log.h
+libkea_http_includedir = $(pkgincludedir)/http
+libkea_http_include_HEADERS = \
+	connection.h \
+	connection_pool.h \
+	date_time.h \
+	header_context.h \
+	http_acceptor.h \
+	http_log.h \
+	http_types.h \
+	listener.h \
+	post_request.h \
+	post_request_json.h \
+	request.h \
+	request_context.h \
+	request_parser.h \
+	response.h \
+	response_creator.h \
+	response_creator_factory.h \
+	response_json.h
 
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -707,27 +725,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-libkea_process_includeHEADERS: $(libkea_process_include_HEADERS)
+install-libkea_http_includeHEADERS: $(libkea_http_include_HEADERS)
 	@$(NORMAL_INSTALL)
-	@list='$(libkea_process_include_HEADERS)'; test -n "$(libkea_process_includedir)" || list=; \
+	@list='$(libkea_http_include_HEADERS)'; test -n "$(libkea_http_includedir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_process_includedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libkea_process_includedir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_http_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_http_includedir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_process_includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_process_includedir)" || exit $$?; \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_http_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_http_includedir)" || exit $$?; \
 	done
 
-uninstall-libkea_process_includeHEADERS:
+uninstall-libkea_http_includeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(libkea_process_include_HEADERS)'; test -n "$(libkea_process_includedir)" || list=; \
+	@list='$(libkea_http_include_HEADERS)'; test -n "$(libkea_http_includedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libkea_process_includedir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(libkea_http_includedir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -889,7 +907,7 @@ check: $(BUILT_SOURCES)
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_process_includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_http_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -948,7 +966,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-libkea_process_includeHEADERS
+install-data-am: install-libkea_http_includeHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -995,7 +1013,7 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-libLTLIBRARIES \
-	uninstall-libkea_process_includeHEADERS
+	uninstall-libkea_http_includeHEADERS
 
 .MAKE: $(am__recursive_targets) all check install install-am \
 	install-strip
@@ -1008,14 +1026,14 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-libkea_process_includeHEADERS \
+	install-libLTLIBRARIES install-libkea_http_includeHEADERS \
 	install-man install-pdf install-pdf-am install-ps \
 	install-ps-am install-strip installcheck installcheck-am \
 	installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES \
-	uninstall-libkea_process_includeHEADERS
+	uninstall-libkea_http_includeHEADERS
 
 
 # Define rule to build logging source files from message file

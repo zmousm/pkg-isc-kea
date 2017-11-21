@@ -78,14 +78,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-
-# Ok, shell is enabled. Let's run those tests.
-@KEA_SHELL_TRUE@am__append_1 = shell_unittest.py
-@KEA_SHELL_TRUE@am__append_2 = shell_process_tests.sh
-
-# Nope, shell is disabled. Let's keep the files in EXTRA_DIST, so they get
-# included in make dist, but don't do anything special about them.
-@KEA_SHELL_FALSE@am__append_3 = shell_unittest.py shell_process_tests.sh
 subdir = src/bin/shell/tests
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/shell_process_tests.sh.in \
@@ -165,6 +157,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -304,10 +298,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-PYTESTS = $(am__append_1)
-SHTESTS = $(am__append_2)
-EXTRA_DIST = $(am__append_3)
-@KEA_SHELL_TRUE@noinst_SCRIPTS = $(PYTESTS) $(SHTESTS)
+PYTESTS = shell_unittest.py
+SHTESTS = shell_process_tests.sh
+noinst_SCRIPTS = $(PYTESTS) $(SHTESTS)
+DISTCLEANFILES = shell_process_tests.sh shell_unittest.py
 CLEANDIRS = __pycache__
 all: all-am
 
@@ -389,7 +383,6 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-@KEA_SHELL_FALSE@check-local:
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) check-local
 check: check-am
@@ -421,6 +414,7 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -508,22 +502,23 @@ uninstall-am:
 
 
 # test using command-line arguments, so use check-local target instead of TESTS
-@KEA_SHELL_TRUE@check-local: check-shell check-python
+check-local: check-shell check-python
 
-@KEA_SHELL_TRUE@check-python:
-@KEA_SHELL_TRUE@	@for pytest in $(PYTESTS) ; do \
-@KEA_SHELL_TRUE@	echo Running python test: $$pytest ; \
-@KEA_SHELL_TRUE@	chmod +x $(abs_builddir)/$$pytest ; \
-@KEA_SHELL_TRUE@	PYTHONPATH=$(PYTHONPATH):$(abs_top_builddir)/src/bin/shell python $(abs_builddir)/$$pytest || exit ; \
-@KEA_SHELL_TRUE@	done
+check-python:
+	@for pytest in $(PYTESTS) ; do \
+	echo Running python test: $$pytest ; \
+	chmod +x $(abs_builddir)/$$pytest ; \
+	PYTHONPATH=$(PYTHONPATH):$(abs_top_srcdir)/src/bin/shell python $(abs_builddir)/$$pytest || exit ; \
+	done
 
-@KEA_SHELL_TRUE@check-shell:
-@KEA_SHELL_TRUE@	@for shtest in $(SHTESTS) ; do \
-@KEA_SHELL_TRUE@	echo Running shell test: $$shtest ; \
-@KEA_SHELL_TRUE@	export KEA_LOCKFILE_DIR=$(abs_top_builddir); \
-@KEA_SHELL_TRUE@	export KEA_PIDFILE_DIR=$(abs_top_builddir); \
-@KEA_SHELL_TRUE@	${SHELL} $(abs_builddir)/$$shtest || exit ; \
-@KEA_SHELL_TRUE@	done
+check-shell:
+	@for shtest in $(SHTESTS) ; do \
+	echo Running shell test: $$shtest ; \
+	export KEA_LOCKFILE_DIR=$(abs_top_builddir); \
+	export KEA_PIDFILE_DIR=$(abs_top_builddir); \
+	export PYTHONPATH=$(PYTHONPATH):$(abs_top_srcdir)/src/bin/shell; \
+	${SHELL} $(abs_builddir)/$$shtest || exit ; \
+	done
 
 clean-local:
 	rm -rf $(CLEANDIRS)

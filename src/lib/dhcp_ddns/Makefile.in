@@ -317,6 +317,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -494,9 +496,10 @@ libkea_dhcp_ddns_la_LIBADD =  \
 # Specify the headers for copying into the installation directory tree.
 libkea_dhcp_ddns_includedir = $(pkgincludedir)/dhcp_ddns
 libkea_dhcp_ddns_include_HEADERS = \
-   ncr_io.h \
-   ncr_msg.h \
-   ncr_udp.h
+	dhcp_ddns_log.h \
+	ncr_io.h \
+	ncr_msg.h \
+	ncr_udp.h
 
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

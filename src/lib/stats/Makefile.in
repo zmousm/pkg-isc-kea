@@ -304,6 +304,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -451,13 +453,17 @@ lib_LTLIBRARIES = libkea-stats.la
 libkea_stats_la_SOURCES = observation.h observation.cc context.h \
 	context.cc stats_mgr.h stats_mgr.cc
 libkea_stats_la_CPPFLAGS = $(AM_CPPFLAGS)
-libkea_stats_la_LDFLAGS = -no-undefined -version-info 1:0:0
+libkea_stats_la_LDFLAGS = -no-undefined -version-info 2:0:0
 libkea_stats_la_LIBADD = $(top_builddir)/src/lib/cc/libkea-cc.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(BOOST_LIBS)
 libkea_stats_includedir = $(pkgincludedir)/stats
-libkea_stats_include_HEADERS = stats_mgr.h
+libkea_stats_include_HEADERS = \
+	context.h \
+	observation.h \
+	stats_mgr.h
+
 all: all-recursive
 
 .SUFFIXES:

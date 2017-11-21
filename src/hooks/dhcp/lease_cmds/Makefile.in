@@ -328,6 +328,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -476,8 +478,8 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 # (so that they are built before the main library is built).
 BUILT_SOURCES = lease_cmds_messages.h lease_cmds_messages.cc
 
-# Ensure that the message file is included in the distribution
-EXTRA_DIST = lease_cmds_messages.mes
+# Ensure that the message file and doxygen file is included in the distribution
+EXTRA_DIST = lease_cmds_messages.mes lease_cmds.dox
 
 # Get rid of generated message files on a clean
 CLEANFILES = *.gcno *.gcda lease_cmds_messages.h lease_cmds_messages.cc s-messages

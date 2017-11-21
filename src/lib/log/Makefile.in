@@ -82,7 +82,8 @@ host_triplet = @host@
 @USE_GXX_TRUE@am__append_1 = -Wno-unused-parameter -Wno-deprecated-declarations
 subdir = src/lib/log
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(libkea_log_include_HEADERS)
+	$(top_srcdir)/depcomp $(libkea_log_include_HEADERS) \
+	$(libkea_log_interprocess_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
@@ -128,7 +129,8 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(libkea_log_includedir)"
+	"$(DESTDIR)$(libkea_log_includedir)" \
+	"$(DESTDIR)$(libkea_log_interprocess_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libkea_log_la_DEPENDENCIES = $(top_builddir)/src/lib/log/interprocess/libkea-log_interprocess.la \
@@ -226,7 +228,8 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(libkea_log_include_HEADERS)
+HEADERS = $(libkea_log_include_HEADERS) \
+	$(libkea_log_interprocess_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -317,6 +320,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -488,17 +493,37 @@ libkea_log_la_LIBADD = $(top_builddir)/src/lib/log/interprocess/libkea-log_inter
 	$(LOG4CPLUS_LIBS)
 libkea_log_la_LDFLAGS = -no-undefined -version-info 3:0:0
 
-# Specify the headers for copying into the installation directory tree. User-
-# written libraries only need the definitions for logger.h and dependencies.
+# Specify the headers for copying into the installation directory tree.
 libkea_log_includedir = $(pkgincludedir)/log
 libkea_log_include_HEADERS = \
-    log_dbglevels.h \
-    log_formatter.h \
-    logger.h \
-    logger_level.h \
-    macros.h \
-    message_initializer.h \
-    message_types.h
+	buffer_appender_impl.h \
+	log_dbglevels.h \
+	log_formatter.h \
+	log_messages.h \
+	logger.h \
+	logger_impl.h \
+	logger_level.h \
+	logger_level_impl.h \
+	logger_manager.h \
+	logger_manager_impl.h \
+	logger_name.h \
+	logger_specification.h \
+	logger_support.h \
+	logger_unittest_support.h \
+	logimpl_messages.h \
+	macros.h \
+	message_dictionary.h \
+	message_exception.h \
+	message_initializer.h \
+	message_reader.h \
+	message_types.h \
+	output_option.h
+
+libkea_log_interprocess_includedir = $(pkgincludedir)/log/interprocess
+libkea_log_interprocess_include_HEADERS = \
+	interprocess/interprocess_sync.h \
+	interprocess/interprocess_sync_file.h \
+	interprocess/interprocess_sync_null.h
 
 all: all-recursive
 
@@ -771,6 +796,27 @@ uninstall-libkea_log_includeHEADERS:
 	@list='$(libkea_log_include_HEADERS)'; test -n "$(libkea_log_includedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(libkea_log_includedir)'; $(am__uninstall_files_from_dir)
+install-libkea_log_interprocess_includeHEADERS: $(libkea_log_interprocess_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(libkea_log_interprocess_include_HEADERS)'; test -n "$(libkea_log_interprocess_includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_log_interprocess_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_log_interprocess_includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_log_interprocess_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_log_interprocess_includedir)" || exit $$?; \
+	done
+
+uninstall-libkea_log_interprocess_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libkea_log_interprocess_include_HEADERS)'; test -n "$(libkea_log_interprocess_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libkea_log_interprocess_includedir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -931,7 +977,7 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_log_includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_log_includedir)" "$(DESTDIR)$(libkea_log_interprocess_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -988,7 +1034,8 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-libkea_log_includeHEADERS
+install-data-am: install-libkea_log_includeHEADERS \
+	install-libkea_log_interprocess_includeHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -1035,7 +1082,8 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-libLTLIBRARIES \
-	uninstall-libkea_log_includeHEADERS
+	uninstall-libkea_log_includeHEADERS \
+	uninstall-libkea_log_interprocess_includeHEADERS
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -1048,13 +1096,15 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-libkea_log_includeHEADERS \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES \
-	uninstall-libkea_log_includeHEADERS
+	install-libkea_log_interprocess_includeHEADERS install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-libkea_log_includeHEADERS \
+	uninstall-libkea_log_interprocess_includeHEADERS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

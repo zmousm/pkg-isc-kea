@@ -11,7 +11,7 @@
 /* #undef ENABLE_LOGGER_CHECKS */
 
 /* Extended Kea version */
-#define EXTENDED_VERSION "git cdfbc19538f4104e307f24ce2b46887573148ebd"
+#define EXTENDED_VERSION "git cbdbd62a0df920a589081e863c064ebcae74a231"
 
 /* Does this platform have some undefined pthreads behavior? */
 /* #undef HAS_UNDEFINED_PTHREAD_BEHAVIOR */
@@ -165,7 +165,7 @@
 #define PACKAGE_NAME "kea"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "kea 1.3.0-beta"
+#define PACKAGE_STRING "kea 1.3.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "kea"
@@ -174,7 +174,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.3.0-beta"
+#define PACKAGE_VERSION "1.3.0"
 
 /* Kea-premium package found */
 /* #undef PREMIUM */
@@ -186,7 +186,7 @@
 /* #undef USE_STATIC_LINK */
 
 /* Version number of package */
-#define VERSION "1.3.0-beta"
+#define VERSION "1.3.0"
 
 /* Compile with Botan crypto */
 #define WITH_BOTAN /**/

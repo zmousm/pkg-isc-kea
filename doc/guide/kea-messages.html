@@ -1,6 +1,6 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kea Messages Manual</title><link rel="stylesheet" type="text/css" href="kea-guide.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><meta name="description" content="This is the messages manual for Kea version 1.3.0-beta. The most up-to-date version of this document, along with other documents for Kea, can be found at ."></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book"><div class="titlepage"><div><div><h1 class="title"><a name="idm6306096"></a>Kea Messages Manual</h1></div><div><p class="releaseinfo">This is the messages manual for Kea version
-        1.3.0-beta.</p></div><div><p class="copyright">Copyright © 2011-2017 Internet Systems Consortium, Inc.</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
-        This is the messages manual for Kea version 1.3.0-beta.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kea Messages Manual</title><link rel="stylesheet" type="text/css" href="kea-guide.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><meta name="description" content="This is the messages manual for Kea version 1.3.0. The most up-to-date version of this document, along with other documents for Kea, can be found at ."></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book"><div class="titlepage"><div><div><h1 class="title"><a name="idm6299248"></a>Kea Messages Manual</h1></div><div><p class="releaseinfo">This is the messages manual for Kea version
+        1.3.0.</p></div><div><p class="copyright">Copyright © 2011-2017 Internet Systems Consortium, Inc. ("ISC")</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+        This is the messages manual for Kea version 1.3.0.
             The most up-to-date version of this document, along with
             other documents for Kea, can be found at
         <a class="ulink" href="http://kea.isc.org/docs" target="_top">http://kea.isc.org/docs</a>.
@@ -1324,6 +1324,13 @@ This debug message includes the details of the subnet selected for
 the client. The first argument includes the client and the
 transaction identification information. The second arguments
 includes the subnet details.
+</p></dd><dt><a name="DHCP4_SUBNET_DYNAMICALLY_CHANGED"></a><span class="term">DHCP4_SUBNET_DYNAMICALLY_CHANGED %1: changed selected subnet %2 to subnet %3 from shared network %4 for client assignments</span></dt><dd><p>
+This debug message indicates that the server is using another subnet
+than initially selected for client assignments. This newly selected
+subnet belongs to the same shared network as the original subnet.
+Some reasons why the new subnet was selected include: address pool
+exhaustion in the original subnet or the fact that the new subnet
+includes some static reservations for this client.
 </p></dd><dt><a name="DHCP4_SUBNET_SELECTED"></a><span class="term">DHCP4_SUBNET_SELECTED %1: the subnet with ID %2 was selected for client assignments</span></dt><dd><p>
 This is a debug message noting the selection of a subnet to be used for
 address and option assignment. Subnet selection is one of the early
@@ -1937,6 +1944,13 @@ This debug message includes the details of the subnet selected for
 the client. The first argument includes the client and the
 transaction identification information. The second argument
 includes the subnet details.
+</p></dd><dt><a name="DHCP6_SUBNET_DYNAMICALLY_CHANGED"></a><span class="term">DHCP6_SUBNET_DYNAMICALLY_CHANGED %1: changed selected subnet %2 to subnet %3 from shared network %4 for client assignments</span></dt><dd><p>
+This debug message indicates that the server is using another subnet
+than initially selected for client assignments. This newly selected
+subnet belongs to the same shared network as the original subnet.
+Some reasons why the new subnet was selected include: address pool
+exhaustion in the original subnet or the fact that the new subnet
+includes some static reservations for this client.
 </p></dd><dt><a name="DHCP6_SUBNET_SELECTED"></a><span class="term">DHCP6_SUBNET_SELECTED %1: the subnet with ID %2 was selected for client assignments</span></dt><dd><p>
 This is a debug message noting the selection of a subnet to be used for
 address and option assignment. Subnet selection is one of the early
@@ -3123,6 +3137,14 @@ the value stack.  The strings are displayed in hex.
 </p></dd><dt><a name="EVAL_DEBUG_HEXSTRING"></a><span class="term">EVAL_DEBUG_HEXSTRING Pushing hex string %1</span></dt><dd><p>
 This debug message indicates that the given binary string is being pushed
 onto the value stack.  The string is displayed in hex.
+</p></dd><dt><a name="EVAL_DEBUG_IFELSE_FALSE"></a><span class="term">EVAL_DEBUG_IFELSE_FALSE Popping %1 (false) and %2, leaving %3</span></dt><dd><p>
+This debug message indicates that the condition is false so
+the iftrue branch value is removed and the ifelse branch value
+is left on the value stack.
+</p></dd><dt><a name="EVAL_DEBUG_IFELSE_TRUE"></a><span class="term">EVAL_DEBUG_IFELSE_TRUE Popping %1 (true) and %2, leaving %3</span></dt><dd><p>
+This debug message indicates that the condition is true so
+the ifelse branch value is removed and the iftrue branch value
+is left on the value stack.
 </p></dd><dt><a name="EVAL_DEBUG_IPADDRESS"></a><span class="term">EVAL_DEBUG_IPADDRESS Pushing IPAddress %1</span></dt><dd><p>
 This debug message indicates that the given binary string is being pushed
 onto the value stack.  This represents either an IPv4 or IPv6 address.

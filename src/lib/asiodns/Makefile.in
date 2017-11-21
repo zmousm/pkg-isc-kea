@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -80,7 +81,7 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = src/lib/asiodns
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp README
+	$(top_srcdir)/depcomp $(libkea_asiodns_include_HEADERS) README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
@@ -125,13 +126,16 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" \
+	"$(DESTDIR)$(libkea_asiodns_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libkea_asiodns_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
+	$(top_builddir)/src/lib/dns/libkea-dns++.la \
 	$(top_builddir)/src/lib/log/libkea-log.la \
 	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
+	$(top_builddir)/src/lib/cryptolink/libkea-cryptolink.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -147,8 +151,8 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 libkea_asiodns_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(libkea_asiodns_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	$(libkea_asiodns_la_CXXFLAGS) $(CXXFLAGS) \
+	$(libkea_asiodns_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -217,6 +221,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+HEADERS = $(libkea_asiodns_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -307,6 +312,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -453,6 +460,7 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 CLEANFILES = *.gcno *.gcda asiodns_messages.h asiodns_messages.cc s-messages
 BUILT_SOURCES = asiodns_messages.h asiodns_messages.cc
 lib_LTLIBRARIES = libkea-asiodns.la
+libkea_asiodns_la_LDFLAGS = -no-undefined -version-info 0:1:0
 libkea_asiodns_la_SOURCES = io_fetch.cc io_fetch.h logger.h logger.cc
 nodist_libkea_asiodns_la_SOURCES = asiodns_messages.cc asiodns_messages.h
 EXTRA_DIST = asiodns_messages.mes
@@ -463,11 +471,20 @@ libkea_asiodns_la_CXXFLAGS = $(AM_CXXFLAGS)
 libkea_asiodns_la_CPPFLAGS = $(AM_CPPFLAGS)
 libkea_asiodns_la_LIBADD =  \
 	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
+	$(top_builddir)/src/lib/dns/libkea-dns++.la \
 	$(top_builddir)/src/lib/log/libkea-log.la \
 	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
+	$(top_builddir)/src/lib/cryptolink/libkea-cryptolink.la \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(BOOST_LIBS) $(LOG4CPLUS_LIBS)
+
+# Specify the headers for copying into the installation directory tree.
+libkea_asiodns_includedir = $(pkgincludedir)/asiodns
+libkea_asiodns_include_HEADERS = \
+	io_fetch.h \
+	logger.h
+
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -599,6 +616,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-libkea_asiodns_includeHEADERS: $(libkea_asiodns_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(libkea_asiodns_include_HEADERS)'; test -n "$(libkea_asiodns_includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libkea_asiodns_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libkea_asiodns_includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkea_asiodns_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkea_asiodns_includedir)" || exit $$?; \
+	done
+
+uninstall-libkea_asiodns_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libkea_asiodns_include_HEADERS)'; test -n "$(libkea_asiodns_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libkea_asiodns_includedir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -757,10 +795,10 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libkea_asiodns_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -819,7 +857,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-libkea_asiodns_includeHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -865,7 +903,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am: uninstall-libLTLIBRARIES \
+	uninstall-libkea_asiodns_includeHEADERS
 
 .MAKE: $(am__recursive_targets) all check install install-am \
 	install-strip
@@ -878,12 +917,14 @@ uninstall-am: uninstall-libLTLIBRARIES
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs installdirs-am maintainer-clean \
+	install-libLTLIBRARIES install-libkea_asiodns_includeHEADERS \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES
+	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-libkea_asiodns_includeHEADERS
 
 
 # Define rule to build logging source files from message file

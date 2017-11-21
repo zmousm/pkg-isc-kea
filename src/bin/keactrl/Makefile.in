@@ -247,6 +247,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -393,15 +395,21 @@ SUBDIRS = . tests
 # If the default location needs to be changed it may be achieved by
 # setting KEACTRL_CONF environment variable.
 sbin_SCRIPTS = keactrl
-CONFIGFILES = keactrl.conf kea.conf
+KEA_CONFIGFILES = kea-dhcp4.conf kea-dhcp6.conf kea-dhcp-ddns.conf \
+                  kea-ctrl-agent.conf
+
+CONFIGFILES = keactrl.conf $(KEA_CONFIGFILES)
 man_MANS = keactrl.8
 DISTCLEANFILES = keactrl keactrl.conf $(man_MANS)
-CLEANFILES = kea.conf
-EXTRA_DIST = keactrl.in keactrl.conf.in kea.conf.pre $(man_MANS) keactrl.xml
+CLEANFILES = $(KEA_CONFIGFILES)
+EXTRA_DIST = keactrl.in keactrl.conf.in kea-dhcp4.conf.pre \
+             kea-dhcp6.conf.pre kea-dhcp-ddns.conf.pre \
+             kea-ctrl-agent.conf.pre $(man_MANS) keactrl.xml
 
-# kea.conf is not really a source used for building other targets, but we need
-# this file to be generated before make install is called.
-BUILT_SOURCES = kea.conf
+
+# *.conf files are not really sources used for building other targets, but we need
+# these files to be generated before make install is called.
+BUILT_SOURCES = $(KEA_CONFIGFILES)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -811,21 +819,47 @@ uninstall-man: uninstall-man8
 
 
 @GENERATE_DOCS_TRUE@keactrl.8: keactrl.xml
-@GENERATE_DOCS_TRUE@	@XSLTPROC@ --novalid --xinclude --nonet -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $(srcdir)/keactrl.xml
+@GENERATE_DOCS_TRUE@	@XSLTPROC@ --novalid --xinclude --nonet -o $@ \
+@GENERATE_DOCS_TRUE@        http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $(srcdir)/keactrl.xml
 
 @GENERATE_DOCS_FALSE@$(man_MANS):
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Creating dummy $@.  Configure with --enable-generate-docs to enable it.
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Remove this file, configure with --enable-generate-docs, and rebuild Kea > $@
 
-kea.conf: kea.conf.pre
-	$(top_builddir)/tools/path_replacer.sh $(top_srcdir)/src/bin/keactrl/kea.conf.pre $@
+kea-dhcp4.conf: kea-dhcp4.conf.pre
+	$(top_builddir)/tools/path_replacer.sh \
+    $(top_srcdir)/src/bin/keactrl/kea-dhcp4.conf.pre $@
 
+kea-dhcp6.conf: kea-dhcp6.conf.pre
+	$(top_builddir)/tools/path_replacer.sh \
+    $(top_srcdir)/src/bin/keactrl/kea-dhcp6.conf.pre $@
+
+kea-dhcp-ddns.conf: kea-dhcp-ddns.conf.pre
+	$(top_builddir)/tools/path_replacer.sh \
+    $(top_srcdir)/src/bin/keactrl/kea-dhcp-ddns.conf.pre $@
+
+kea-ctrl-agent.conf: kea-ctrl-agent.conf.pre
+	$(top_builddir)/tools/path_replacer.sh \
+    $(top_srcdir)/src/bin/keactrl/kea-ctrl-agent.conf.pre $@
+
+# Since Kea 1.3.0 release we have 4 different Kea configuration files
+# instead of one, i.e. kea-dhcp4.conf, kea-dhcp6.conf, kea-dhcp-ddns.conf
+# and kea-ctrl-agent.conf. To facilitate the use of these new files
+# the keactrl.conf has been updated in Kea 1.3.0 release. Therefore,
+# we install new version of thea keactrl.conf file unconditionally.
+# To preserve any user modifications to the old version of the file,
+# this old file is backed up as keactrl.conf.bak.
 @INSTALL_CONFIGURATIONS_TRUE@install-data-local:
 @INSTALL_CONFIGURATIONS_TRUE@	$(mkinstalldirs) $(DESTDIR)/@sysconfdir@/@PACKAGE@
 @INSTALL_CONFIGURATIONS_TRUE@	for f in $(CONFIGFILES) ; do	\
-@INSTALL_CONFIGURATIONS_TRUE@	  if test ! -f $(DESTDIR)$(sysconfdir)/@PACKAGE@/$$f; then	\
-@INSTALL_CONFIGURATIONS_TRUE@	    ${INSTALL_DATA} $$f $(DESTDIR)$(sysconfdir)/@PACKAGE@/ ;	\
-@INSTALL_CONFIGURATIONS_TRUE@	  fi ;	\
+@INSTALL_CONFIGURATIONS_TRUE@		if test -f $(DESTDIR)$(sysconfdir)/@PACKAGE@/$$f && \
+@INSTALL_CONFIGURATIONS_TRUE@		   test $$f = "keactrl.conf"; then \
+@INSTALL_CONFIGURATIONS_TRUE@			mv $(DESTDIR)$(sysconfdir)/@PACKAGE@/$$f \
+@INSTALL_CONFIGURATIONS_TRUE@			   $(DESTDIR)$(sysconfdir)/@PACKAGE@/$$f.bak; \
+@INSTALL_CONFIGURATIONS_TRUE@		fi; \
+@INSTALL_CONFIGURATIONS_TRUE@		if test ! -f $(DESTDIR)$(sysconfdir)/@PACKAGE@/$$f; then \
+@INSTALL_CONFIGURATIONS_TRUE@			${INSTALL_DATA} $$f $(DESTDIR)$(sysconfdir)/@PACKAGE@/; \
+@INSTALL_CONFIGURATIONS_TRUE@		fi; \
 @INSTALL_CONFIGURATIONS_TRUE@	done
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

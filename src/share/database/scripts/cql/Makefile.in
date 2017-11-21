@@ -243,6 +243,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -384,9 +386,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = .
 sqlscriptsdir = ${datarootdir}/${PACKAGE_NAME}/scripts/cql
-sqlscripts_DATA = dhcpdb_create.cql dhcpdb_drop.cql
+sqlscripts_DATA = dhcpdb_create.cql dhcpdb_drop.cql soft_wipe.cql
 EXTRA_DIST = ${sqlscripts_DATA}
-noinst_EXTRA_DIST = soft_wipe.cql
 all: all-recursive
 
 .SUFFIXES:

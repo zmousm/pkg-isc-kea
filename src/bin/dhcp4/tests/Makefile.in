@@ -346,6 +346,8 @@ DEPDIR = @DEPDIR@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
+DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
+DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -500,7 +502,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 CLEANFILES = $(builddir)/interfaces.txt $(builddir)/logger_lockfile \
 	$(builddir)/load_marker.txt $(builddir)/unload_marker.txt \
 	$(builddir)/test_leases.csv.* *.json *.log
-DISTCLEANFILES = dhcp4_process_tests.sh
+DISTCLEANFILES = dhcp4_process_tests.sh marker_file.h \
+	test_data_files_config.h test_libraries.h
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 @USE_STATIC_LINK_TRUE@AM_LDFLAGS = -static
 TESTS_ENVIRONMENT = \

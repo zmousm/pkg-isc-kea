@@ -2,12 +2,12 @@
 .\"     Title: kea-shell
 .\"    Author: 
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 2017 Mar 8
+.\"      Date: Oct. 28, 2017
 .\"    Manual: Kea
-.\"    Source: ISC Kea 1.2.0
+.\"    Source: ISC Kea 1.3.0
 .\"  Language: English
 .\"
-.TH "KEA\-SHELL" "8" "2017 Mar 8" "ISC Kea 1.2.0" "Kea"
+.TH "KEA\-SHELL" "8" "Oct\&. 28, 2017" "ISC Kea 1.3.0" "Kea"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -31,7 +31,7 @@
 kea-shell \- Text client for Control Agent process
 .SH "SYNOPSIS"
 .HP \w'\fBkea\-shell\fR\ 'u
-\fBkea\-shell\fR [\fB\-h\fR] [\fB\-v\fR] [\fB\-\-host\fR] [\fB\-\-port\fR] [\fB\-\-timeout\fR] [\fB\-\-service\fR] [\fBcommand\fR]
+\fBkea\-shell\fR [\fB\-h\fR] [\fB\-v\fR] [\fB\-\-host\fR] [\fB\-\-port\fR] [\fB\-\-path\fR] [\fB\-\-timeout\fR] [\fB\-\-service\fR] [\fBcommand\fR]
 .SH "DESCRIPTION"
 .PP
 The
@@ -59,6 +59,11 @@ Specifies the host to connect to\&. Control Agent must be running at specified h
 \fB\-\-port\fR
 .RS 4
 Specifies the TCP port to connect to\&. Control Agent must be listening at specified port\&. If not specified, 8000 is used\&.
+.RE
+.PP
+\fB\-\-path\fR
+.RS 4
+Specifies the path in the URL to connect to\&. If not specified, empty path is used\&. As Control Agent listens at the empty path this parameter is useful only with a reverse proxy\&.
 .RE
 .PP
 \fB\-\-timeout\fR
