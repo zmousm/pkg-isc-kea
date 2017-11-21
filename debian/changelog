@@ -1,3 +1,12 @@
+isc-kea (1.3.0-1~bpo80+1) jessie-backports; urgency=medium
+
+  * Drop patches for Trac #5325 etc.
+  * Add package for KEA Control Agent
+  * Update configuration (1.3.0)
+  * Rebuild for jessie-backports.
+
+ -- Zenon Mousmoulas <zmousm@noc.grnet.gr>  Tue, 21 Nov 2017 15:12:32 +0200
+
 isc-kea (1.2.0-1~bpo80+1) jessie-backports; urgency=medium
 
   * New upstream version
