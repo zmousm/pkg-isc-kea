@@ -1,5 +1,8 @@
 # Check if conffiles have been modified
-# This is just to alert maintainer that split up config file
-# may need to be updated
+# This is just to alert maintainer that config files may need to be
+# updated
 
-0c143b8b0c8becbf732deae67678fdd1 *src/bin/keactrl/kea.conf.pre
+9f450fa39a58a44545c910b57be40213 *src/bin/keactrl/kea-ctrl-agent.conf.pre
+b86e973ec60f5f7fbb4e66f9076f1652 *src/bin/keactrl/kea-dhcp4.conf.pre
+d28c0ba10fbe7df6d859988f872e491c *src/bin/keactrl/kea-dhcp6.conf.pre
+19388aecbb78e89192caac799196e8e3 *src/bin/keactrl/kea-dhcp-ddns.conf.pre
