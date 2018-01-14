@@ -1,12 +1,15 @@
 [Unit]
 Description=ISC KEA DDNS Service
 Documentation=man:kea-dhcp-ddns(8)
-Wants=network-online.target
-After=network-online.target
-After=time-sync.target
+After=network-online.target time-sync.target
 
 [Service]
+Environment="KEA_PIDFILE_DIR=/var/run/"
+Environment="KEA_LOCKFILE_DIR=/var/run/lock/kea/"
 ExecStart=/usr/sbin/kea-dhcp-ddns -c /etc/kea/kea-dhcp-ddns.conf
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
 
 [Install]
 WantedBy=kea-dhcpv4-server.service

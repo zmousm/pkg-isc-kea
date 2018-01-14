@@ -1,3 +1,5 @@
 usr/share/man/man8/perfdhcp.8
+usr/share/man/man8/kea-admin.8
 usr/sbin/perfdhcp
-usr/share/kea/scripts          usr/share/kea-admin/
+usr/sbin/kea-admin
+usr/share/kea/scripts 
