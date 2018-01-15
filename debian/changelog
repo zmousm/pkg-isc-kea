@@ -1,4 +1,4 @@
-isc-kea (1.2.0-1) UNRELEASED; urgency=medium
+isc-kea (1.3.0-1) UNRELEASED; urgency=medium
 
   [Jason Guy]
   * New Upstream version 1.3.0 (closes: #883016, #863637)
