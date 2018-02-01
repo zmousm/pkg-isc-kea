@@ -30,6 +30,9 @@ isc-kea (1.3.0-1) UNRELEASED; urgency=medium
     - added kea-ctrl-agent package, separating out REST interface
   * cleaned up other lintian warnings and errors
 
+  [Adam Majer]
+  * python3-kea-connector - new package for python3 connector to KEA
+
  -- Adam Majer <adamm@zombino.com>  Sun, 23 Jul 2017 13:35:37 +0200
 
 isc-kea (1.1.0-1) unstable; urgency=medium

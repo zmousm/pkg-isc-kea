@@ -88,3 +88,12 @@ Description: Common libraries for the ISC KEA DHCP server
  KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
  .
  This package provides common libraries used by ISC KEA servers and utilities.
+
+Package: python3-kea-connector
+Architecture: all
+Section: python
+Depends: ${misc:Depends}
+Description: Python3 management connector for ISC KEA DHCP server
+ KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
+ .
+ This package provides Python3 connector

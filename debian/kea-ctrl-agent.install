@@ -1,0 +1,4 @@
+usr/sbin/kea-ctrl-agent
+usr/share/man/man8/kea-ctrl-agent.8
+usr/share/kea/dhcp6.spec
+etc/kea/kea-ctrl-agent.conf
