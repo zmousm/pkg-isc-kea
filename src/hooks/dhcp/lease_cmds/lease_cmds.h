@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2017-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -127,9 +127,37 @@ public:
     ///
     /// @param handle Callout context - which is expected to contain the
     /// get command JSON text in the "command" argument
-    /// @return result of the operation (includes lease details, if found)
+    /// @return result of the operation (includes lease details, if found),
+    /// 1 if an error occurs, 3 if lease not found.
     int
     leaseGetHandler(hooks::CalloutHandle& handle);
+
+    /// @brief lease4-get-all, lease6-get-all commands handler
+    ///
+    /// These commands attempt to retrieve all IPv4 or IPv6 leases,
+    /// or all IPv4 or all IPv6 leases belonging to the particular
+    /// subnets. If no subnet identifiers are provided, it returns all
+    /// IPv4 or IPv6 leases from the database.
+    ///
+    /// Example command for IPv4 query by (subnet-ids):
+    /// {
+    ///     "command": "lease4-get-all",
+    ///     "arguments": {
+    ///         "subnets": [ 1, 2, 3, 4 ]
+    ///     }
+    /// }
+    ///
+    /// Example command for retrieving all IPv6 leases:
+    /// {
+    ///     "command": "lease6-get-all",
+    /// }
+    ///
+    /// @param handle Callout context - which is expected to contain the
+    /// get command JSON text in the "command" argument
+    /// @return 0 if the handler has been invoked successfully, 1 if an
+    /// error occurs, 3 if no leases are returned.
+    int
+    leaseGetAllHandler(hooks::CalloutHandle& handle);
 
     /// @brief lease4-del command handler
     ///
@@ -227,6 +255,10 @@ public:
     ///     }
     /// };
     ///
+    /// The optional 'force-create' boolean parameter may be specified to force
+    /// the lease to be created if it doesn't exist. By default, this parameter
+    /// is set to false, which means that the lease is not created.
+    ///
     /// @param handle Callout context - which is expected to contain the
     /// update command JSON text in the "command" argument
     /// @return result of the operation
@@ -255,6 +287,10 @@ public:
     ///     }
     /// }";
     ///
+    /// The optional 'force-create' boolean parameter may be specified to force
+    /// the lease to be created if it doesn't exist. By default, this parameter
+    /// is set to false, which means that the lease is not created.
+    ///
     /// @param handle Callout context - which is expected to contain the
     /// update command JSON text in the "command" argument
     /// @return result of the operation
@@ -272,11 +308,11 @@ public:
     /// argument accordingly.
     ///
     /// Example command:
-    /// {\n"
-    ///     "command": "lease4-wipe",\n"
-    ///     "arguments": {"
+    /// {
+    ///     "command": "lease4-wipe",
+    ///     "arguments": {
     ///         "subnet-id": 44
-    ///     }\n"
+    ///     }
     /// }";
     ///
     /// @param handle Callout context - which is expected to contain the
@@ -296,12 +332,12 @@ public:
     /// argument accordingly.
     ///
     /// Example command:
-    /// {\n"
-    ///     "command": "lease4-wipe",\n"
-    ///     "arguments": {"
+    /// {
+    ///     "command": "lease4-wipe",
+    ///     "arguments": {
     ///         "subnet-id": 44
-    ///     }\n"
-    /// }";
+    ///     }
+    /// };
     ///
     /// @param handle Callout context - which is expected to contain the
     /// wipe command JSON text in the "command" argument

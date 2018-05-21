@@ -290,12 +290,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -314,11 +320,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -452,7 +461,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -466,22 +474,22 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 lib_LTLIBRARIES = libkea-util.la
 libkea_util_la_SOURCES = boost_time_utils.h boost_time_utils.cc \
 	buffer.h io_utilities.h csv_file.h csv_file.cc filename.h \
-	filename.cc labeled_value.h labeled_value.cc memory_segment.h \
-	memory_segment_local.h memory_segment_local.cc \
-	optional_value.h pid_file.h pid_file.cc pointer_util.h \
-	process_spawn.h process_spawn.cc range_utilities.h \
-	signal_set.cc signal_set.h staged_value.h state_model.cc \
-	state_model.h stopwatch.cc stopwatch.h stopwatch_impl.cc \
-	stopwatch_impl.h strutil.h strutil.cc time_utilities.h \
-	time_utilities.cc versioned_csv_file.h versioned_csv_file.cc \
-	watch_socket.cc watch_socket.h encode/base16_from_binary.h \
-	encode/base32hex.h encode/base64.h \
+	filename.cc hash.h labeled_value.h labeled_value.cc \
+	memory_segment.h memory_segment_local.h \
+	memory_segment_local.cc optional_value.h pid_file.h \
+	pid_file.cc pointer_util.h process_spawn.h process_spawn.cc \
+	range_utilities.h signal_set.cc signal_set.h staged_value.h \
+	state_model.cc state_model.h stopwatch.cc stopwatch.h \
+	stopwatch_impl.cc stopwatch_impl.h strutil.h strutil.cc \
+	time_utilities.h time_utilities.cc versioned_csv_file.h \
+	versioned_csv_file.cc watch_socket.cc watch_socket.h \
+	encode/base16_from_binary.h encode/base32hex.h encode/base64.h \
 	encode/base32hex_from_binary.h encode/base_n.cc encode/hex.h \
 	encode/binary_from_base32hex.h encode/binary_from_base16.h \
 	random/qid_gen.h random/qid_gen.cc \
 	random/random_number_generator.h
 libkea_util_la_LIBADD = $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
-libkea_util_la_LDFLAGS = -no-undefined -version-info 2:1:0
+libkea_util_la_LDFLAGS = -no-undefined -version-info 3:0:0
 CLEANFILES = *.gcno *.gcda
 
 # Specify the headers for copying into the installation directory tree.
@@ -491,6 +499,7 @@ libkea_util_include_HEADERS = \
 	buffer.h \
 	csv_file.h \
 	filename.h \
+	hash.h \
 	io_utilities.h \
 	labeled_value.h \
 	memory_segment.h \

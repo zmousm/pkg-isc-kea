@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -84,12 +84,6 @@ void ControlSocketParser::parse(SrvConfig& srv_cfg, isc::data::ConstElementPtr v
     srv_cfg.setControlSocketInfo(value);
 }
 
-
-
-
-
-
-
 template<typename SearchKey>
 OptionDefinitionPtr
 OptionDataParser::findOptionDefinition(const std::string& option_space,
@@ -132,6 +126,7 @@ OptionDefParser::parse(ConstElementPtr option_def) {
     std::string record_types = getString(option_def, "record-types");
     std::string space = getString(option_def, "space");
     std::string encapsulates = getString(option_def, "encapsulate");
+    ConstElementPtr user_context = option_def->get("user-context");
 
     if (!OptionSpace::validateName(space)) {
         isc_throw(DhcpConfigError, "invalid option space name '"
@@ -166,6 +161,10 @@ OptionDefParser::parse(ConstElementPtr option_def) {
     } else {
         def.reset(new OptionDefinition(name, code, type, array_type));
 
+    }
+
+    if (user_context) {
+        def->setContext(user_context);
     }
 
     // Split the list of record types into tokens.
@@ -234,23 +233,81 @@ RelayInfoParser::RelayInfoParser(const Option::Universe& family)
 };
 
 void
-RelayInfoParser::parse(const isc::dhcp::Network::RelayInfoPtr& cfg,
-                       ConstElementPtr relay_info) {
-    // There is only one parameter which is mandatory
-    IOAddress ip = getAddress(relay_info, "ip-address");
+RelayInfoParser::parse(const isc::dhcp::Network::RelayInfoPtr& relay_info,
+                       ConstElementPtr relay_elem) {
 
-    // Check if the address family matches.
-    if ((ip.isV4() && family_ != Option::V4) ||
-        (ip.isV6() && family_ != Option::V6) ) {
-        isc_throw(DhcpConfigError, "ip-address field " << ip.toText()
-                  << " does not have IP address of expected family type: "
-                  << (family_ == Option::V4 ? "IPv4" : "IPv6")
-                  << " (" << getPosition("ip-address", relay_info) << ")");
+    if (relay_elem->getType() != Element::map) {
+        isc_throw(DhcpConfigError, "relay must be a map");
     }
 
-    // Ok, we're done with parsing. Let's store the result in the structure
-    // we were given as configuration storage.
-    *cfg = isc::dhcp::Network::RelayInfo(ip);
+    ConstElementPtr address = relay_elem->get("ip-address");
+    ConstElementPtr addresses = relay_elem->get("ip-addresses");
+
+    if (address && addresses) {
+        isc_throw(DhcpConfigError,
+            "specify either ip-address or ip-addresses, not both");
+    }
+
+    if (!address && !addresses) {
+        isc_throw(DhcpConfigError, "ip-addresses is required");
+    }
+
+    // Create our resultant RelayInfo structure
+    *relay_info = isc::dhcp::Network::RelayInfo();
+
+    if (address) {
+        addAddress("ip-address", getString(relay_elem, "ip-address"),
+                   relay_elem, relay_info);
+        LOG_DEBUG(dhcpsrv_logger, DHCPSRV_DBG_TRACE_DETAIL,
+                  DHCPSRV_CFGMGR_RELAY_IP_ADDRESS_DEPRECATED)
+                  .arg(getPosition("ip-address", relay_elem));
+        return;
+    }
+
+    if (addresses->getType() != Element::list) {
+        isc_throw(DhcpConfigError, "ip-addresses must be a list "
+                  << " (" << getPosition("ip-addresses", relay_elem) << ")");
+    }
+
+    BOOST_FOREACH(ConstElementPtr address_element, addresses->listValue()) {
+        addAddress("ip-addresses", address_element->stringValue(),
+                   relay_elem, relay_info);
+    }
+}
+
+void
+RelayInfoParser::addAddress(const std::string& name,
+                            const std::string& address_str,
+                            ConstElementPtr relay_elem,
+                            const isc::dhcp::Network::RelayInfoPtr& relay_info) {
+    boost::scoped_ptr<isc::asiolink::IOAddress> ip;
+    try {
+        ip.reset(new isc::asiolink::IOAddress(address_str));
+    } catch (const std::exception& ex) {
+        isc_throw(DhcpConfigError, "address " << address_str
+                  << " is not a valid: "
+                  << (family_ == Option::V4 ? "IPv4" : "IPv6")
+                  << "address"
+                  << " (" << getPosition(name, relay_elem) << ")");
+    }
+
+    // Check if the address family matches.
+    if ((ip->isV4() && family_ != Option::V4) ||
+        (ip->isV6() && family_ != Option::V6) ) {
+        isc_throw(DhcpConfigError, "address " << address_str
+                  << " is not a: "
+                  << (family_ == Option::V4 ? "IPv4" : "IPv6")
+                  << "address"
+                  << " (" << getPosition(name, relay_elem) << ")");
+    }
+
+    try {
+        relay_info->addAddress(*ip);
+    } catch (const std::exception& ex) {
+        isc_throw(DhcpConfigError, "cannot add address: " << address_str
+                  << "to relay info: " << ex.what()
+                  << " (" << getPosition(name, relay_elem) << ")");
+    }
 }
 
 //****************************** PoolParser ********************************
@@ -378,6 +435,30 @@ PoolParser::parse(PoolStoragePtr pools,
                       << " (" << option_data->getPosition() << ")");
         }
     }
+
+    // Client-class.
+    ConstElementPtr client_class = pool_structure->get("client-class");
+    if (client_class) {
+        string cclass = client_class->stringValue();
+        if (!cclass.empty()) {
+            pool->allowClientClass(cclass);
+        }
+    }
+
+    // Try setting up required client classes.
+    ConstElementPtr class_list = pool_structure->get("require-client-classes");
+    if (class_list) {
+        const std::vector<data::ElementPtr>& classes = class_list->listValue();
+        for (auto cclass = classes.cbegin();
+             cclass != classes.cend(); ++cclass) {
+            if (((*cclass)->getType() != Element::string) ||
+                (*cclass)->stringValue().empty()) {
+                isc_throw(DhcpConfigError, "invalid class name ("
+                          << (*cclass)->getPosition() << ")");
+            }
+            pool->requireClientClass((*cclass)->stringValue());
+        }
+    }
 }
 
 //****************************** Pool4Parser *************************
@@ -408,8 +489,7 @@ SubnetConfigParser::SubnetConfigParser(uint16_t family)
     : pools_(new PoolStorage()),
       address_family_(family),
       options_(new CfgOption()) {
-    string addr = family == AF_INET ? "0.0.0.0" : "::";
-    relay_info_.reset(new isc::dhcp::Network::RelayInfo(IOAddress(addr)));
+    relay_info_.reset(new isc::dhcp::Network::RelayInfo());
 }
 
 SubnetPtr
@@ -675,7 +755,7 @@ Subnet4ConfigParser::initSubnet(data::ConstElementPtr params,
     try {
         std::string hr_mode = getString(params, "reservation-mode");
         subnet4->setHostReservationMode(hrModeFromText(hr_mode));
-    } catch (const BadValue& ex) { 
+    } catch (const BadValue& ex) {
        isc_throw(DhcpConfigError, "Failed to process specified value "
                   " of reservation-mode parameter: " << ex.what()
                   << "(" << getPosition("reservation-mode", params) << ")");
@@ -685,6 +765,21 @@ Subnet4ConfigParser::initSubnet(data::ConstElementPtr params,
     string client_class = getString(params, "client-class");
     if (!client_class.empty()) {
         subnet4->allowClientClass(client_class);
+    }
+
+    // Try setting up required client classes.
+    ConstElementPtr class_list = params->get("require-client-classes");
+    if (class_list) {
+        const std::vector<data::ElementPtr>& classes = class_list->listValue();
+        for (auto cclass = classes.cbegin();
+             cclass != classes.cend(); ++cclass) {
+            if (((*cclass)->getType() != Element::string) ||
+                (*cclass)->stringValue().empty()) {
+                isc_throw(DhcpConfigError, "invalid class name ("
+                          << (*cclass)->getPosition() << ")");
+            }
+            subnet4->requireClientClass((*cclass)->stringValue());
+        }
     }
 
     // 4o6 specific parameter: 4o6-interface. If not explicitly specified,
@@ -841,11 +936,18 @@ PdPoolParser::parse(PoolStoragePtr pools, ConstElementPtr pd_pool_) {
         OptionDataListParser opts_parser(AF_INET6);
         opts_parser.parse(options_, option_data);
     }
-                    
+
     ConstElementPtr user_context = pd_pool_->get("user-context");
     if (user_context) {
         user_context_ = user_context;
     }
+
+    ConstElementPtr client_class = pd_pool_->get("client-class");
+    if (client_class) {
+        client_class_ = client_class;
+    }
+
+    ConstElementPtr class_list = pd_pool_->get("require-client-classes");
 
     // Check the pool parameters. It will throw an exception if any
     // of the required parameters are invalid.
@@ -868,6 +970,26 @@ PdPoolParser::parse(PoolStoragePtr pools, ConstElementPtr pd_pool_) {
 
     if (user_context_) {
         pool_->setContext(user_context_);
+    }
+
+    if (client_class_) {
+        string cclass = client_class_->stringValue();
+        if (!cclass.empty()) {
+            pool_->allowClientClass(cclass);
+        }
+    }
+
+    if (class_list) {
+        const std::vector<data::ElementPtr>& classes = class_list->listValue();
+        for (auto cclass = classes.cbegin();
+             cclass != classes.cend(); ++cclass) {
+            if (((*cclass)->getType() != Element::string) ||
+                (*cclass)->stringValue().empty()) {
+                isc_throw(DhcpConfigError, "invalid class name ("
+                          << (*cclass)->getPosition() << ")");
+            }
+            pool_->requireClientClass((*cclass)->stringValue());
+        }
     }
 
     // Add the local pool to the external storage ptr.
@@ -926,7 +1048,6 @@ Subnet6ConfigParser::parse(ConstElementPtr subnet) {
         sn6ptr->setRelayInfo(*relay_info_);
     }
 
-
     // Parse Host Reservations for this subnet if any.
     ConstElementPtr reservations = subnet->get("reservations");
     if (reservations) {
@@ -979,7 +1100,7 @@ Subnet6ConfigParser::initSubnet(data::ConstElementPtr params,
            << ", rapid-commit is " << (rapid_commit ? "enabled" : "disabled");
 
 
-    LOG_INFO(dhcpsrv_logger, DHCPSRV_CFGMGR_NEW_SUBNET4).arg(output.str());
+    LOG_INFO(dhcpsrv_logger, DHCPSRV_CFGMGR_NEW_SUBNET6).arg(output.str());
 
     // Create a new subnet.
     Subnet6* subnet6 = new Subnet6(addr, len, t1, t2, pref, valid,
@@ -1032,7 +1153,7 @@ Subnet6ConfigParser::initSubnet(data::ConstElementPtr params,
     try {
         std::string hr_mode = getString(params, "reservation-mode");
         subnet6->setHostReservationMode(hrModeFromText(hr_mode));
-    } catch (const BadValue& ex) { 
+    } catch (const BadValue& ex) {
        isc_throw(DhcpConfigError, "Failed to process specified value "
                   " of reservation-mode parameter: " << ex.what()
                   << "(" << getPosition("reservation-mode", params) << ")");
@@ -1042,6 +1163,21 @@ Subnet6ConfigParser::initSubnet(data::ConstElementPtr params,
     string client_class = getString(params, "client-class");
     if (!client_class.empty()) {
         subnet6->allowClientClass(client_class);
+    }
+
+    // Try setting up required client classes.
+    ConstElementPtr class_list = params->get("require-client-classes");
+    if (class_list) {
+        const std::vector<data::ElementPtr>& classes = class_list->listValue();
+        for (auto cclass = classes.cbegin();
+             cclass != classes.cend(); ++cclass) {
+            if (((*cclass)->getType() != Element::string) ||
+                (*cclass)->stringValue().empty()) {
+                isc_throw(DhcpConfigError, "invalid class name ("
+                          << (*cclass)->getPosition() << ")");
+            }
+            subnet6->requireClientClass((*cclass)->stringValue());
+        }
     }
 
     /// client-class processing is now generic and handled in the common
@@ -1134,9 +1270,9 @@ D2ClientConfigParser::parse(isc::data::ConstElementPtr client_config) {
 
     std::string sender_ip_str = getString(client_config, "sender-ip");
 
-    uint32_t sender_port = getUint32(client_config, "sender-port"); 
+    uint32_t sender_port = getUint32(client_config, "sender-port");
 
-    uint32_t max_queue_size = getUint32(client_config, "max-queue-size"); 
+    uint32_t max_queue_size = getUint32(client_config, "max-queue-size");
 
     dhcp_ddns::NameChangeProtocol ncr_protocol =
         getProtocol(client_config, "ncr-protocol");
@@ -1165,7 +1301,7 @@ D2ClientConfigParser::parse(isc::data::ConstElementPtr client_config) {
     if (client_config->contains("qualifying-suffix")) {
             qualifying_suffix = getString(client_config, "qualifying-suffix");
             found_qualifying_suffix = true;
-    }   
+    }
 
     IOAddress sender_ip(0);
     if (sender_ip_str.empty()) {
@@ -1245,6 +1381,12 @@ D2ClientConfigParser::parse(isc::data::ConstElementPtr client_config) {
     }  catch (const std::exception& ex) {
         isc_throw(DhcpConfigError, ex.what() << " ("
                   << client_config->getPosition() << ")");
+    }
+
+    // Add user context
+    ConstElementPtr user_context = client_config->get("user-context");
+    if (user_context) {
+        new_config->setContext(user_context);
     }
 
     return(new_config);

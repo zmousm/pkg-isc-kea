@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -36,6 +36,7 @@
 #include <dhcpsrv/host_mgr.h>
 #include <gtest/gtest.h>
 #include <stats/stats_mgr.h>
+#include <util/encode/hex.h>
 #include <boost/scoped_ptr.hpp>
 
 #include <iostream>
@@ -161,6 +162,9 @@ TEST_F(Dhcpv4SrvTest, adjustIfaceDataRelay) {
     req->setIface("eth1");
     req->setIndex(1);
 
+    // Set remote port (it will be used in the next test).
+    req->setRemotePort(1234);
+
     // Create the exchange using the req.
     Dhcpv4Exchange ex = createExchange(req);
 
@@ -202,6 +206,75 @@ TEST_F(Dhcpv4SrvTest, adjustIfaceDataRelay) {
 
     // Response should be sent back to the relay address.
     EXPECT_EQ("192.0.1.50", resp->getRemoteAddr().toText());
+}
+
+// This test verifies that the remote port is adjusted when
+// the query carries a relay port RAI sub-option.
+TEST_F(Dhcpv4SrvTest, adjustIfaceDataRelayPort) {
+    IfaceMgrTestConfig test_config(true);
+    IfaceMgr::instance().openSockets4();
+
+    // Create the instance of the incoming packet.
+    boost::shared_ptr<Pkt4> req(new Pkt4(DHCPDISCOVER, 1234));
+    // Set the giaddr to non-zero address and hops to non-zero value
+    // as if it was relayed.
+    req->setGiaddr(IOAddress("192.0.1.1"));
+    req->setHops(2);
+    // Set ciaddr to zero. This simulates the client which applies
+    // for the new lease.
+    req->setCiaddr(IOAddress("0.0.0.0"));
+    // Clear broadcast flag.
+    req->setFlags(0x0000);
+
+    // Set local address, port and interface.
+    req->setLocalAddr(IOAddress("192.0.2.5"));
+    req->setLocalPort(1001);
+    req->setIface("eth1");
+    req->setIndex(1);
+
+    // Set remote port.
+    req->setRemotePort(1234);
+
+    // Add a RAI relay-port sub-option (the only difference with the previous test).
+    OptionDefinitionPtr rai_def =
+        LibDHCP::getOptionDef(DHCP4_OPTION_SPACE, DHO_DHCP_AGENT_OPTIONS);
+    ASSERT_TRUE(rai_def);
+    OptionCustomPtr rai(new OptionCustom(*rai_def, Option::V4));
+    ASSERT_TRUE(rai);
+    req->addOption(rai);
+    OptionPtr relay_port(new Option(Option::V4, RAI_OPTION_RELAY_PORT));
+    ASSERT_TRUE(relay_port);
+    rai->addOption(relay_port);
+
+    // Create the exchange using the req.
+    Dhcpv4Exchange ex = createExchange(req);
+
+    Pkt4Ptr resp = ex.getResponse();
+    resp->setYiaddr(IOAddress("192.0.1.100"));
+    // Clear the remote address.
+    resp->setRemoteAddr(IOAddress("0.0.0.0"));
+    // Set hops value for the response.
+    resp->setHops(req->getHops());
+
+    // Set the remote port to 67 as we know it will be updated.
+    resp->setRemotePort(67);
+
+    // This function never throws.
+    ASSERT_NO_THROW(NakedDhcpv4Srv::adjustIfaceData(ex));
+
+    // Now the destination address should be relay's address.
+    EXPECT_EQ("192.0.1.1", resp->getRemoteAddr().toText());
+    // The query has been relayed, so the response should be sent to the
+    // port 67, but here there is a relay port RAI so another value is used.
+    EXPECT_EQ(1234, resp->getRemotePort());
+    // Local address should be the address assigned to interface eth1.
+    EXPECT_EQ("192.0.2.5", resp->getLocalAddr().toText());
+    // The local port is always DHCPv4 server port 67.
+    EXPECT_EQ(DHCP4_SERVER_PORT, resp->getLocalPort());
+    // We will send response over the same interface which was used to receive
+    // query.
+    EXPECT_EQ("eth1", resp->getIface());
+    EXPECT_EQ(1, resp->getIndex());
 }
 
 // This test verifies that it is possible to configure the server to use
@@ -266,8 +339,10 @@ TEST_F(Dhcpv4SrvTest, adjustIfaceDataUseRouting) {
     // No specific interface is selected as outbound interface and no specific
     // local address is provided. The IfaceMgr will figure out which interface to use.
     EXPECT_TRUE(resp->getLocalAddr().isV4Zero());
-    EXPECT_TRUE(resp->getIface().empty());
     EXPECT_FALSE(resp->indexSet());
+
+    // Fixed in #5515 so now the interface name is never empty.
+    EXPECT_FALSE(resp->getIface().empty());
 
     // Another test verifies that setting outbound interface to same as inbound will
     // cause the server to set interface and local address as expected.
@@ -2303,19 +2378,92 @@ TEST_F(Dhcpv4SrvTest, clientClassify) {
 
     // This discover does not belong to foo class, so it will not
     // be serviced
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    bool drop = false;
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Let's add the packet to bar class and try again.
     dis->addClass("bar");
 
     // Still not supported, because it belongs to wrong class.
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Let's add it to matching class.
     dis->addClass("foo");
 
     // This time it should work
-    EXPECT_TRUE(srv_.selectSubnet(dis));
+    EXPECT_TRUE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
+}
+
+// Checks if the client-class field is indeed used for pool selection.
+TEST_F(Dhcpv4SrvTest, clientPoolClassify) {
+    IfaceMgrTestConfig test_config(true);
+    IfaceMgr::instance().openSockets4();
+
+    NakedDhcpv4Srv srv(0);
+
+    // This test configures 2 pools.
+    // The second pool does not play any role here. The client's
+    // IP address belongs to the first pool, so only that first
+    // pool is being tested.
+    string config = "{ \"interfaces-config\": {"
+        "    \"interfaces\": [ \"*\" ]"
+        "},"
+        "\"rebind-timer\": 2000, "
+        "\"renew-timer\": 1000, "
+        "\"subnet4\": [ "
+        "{   \"pools\": [ { "
+        "      \"pool\": \"192.0.2.1 - 192.0.2.100\", "
+        "      \"client-class\": \"foo\" }, "
+        "    { \"pool\": \"192.0.3.1 - 192.0.3.100\", "
+        "      \"client-class\": \"xyzzy\" } ], "
+        "    \"subnet\": \"192.0.0.0/16\" } "
+        "],"
+        "\"valid-lifetime\": 4000 }";
+
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config, true));
+
+    ConstElementPtr status;
+    EXPECT_NO_THROW(status = configureDhcp4Server(srv, json));
+
+    CfgMgr::instance().commit();
+
+    // check if returned status is OK
+    ASSERT_TRUE(status);
+    comment_ = config::parseAnswer(rcode_, status);
+    ASSERT_EQ(0, rcode_);
+
+    // Create a simple packet that we'll use for classification
+    Pkt4Ptr dis = Pkt4Ptr(new Pkt4(DHCPDISCOVER, 1234));
+    dis->setRemoteAddr(IOAddress("192.0.2.1"));
+    dis->setCiaddr(IOAddress("192.0.2.1"));
+    dis->setIface("eth0");
+    OptionPtr clientid = generateClientId();
+    dis->addOption(clientid);
+
+    // This discover does not belong to foo class, so it will not
+    // be serviced
+    Pkt4Ptr offer = srv.processDiscover(dis);
+    EXPECT_FALSE(offer);
+
+    // Let's add the packet to bar class and try again.
+    dis->addClass("bar");
+
+    // Still not supported, because it belongs to wrong class.
+    offer = srv.processDiscover(dis);
+    EXPECT_FALSE(offer);
+
+    // Let's add it to matching class.
+    dis->addClass("foo");
+
+    // This time it should work
+    offer = srv.processDiscover(dis);
+    ASSERT_TRUE(offer);
+    EXPECT_EQ(DHCPOFFER, offer->getType());
+    EXPECT_FALSE(offer->getYiaddr().isV4Zero());
 }
 
 // Verifies last resort option 43 is backward compatible
@@ -2385,7 +2533,7 @@ TEST_F(Dhcpv4SrvTest, option43LastResort) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -2476,7 +2624,7 @@ TEST_F(Dhcpv4SrvTest, option43BadRaw) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -2640,7 +2788,7 @@ TEST_F(Dhcpv4SrvTest, option43RawGlobal) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -2735,7 +2883,7 @@ TEST_F(Dhcpv4SrvTest, option43RawClass) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -2847,7 +2995,7 @@ TEST_F(Dhcpv4SrvTest, option43Class) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -2981,7 +3129,7 @@ TEST_F(Dhcpv4SrvTest, option43ClassPriority) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -3121,7 +3269,7 @@ TEST_F(Dhcpv4SrvTest, option43Classes) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add a vendor-class-identifier (code 60)
     OptionPtr opt = offer->getOption(DHO_VENDOR_CLASS_IDENTIFIER);
     EXPECT_TRUE(opt);
@@ -3232,7 +3380,7 @@ TEST_F(Dhcpv4SrvTest, privateOption) {
 
     // Check if we get response at all
     checkResponse(offer, DHCPOFFER, 1234);
-    
+
     // Processing should add an option with code 234
     OptionPtr opt = offer->getOption(234);
     EXPECT_TRUE(opt);
@@ -3493,31 +3641,38 @@ TEST_F(Dhcpv4SrvTest, relayOverride) {
     // This is just a sanity check, we're using regular method: ciaddr 192.0.2.1
     // belongs to the first subnet, so it is selected
     dis->setGiaddr(IOAddress("192.0.2.1"));
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis));
+    bool drop = false;
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Relay belongs to the second subnet, so it  should be selected.
     dis->setGiaddr(IOAddress("192.0.3.1"));
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Now let's check if the relay override for the first subnets works
     dis->setGiaddr(IOAddress("192.0.5.1"));
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // The same check for the second subnet...
     dis->setGiaddr(IOAddress("192.0.5.2"));
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // And finally, let's check if mis-matched relay address will end up
     // in not selecting a subnet at all
     dis->setGiaddr(IOAddress("192.0.5.3"));
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Finally, check that the relay override works only with relay address
     // (GIADDR) and does not affect client address (CIADDR)
     dis->setGiaddr(IOAddress("0.0.0.0"));
     dis->setHops(0);
     dis->setCiaddr(IOAddress("192.0.5.1"));
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 }
 
 // Checks if relay IP address specified in the relay-info structure can be
@@ -3573,12 +3728,15 @@ TEST_F(Dhcpv4SrvTest, relayOverrideAndClientClass) {
     // subnet[0], even though the relay-ip matches. It should be accepted in
     // subnet[1], because the subnet matches and there are no class
     // requirements.
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    bool drop = false;
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Now let's add this packet to class foo and recheck. This time it should
     // be accepted in the first subnet, because both class and relay-ip match.
     dis->addClass("foo");
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 }
 
 // Checks if a RAI link selection sub-option works as expected
@@ -3644,16 +3802,20 @@ TEST_F(Dhcpv4SrvTest, relayLinkSelect) {
     // This is just a sanity check, we're using regular method: ciaddr 192.0.3.1
     // belongs to the second subnet, so it is selected
     dis->setGiaddr(IOAddress("192.0.3.1"));
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    bool drop = false;
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Setup a relay override for the first subnet as it has a high precedence
     dis->setGiaddr(IOAddress("192.0.5.1"));
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Put a RAI to select back the second subnet as it has
     // the highest precedence
     dis->addOption(rai);
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Subnet select option has a lower precedence
     OptionDefinitionPtr sbnsel_def = LibDHCP::getOptionDef(DHCP4_OPTION_SPACE,
@@ -3663,7 +3825,8 @@ TEST_F(Dhcpv4SrvTest, relayLinkSelect) {
     ASSERT_TRUE(sbnsel);
     sbnsel->writeAddress(IOAddress("192.0.2.3"));
     dis->addOption(sbnsel);
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
     dis->delOption(DHO_SUBNET_SELECTION);
 
     // Check client-classification still applies
@@ -3675,10 +3838,12 @@ TEST_F(Dhcpv4SrvTest, relayLinkSelect) {
     rai->addOption(ols);
     dis->addOption(rai);
     // Note it shall fail (vs. try the next criterion).
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
     // Add the packet to the class and check again: now it shall succeed
     dis->addClass("foo");
-    EXPECT_TRUE(subnet3 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet3 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Check it fails with a bad address in the sub-option
     IOAddress addr_bad("10.0.0.1");
@@ -3688,7 +3853,8 @@ TEST_F(Dhcpv4SrvTest, relayLinkSelect) {
     dis->delOption(DHO_DHCP_AGENT_OPTIONS);
     rai->addOption(ols);
     dis->addOption(rai);
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 }
 
 // Checks if a subnet selection option works as expected
@@ -3749,28 +3915,35 @@ TEST_F(Dhcpv4SrvTest, subnetSelect) {
     // This is just a sanity check, we're using regular method: ciaddr 192.0.3.1
     // belongs to the second subnet, so it is selected
     dis->setGiaddr(IOAddress("192.0.3.1"));
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    bool drop = false;
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Setup a relay override for the first subnet as it has a high precedence
     dis->setGiaddr(IOAddress("192.0.5.1"));
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Put a subnet select option to select back the second subnet as
     // it has the second highest precedence
     dis->addOption(sbnsel);
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Check client-classification still applies
     sbnsel->writeAddress(IOAddress("192.0.4.2"));
     // Note it shall fail (vs. try the next criterion).
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
     // Add the packet to the class and check again: now it shall succeed
     dis->addClass("foo");
-    EXPECT_TRUE(subnet3 == srv_.selectSubnet(dis));
+    EXPECT_TRUE(subnet3 == srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 
     // Check it fails with a bad address in the sub-option
     sbnsel->writeAddress(IOAddress("10.0.0.1"));
-    EXPECT_FALSE(srv_.selectSubnet(dis));
+    EXPECT_FALSE(srv_.selectSubnet(dis, drop));
+    EXPECT_FALSE(drop);
 }
 
 // This test verifies that the direct message is dropped when it has been
@@ -3870,7 +4043,7 @@ TEST_F(Dhcpv4SrvTest, acceptMessageType) {
         DHCPLEASEUNKNOWN,
         DHCPLEASEACTIVE,
         DHCPBULKLEASEQUERY,
-        DHCPLEASEQUERYDONE
+        DHCPLEASEQUERYDONE,
     };
     size_t not_allowed_size = sizeof(not_allowed) / sizeof(not_allowed[0]);
     // Actually check that the server will drop these messages.
@@ -3879,6 +4052,54 @@ TEST_F(Dhcpv4SrvTest, acceptMessageType) {
                                                             1234))))
             << "Test failed for message type " << i;
     }
+
+    // Verify that we drop packets with no option 53
+    // Make a BOOTP packet (i.e. no option 53)
+    std::vector<uint8_t> bin;
+    const char* bootp_txt =
+        "01010601002529b629b600000000000000000000000000000ace5001944452fe711700"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000000063825363521b010400"
+        "020418020600237453fc48090b0000118b06010401020300ff00000000000000000000"
+        "0000000000000000000000000000000000000000";
+
+    isc::util::encode::decodeHex(bootp_txt, bin);
+    Pkt4Ptr pkt(new Pkt4(&bin[0], bin.size()));
+    pkt->unpack();
+    ASSERT_EQ(DHCP_NOTYPE, pkt->getType());
+    EXPECT_FALSE(srv.acceptMessageType(Pkt4Ptr(new Pkt4(&bin[0], bin.size()))));
+
+    // Verify that we drop packets with types >= DHCP_TYPES_EOF
+    // Make Discover with type changed to 0xff
+    std::vector<uint8_t> bin2;
+    const char* invalid_msg_type =
+        "010106015d05478d000000000000000000000000000000000afee20120e52ab8151400"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000638253633501ff3707"
+        "0102030407067d3c0a646f63736973332e303a7d7f0000118b7a010102057501010102"
+        "010303010104010105010106010107010f0801100901030a01010b01180c01010d0200"
+        "400e0200100f010110040000000211010014010015013f160101170101180104190104"
+        "1a01041b01201c01021d01081e01201f01102001102101022201012301002401002501"
+        "01260200ff2701012b59020345434d030b45434d3a45524f55544552040d3242523232"
+        "39553430303434430504312e3034060856312e33332e30330707322e332e3052320806"
+        "30303039354209094347333030304443520a074e657467656172fe01083d0fff2ab815"
+        "140003000120e52ab81514390205dc5219010420000002020620e52ab8151409090000"
+        "118b0401020300ff";
+
+    bin.clear();
+    isc::util::encode::decodeHex(invalid_msg_type, bin);
+    pkt.reset(new Pkt4(&bin[0], bin.size()));
+    pkt->unpack();
+    ASSERT_EQ(0xff, pkt->getType());
+    EXPECT_FALSE(srv.acceptMessageType(pkt));
 }
 
 // Test checks whether statistic is bumped up appropriately when Decline
@@ -4019,6 +4240,64 @@ TEST_F(Dhcpv4SrvTest, userContext) {
     ASSERT_TRUE(pools[0]->getContext());
     EXPECT_EQ("{ \"value\": 42 }", pools[0]->getContext()->str());
 }
+
+// Verifies that an a client query with a truncated length in
+// vendor option (125) will still be processed by the server.
+TEST_F(Dhcpv4SrvTest, truncatedVIVSOOption) {
+    IfaceMgrTestConfig test_config(true);
+    IfaceMgr::instance().openSockets4();
+
+    NakedDhcpv4Srv srv(0);
+
+    string config = "{ \"interfaces-config\": {"
+        "    \"interfaces\": [ \"*\" ]"
+        "},"
+        "\"rebind-timer\": 2000, "
+        "\"renew-timer\": 1000, "
+        "\"subnet4\": [ { "
+        "    \"pools\": [ { \"pool\": \"10.206.80.0/25\" } ],"
+        "    \"subnet\": \"10.206.80.0/24\", "
+        "    \"rebind-timer\": 2000, "
+        "    \"renew-timer\": 1000, "
+        "    \"valid-lifetime\": 4000,"
+        "    \"interface\": \"eth0\" "
+        " } ],"
+        "\"valid-lifetime\": 4000 }";
+
+    ConstElementPtr json;
+    ASSERT_NO_THROW(json = parseDHCP4(config));
+    ConstElementPtr status;
+
+    // Configure the server and make sure the config is accepted
+    EXPECT_NO_THROW(status = configureDhcp4Server(srv, json));
+    ASSERT_TRUE(status);
+    comment_ = config::parseAnswer(rcode_, status);
+    ASSERT_EQ(0, rcode_);
+
+    CfgMgr::instance().commit();
+
+    // Create a DISCOVER with a VIVSO option whose length is
+    // too short.
+    Pkt4Ptr dis;
+    ASSERT_NO_THROW(dis = PktCaptures::discoverWithTruncatedVIVSO());
+
+    // Simulate that we have received that traffic
+    srv.fakeReceive(dis);
+
+    // Server will now process to run its normal loop, but instead of calling
+    // IfaceMgr::receive4(), it will read all packets from the list set by
+    // fakeReceive()
+    // In particular, it should call registered buffer4_receive callback.
+    srv.run();
+
+    // Check that the server did send a response
+    ASSERT_EQ(1, srv.fake_sent_.size());
+
+    // Make sure that we received an response and it was an offer
+    Pkt4Ptr offer = srv.fake_sent_.front();
+    ASSERT_TRUE(offer);
+}
+
 
 /// @todo: Implement proper tests for MySQL lease/host database,
 ///        see ticket #4214.

@@ -80,10 +80,7 @@ build_triplet = @build@
 host_triplet = @host@
 TESTS = $(am__EXEEXT_1)
 @HAVE_GTEST_TRUE@am__append_1 = lease_cmds_unittests
-# This is to workaround unused variables tcout and tcerr in
-# log4cplus's streams.h and unused parameters from some of the
-# Boost headers.
-@HAVE_GTEST_TRUE@@USE_CLANGPP_TRUE@am__append_2 = -Wno-unused-parameter
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__append_2 = $(CQL_LIBS)
 noinst_PROGRAMS = $(am__EXEEXT_2)
 subdir = src/hooks/dhcp/lease_cmds/tests
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -116,12 +113,18 @@ am__lease_cmds_unittests_SOURCES_DIST = run_unittests.cc \
 lease_cmds_unittests_OBJECTS = $(am_lease_cmds_unittests_OBJECTS)
 am__DEPENDENCIES_1 =
 @HAVE_GTEST_TRUE@lease_cmds_unittests_DEPENDENCIES = $(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
-@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp/libkea-dhcp++.la \
-@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
-@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/config/libkea-cfgclient.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/hooks/libkea-hooks.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp/libkea-dhcp++.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/eval/libkea-eval.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/stats/libkea-stats.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dns/libkea-dns++.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cryptolink/libkea-cryptolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/libkea-util.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 @HAVE_GTEST_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -268,12 +271,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -292,11 +301,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -430,7 +442,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -455,16 +466,23 @@ AM_LOG_FLAGS = --mode=execute
 @HAVE_GTEST_TRUE@lease_cmds_unittests_SOURCES = run_unittests.cc \
 @HAVE_GTEST_TRUE@	lease_cmds_unittest.cc
 @HAVE_GTEST_TRUE@lease_cmds_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES) $(LOG4CPLUS_INCLUDES)
-@HAVE_GTEST_TRUE@lease_cmds_unittests_LDFLAGS = $(AM_LDFLAGS) $(CRYPTO_LDFLAGS) $(GTEST_LDFLAGS)
-@HAVE_GTEST_TRUE@lease_cmds_unittests_CXXFLAGS = $(AM_CXXFLAGS) \
+@HAVE_GTEST_TRUE@lease_cmds_unittests_LDFLAGS = $(AM_LDFLAGS) \
+@HAVE_GTEST_TRUE@	$(CRYPTO_LDFLAGS) $(GTEST_LDFLAGS) \
 @HAVE_GTEST_TRUE@	$(am__append_2)
+@HAVE_GTEST_TRUE@lease_cmds_unittests_CXXFLAGS = $(AM_CXXFLAGS)
 @HAVE_GTEST_TRUE@lease_cmds_unittests_LDADD = $(top_builddir)/src/lib/dhcpsrv/libkea-dhcpsrv.la \
-@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp/libkea-dhcp++.la \
-@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
-@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/config/libkea-cfgclient.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/hooks/libkea-hooks.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp/libkea-dhcp++.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/eval/libkea-eval.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dhcp_ddns/libkea-dhcp_ddns.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/stats/libkea-stats.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/dns/libkea-dns++.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cryptolink/libkea-cryptolink.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la \
+@HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/threads/libkea-threads.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/libkea-util.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 @HAVE_GTEST_TRUE@	$(LOG4CPLUS_LIBS) $(CRYPTO_LIBS) \

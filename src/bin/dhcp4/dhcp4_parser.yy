@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2017 Internet Systems Consortium, Inc. ("ISC")
+/* Copyright (C) 2016-2018 Internet Systems Consortium, Inc. ("ISC")
 
    This Source Code Form is subject to the terms of the Mozilla Public
    License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -68,6 +68,7 @@ using namespace std;
 
   LEASE_DATABASE "lease-database"
   HOSTS_DATABASE "hosts-database"
+  HOSTS_DATABASES "hosts-databases"
   TYPE "type"
   MEMFILE "memfile"
   MYSQL "mysql"
@@ -83,6 +84,11 @@ using namespace std;
   CONNECT_TIMEOUT "connect-timeout"
   CONTACT_POINTS "contact-points"
   KEYSPACE "keyspace"
+  MAX_RECONNECT_TRIES "max-reconnect-tries"
+  RECONNECT_WAIT_TIME "reconnect-wait-time"
+  REQUEST_TIMEOUT "request-timeout"
+  TCP_KEEPALIVE "tcp-keepalive"
+  TCP_NODELAY "tcp-nodelay"
 
   VALID_LIFETIME "valid-lifetime"
   RENEW_TIMER "renew-timer"
@@ -109,6 +115,7 @@ using namespace std;
   POOLS "pools"
   POOL "pool"
   USER_CONTEXT "user-context"
+  COMMENT "comment"
 
   SUBNET "subnet"
   INTERFACE "interface"
@@ -123,7 +130,9 @@ using namespace std;
   HOST_RESERVATION_IDENTIFIERS "host-reservation-identifiers"
 
   CLIENT_CLASSES "client-classes"
+  REQUIRE_CLIENT_CLASSES "require-client-classes"
   TEST "test"
+  ONLY_IF_REQUIRED "only-if-required"
   CLIENT_CLASS "client-class"
 
   RESERVATIONS "reservations"
@@ -136,6 +145,7 @@ using namespace std;
 
   RELAY "relay"
   IP_ADDRESS "ip-address"
+  IP_ADDRESSES "ip-addresses"
 
   HOOKS_LIBRARIES "hooks-libraries"
   LIBRARY "library"
@@ -205,6 +215,7 @@ using namespace std;
   SUB_OPTION_DATA
   SUB_HOOKS_LIBRARY
   SUB_DHCP_DDNS
+  SUB_LOGGING
 ;
 
 %token <std::string> STRING "constant string"
@@ -242,6 +253,7 @@ start: TOPLEVEL_JSON { ctx.ctx_ = ctx.NO_KEYWORD; } sub_json
      | SUB_OPTION_DATA { ctx.ctx_ = ctx.OPTION_DATA; } sub_option_data
      | SUB_HOOKS_LIBRARY { ctx.ctx_ = ctx.HOOKS_LIBRARIES; } sub_hooks_library
      | SUB_DHCP_DDNS { ctx.ctx_ = ctx.DHCP_DDNS; } sub_dhcp_ddns
+     | SUB_LOGGING { ctx.ctx_ = ctx.LOGGING; } sub_logging
      ;
 
 // ---- generic JSON parser ---------------------------------
@@ -418,6 +430,7 @@ global_param: valid_lifetime
             | interfaces_config
             | lease_database
             | hosts_database
+            | hosts_databases
             | host_reservation_identifiers
             | client_classes
             | option_def_list
@@ -432,6 +445,8 @@ global_param: valid_lifetime
             | next_server
             | server_hostname
             | boot_file_name
+            | user_context
+            | comment
             | unknown_map_entry
             ;
 
@@ -485,6 +500,9 @@ interfaces_config_param: interfaces_list
                        | dhcp_socket_type
                        | outbound_interface
                        | re_detect
+                       | user_context
+                       | comment
+                       | unknown_map_entry
                        ;
 
 sub_interfaces4: LCURLY_BRACKET {
@@ -522,7 +540,7 @@ outbound_interface: OUTBOUND_INTERFACE {
 } COLON outbound_interface_value {
     ctx.stack_.back()->set("outbound-interface", $4);
     ctx.leave();
-}
+};
 
 outbound_interface_value: SAME_AS_INBOUND {
     $$ = ElementPtr(new StringElement("same-as-inbound", ctx.loc2pos(@1)));
@@ -560,6 +578,34 @@ hosts_database: HOSTS_DATABASE {
     ctx.leave();
 };
 
+hosts_databases: HOSTS_DATABASES {
+    ElementPtr l(new ListElement(ctx.loc2pos(@1)));
+    ctx.stack_.back()->set("hosts-databases", l);
+    ctx.stack_.push_back(l);
+    ctx.enter(ctx.HOSTS_DATABASE);
+} COLON LSQUARE_BRACKET database_list RSQUARE_BRACKET {
+    ctx.stack_.pop_back();
+    ctx.leave();
+};
+
+database_list: %empty
+             | not_empty_database_list
+             ;
+
+not_empty_database_list: database
+                       | not_empty_database_list COMMA database
+                       ;
+
+database: LCURLY_BRACKET {
+    ElementPtr m(new MapElement(ctx.loc2pos(@1)));
+    ctx.stack_.back()->add(m);
+    ctx.stack_.push_back(m);
+} database_map_params RCURLY_BRACKET {
+    // The type parameter is required
+    ctx.require("type", ctx.loc2pos(@1), ctx.loc2pos(@4));
+    ctx.stack_.pop_back();
+};
+
 database_map_params: database_map_param
                    | database_map_params COMMA database_map_param
                    ;
@@ -575,9 +621,14 @@ database_map_param: database_type
                   | readonly
                   | connect_timeout
                   | contact_points
+                  | max_reconnect_tries
+                  | reconnect_wait_time
+                  | request_timeout
+                  | tcp_keepalive
+                  | tcp_nodelay
                   | keyspace
                   | unknown_map_entry
-;
+                  ;
 
 database_type: TYPE {
     ctx.enter(ctx.DATABASE_TYPE);
@@ -649,6 +700,21 @@ connect_timeout: CONNECT_TIMEOUT COLON INTEGER {
     ctx.stack_.back()->set("connect-timeout", n);
 };
 
+request_timeout: REQUEST_TIMEOUT COLON INTEGER {
+    ElementPtr n(new IntElement($3, ctx.loc2pos(@3)));
+    ctx.stack_.back()->set("request-timeout", n);
+};
+
+tcp_keepalive: TCP_KEEPALIVE COLON INTEGER {
+    ElementPtr n(new IntElement($3, ctx.loc2pos(@3)));
+    ctx.stack_.back()->set("tcp-keepalive", n);
+};
+
+tcp_nodelay: TCP_NODELAY COLON BOOLEAN {
+    ElementPtr n(new BoolElement($3, ctx.loc2pos(@3)));
+    ctx.stack_.back()->set("tcp-nodelay", n);
+};
+
 contact_points: CONTACT_POINTS {
     ctx.enter(ctx.NO_KEYWORD);
 } COLON STRING {
@@ -665,6 +731,15 @@ keyspace: KEYSPACE {
     ctx.leave();
 };
 
+max_reconnect_tries: MAX_RECONNECT_TRIES COLON INTEGER {
+    ElementPtr n(new IntElement($3, ctx.loc2pos(@3)));
+    ctx.stack_.back()->set("max-reconnect-tries", n);
+};
+
+reconnect_wait_time: RECONNECT_WAIT_TIME COLON INTEGER {
+    ElementPtr n(new IntElement($3, ctx.loc2pos(@3)));
+    ctx.stack_.back()->set("reconnect-wait-time", n);
+};
 
 host_reservation_identifiers: HOST_RESERVATION_IDENTIFIERS {
     ElementPtr l(new ListElement(ctx.loc2pos(@1)));
@@ -710,7 +785,7 @@ client_id : CLIENT_ID {
 flex_id: FLEX_ID {
     ElementPtr flex_id(new StringElement("flex-id", ctx.loc2pos(@1)));
     ctx.stack_.back()->add(flex_id);
-}
+};
 
 hooks_libraries: HOOKS_LIBRARIES {
     ElementPtr l(new ListElement(ctx.loc2pos(@1)));
@@ -909,6 +984,7 @@ subnet4_param: valid_lifetime
              | id
              | rapid_commit
              | client_class
+             | require_client_classes
              | reservations
              | reservation_mode
              | relay
@@ -920,6 +996,7 @@ subnet4_param: valid_lifetime
              | subnet_4o6_interface_id
              | subnet_4o6_subnet
              | user_context
+             | comment
              | unknown_map_entry
              ;
 
@@ -972,10 +1049,20 @@ interface_id: INTERFACE_ID {
 };
 
 client_class: CLIENT_CLASS {
-    ctx.enter(ctx.CLIENT_CLASS);
+    ctx.enter(ctx.NO_KEYWORD);
 } COLON STRING {
     ElementPtr cls(new StringElement($4, ctx.loc2pos(@4)));
     ctx.stack_.back()->set("client-class", cls);
+    ctx.leave();
+};
+
+require_client_classes: REQUIRE_CLIENT_CLASSES {
+    ElementPtr c(new ListElement(ctx.loc2pos(@1)));
+    ctx.stack_.back()->set("require-client-classes", c);
+    ctx.stack_.push_back(c);
+    ctx.enter(ctx.NO_KEYWORD);
+} COLON list_strings {
+    ctx.stack_.pop_back();
     ctx.leave();
 };
 
@@ -1029,7 +1116,7 @@ shared_network: LCURLY_BRACKET {
     ctx.stack_.push_back(m);
 } shared_network_params RCURLY_BRACKET {
     ctx.stack_.pop_back();
-}
+};
 
 shared_network_params: shared_network_param
                      | shared_network_params COMMA shared_network_param
@@ -1048,7 +1135,10 @@ shared_network_param: name
                     | relay
                     | reservation_mode
                     | client_class
+                    | require_client_classes
                     | valid_lifetime
+                    | user_context
+                    | comment
                     | unknown_map_entry
                     ;
 
@@ -1132,6 +1222,8 @@ option_def_param: option_def_name
                 | option_def_space
                 | option_def_encapsulate
                 | option_def_array
+                | user_context
+                | comment
                 | unknown_map_entry
                 ;
 
@@ -1253,6 +1345,8 @@ option_data_param: option_data_name
                  | option_data_space
                  | option_data_csv_format
                  | option_data_always_send
+                 | user_context
+                 | comment
                  | unknown_map_entry
                  ;
 
@@ -1329,7 +1423,10 @@ pool_params: pool_param
 
 pool_param: pool_entry
           | option_data_list
+          | client_class
+          | require_client_classes
           | user_context
+          | comment
           | unknown_map_entry
           ;
 
@@ -1344,7 +1441,52 @@ pool_entry: POOL {
 user_context: USER_CONTEXT {
     ctx.enter(ctx.NO_KEYWORD);
 } COLON map_value {
-    ctx.stack_.back()->set("user-context", $4);
+    ElementPtr parent = ctx.stack_.back();
+    ElementPtr user_context = $4;
+    ConstElementPtr old = parent->get("user-context");
+
+    // Handle already existing user context
+    if (old) {
+        // Check if it was a comment or a duplicate
+        if ((old->size() != 1) || !old->contains("comment")) {
+            std::stringstream msg;
+            msg << "duplicate user-context entries (previous at "
+                << old->getPosition().str() << ")";
+            error(@1, msg.str());
+        }
+        // Merge the comment
+        user_context->set("comment", old->get("comment"));
+    }
+
+    // Set the user context
+    parent->set("user-context", user_context);
+    ctx.leave();
+};
+
+comment: COMMENT {
+    ctx.enter(ctx.NO_KEYWORD);
+} COLON STRING {
+    ElementPtr parent = ctx.stack_.back();
+    ElementPtr user_context(new MapElement(ctx.loc2pos(@1)));
+    ElementPtr comment(new StringElement($4, ctx.loc2pos(@4)));
+    user_context->set("comment", comment);
+
+    // Handle already existing user context
+    ConstElementPtr old = parent->get("user-context");
+    if (old) {
+        // Check for duplicate comment
+        if (old->contains("comment")) {
+            std::stringstream msg;
+            msg << "duplicate user-context/comment entries (previous at "
+                << old->getPosition().str() << ")";
+            error(@1, msg.str());
+        }
+        // Merge the user context in the comment
+        merge(user_context, old);
+    }
+
+    // Set the user context
+    parent->set("user-context", user_context);
     ctx.leave();
 };
 
@@ -1408,6 +1550,8 @@ reservation_param: duid
                  | next_server
                  | server_hostname
                  | boot_file_name
+                 | user_context
+                 | comment
                  | unknown_map_entry
                  ;
 
@@ -1440,6 +1584,16 @@ ip_address: IP_ADDRESS {
 } COLON STRING {
     ElementPtr addr(new StringElement($4, ctx.loc2pos(@4)));
     ctx.stack_.back()->set("ip-address", addr);
+    ctx.leave();
+};
+
+ip_addresses: IP_ADDRESSES {
+    ElementPtr l(new ListElement(ctx.loc2pos(@1)));
+    ctx.stack_.back()->set("ip-addresses", l);
+    ctx.stack_.push_back(l);
+    ctx.enter(ctx.NO_KEYWORD);
+} COLON list_strings {
+    ctx.stack_.pop_back();
     ctx.leave();
 };
 
@@ -1514,13 +1668,9 @@ relay: RELAY {
     ctx.leave();
 };
 
-relay_map: IP_ADDRESS {
-    ctx.enter(ctx.NO_KEYWORD);
-} COLON STRING {
-    ElementPtr ip(new StringElement($4, ctx.loc2pos(@4)));
-    ctx.stack_.back()->set("ip-address", ip);
-    ctx.leave();
-};
+relay_map: ip_address
+         | ip_addresses
+         ;
 
 // --- end of relay definitions ------------------------------
 
@@ -1535,11 +1685,11 @@ client_classes: CLIENT_CLASSES {
     ctx.leave();
 };
 
-client_classes_list: client_class
-                   | client_classes_list COMMA client_class
+client_classes_list: client_class_entry
+                   | client_classes_list COMMA client_class_entry
                    ;
 
-client_class: LCURLY_BRACKET {
+client_class_entry: LCURLY_BRACKET {
     ElementPtr m(new MapElement(ctx.loc2pos(@1)));
     ctx.stack_.back()->add(m);
     ctx.stack_.push_back(m);
@@ -1559,11 +1709,14 @@ not_empty_client_class_params: client_class_param
 
 client_class_param: client_class_name
                   | client_class_test
+                  | only_if_required
                   | option_def_list
                   | option_data_list
                   | next_server
                   | server_hostname
                   | boot_file_name
+                  | user_context
+                  | comment
                   | unknown_map_entry
                   ;
 
@@ -1575,6 +1728,11 @@ client_class_test: TEST {
     ElementPtr test(new StringElement($4, ctx.loc2pos(@4)));
     ctx.stack_.back()->set("test", test);
     ctx.leave();
+};
+
+only_if_required: ONLY_IF_REQUIRED COLON BOOLEAN {
+    ElementPtr b(new BoolElement($3, ctx.loc2pos(@3)));
+    ctx.stack_.back()->set("only-if-required", b);
 };
 
 // --- end of client classes ---------------------------------
@@ -1604,6 +1762,9 @@ control_socket_params: control_socket_param
 
 control_socket_param: control_socket_type
                     | control_socket_name
+                    | user_context
+                    | comment
+                    | unknown_map_entry
                     ;
 
 control_socket_type: SOCKET_TYPE {
@@ -1664,6 +1825,8 @@ dhcp_ddns_param: enable_updates
                | override_client_update
                | replace_client_name
                | generated_prefix
+               | user_context
+               | comment
                | unknown_map_entry
                ;
 
@@ -1818,6 +1981,14 @@ logging_object: LOGGING {
     ctx.leave();
 };
 
+sub_logging: LCURLY_BRACKET {
+    // Parse the Logging map
+    ElementPtr m(new MapElement(ctx.loc2pos(@1)));
+    ctx.stack_.push_back(m);
+} logging_params RCURLY_BRACKET {
+    // parsing completed
+};
+
 // This defines the list of allowed parameters that may appear
 // in the top-level Logging object. It can either be a single
 // parameter or several parameters separated by commas.
@@ -1829,7 +2000,7 @@ logging_params: logging_param
 logging_param: loggers;
 
 // "loggers", the only parameter currently defined in "Logging" object,
-// is "Loggers": [ ... ].
+// is "loggers": [ ... ].
 loggers: LOGGERS {
     ElementPtr l(new ListElement(ctx.loc2pos(@1)));
     ctx.stack_.back()->set("loggers", l);
@@ -1863,6 +2034,8 @@ logger_param: name
             | output_options_list
             | debuglevel
             | severity
+            | user_context
+            | comment
             | unknown_map_entry
             ;
 
@@ -1922,17 +2095,17 @@ output: OUTPUT {
 flush: FLUSH COLON BOOLEAN {
     ElementPtr flush(new BoolElement($3, ctx.loc2pos(@3)));
     ctx.stack_.back()->set("flush", flush);
-}
+};
 
 maxsize: MAXSIZE COLON INTEGER {
     ElementPtr maxsize(new IntElement($3, ctx.loc2pos(@3)));
     ctx.stack_.back()->set("maxsize", maxsize);
-}
+};
 
 maxver: MAXVER COLON INTEGER {
     ElementPtr maxver(new IntElement($3, ctx.loc2pos(@3)));
     ctx.stack_.back()->set("maxver", maxver);
-}
+};
 
 %%
 

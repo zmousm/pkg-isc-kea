@@ -217,12 +217,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -241,11 +247,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -379,7 +388,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -389,14 +397,18 @@ SUBDIRS = guide design
 EXTRA_DIST = version.ent.in Doxyfile Doxyfile-xml devel/bison.dox \
 	devel/config-backend.dox devel/contribute.dox \
 	devel/mainpage.dox devel/terminology.dox devel/unit-tests.dox
-nobase_dist_doc_DATA = examples/agent/simple.json \
+nobase_dist_doc_DATA = examples/agent/comments.json \
+	examples/agent/simple.json examples/ddns/comments.json \
 	examples/ddns/sample1.json examples/ddns/template.json \
 	examples/https/httpd2/kea-httpd2.conf \
 	examples/https/nginx/kea-nginx.conf \
 	examples/https/shell/kea-stunnel.conf \
 	examples/kea4/advanced.json examples/kea4/backends.json \
 	examples/kea4/cassandra.json examples/kea4/classify.json \
-	examples/kea4/dhcpv4-over-dhcpv6.json examples/kea4/hooks.json \
+	examples/kea4/classify2.json examples/kea4/comments.json \
+	examples/kea4/dhcpv4-over-dhcpv6.json \
+	examples/kea4/ha-load-balancing-primary.json \
+	examples/kea4/hooks.json examples/kea4/hooks-radius.json \
 	examples/kea4/leases-expiration.json \
 	examples/kea4/multiple-options.json \
 	examples/kea4/mysql-reservations.json \
@@ -407,9 +419,10 @@ nobase_dist_doc_DATA = examples/agent/simple.json \
 	examples/kea4/single-subnet.json examples/kea4/with-ddns.json \
 	examples/kea6/advanced.json examples/kea6/backends.json \
 	examples/kea6/cassandra.json examples/kea6/classify.json \
+	examples/kea6/classify2.json examples/kea6/comments.json \
 	examples/kea6/dhcpv4-over-dhcpv6.json examples/kea6/duid.json \
-	examples/kea6/hooks.json examples/kea6/iPXE.json \
-	examples/kea6/leases-expiration.json \
+	examples/kea6/ha-hot-standby.json examples/kea6/hooks.json \
+	examples/kea6/iPXE.json examples/kea6/leases-expiration.json \
 	examples/kea6/multiple-options.json \
 	examples/kea6/mysql-reservations.json \
 	examples/kea6/pgsql-reservations.json \

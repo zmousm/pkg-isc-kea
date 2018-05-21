@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,6 +13,8 @@
 #include <dhcpsrv/host.h>
 #include <exceptions/exceptions.h>
 #include <boost/shared_ptr.hpp>
+
+#include <vector>
 
 namespace isc {
 namespace dhcp {
@@ -233,7 +235,8 @@ public:
     ///
     /// @return Const @c Host object using a specified IPv6 address/prefix.
     virtual ConstHostPtr
-    get6(const SubnetID& subnet_id, const asiolink::IOAddress& address) const = 0;
+    get6(const SubnetID& subnet_id, const asiolink::IOAddress& address) const =
+ 0;
 
     /// @brief Adds a new host to the collection.
     ///
@@ -259,7 +262,7 @@ public:
 
     /// @brief Attempts to delete a host by (subnet-id4, identifier, identifier-type)
     ///
-    /// This method supports both v4 hosts only.
+    /// This method supports v4 hosts only.
     ///
     /// @param subnet_id IPv4 Subnet identifier.
     /// @param identifier_type Identifier type.
@@ -274,7 +277,7 @@ public:
 
     /// @brief Attempts to delete a host by (subnet-id6, identifier, identifier-type)
     ///
-    /// This method supports both v6 hosts only.
+    /// This method supports v6 hosts only.
     ///
     /// @param subnet_id IPv6 Subnet identifier.
     /// @param identifier_type Identifier type.
@@ -309,6 +312,9 @@ public:
 
 /// @brief HostDataSource pointer
 typedef boost::shared_ptr<BaseHostDataSource> HostDataSourcePtr;
+
+/// @brief HostDataSource list
+typedef std::vector<HostDataSourcePtr> HostDataSourceList;
 
 }
 }

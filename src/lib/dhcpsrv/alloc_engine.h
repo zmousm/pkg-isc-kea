@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,6 +8,7 @@
 #define ALLOC_ENGINE_H
 
 #include <asiolink/io_address.h>
+#include <dhcp/classify.h>
 #include <dhcp/duid.h>
 #include <dhcp/hwaddr.h>
 #include <dhcp/pkt4.h>
@@ -78,13 +79,18 @@ protected:
         /// than pickResource(), because nobody would immediately know what the
         /// resource means in this context.
         ///
+        /// Pools which are not allowed for client classes are skipped.
+        ///
         /// @param subnet next address will be returned from pool of that subnet
+        /// @param client_classes list of classes client belongs to
         /// @param duid Client's DUID
         /// @param hint client's hint
         ///
         /// @return the next address
         virtual isc::asiolink::IOAddress
-        pickAddress(const SubnetPtr& subnet, const DuidPtr& duid,
+        pickAddress(const SubnetPtr& subnet,
+                    const ClientClasses& client_classes,
+                    const DuidPtr& duid,
                     const isc::asiolink::IOAddress& hint) = 0;
 
         /// @brief Default constructor.
@@ -125,11 +131,13 @@ protected:
         /// @brief returns the next address from pools in a subnet
         ///
         /// @param subnet next address will be returned from pool of that subnet
+        /// @param client_classes list of classes client belongs to
         /// @param duid Client's DUID (ignored)
         /// @param hint client's hint (ignored)
         /// @return the next address
         virtual isc::asiolink::IOAddress
             pickAddress(const SubnetPtr& subnet,
+                        const ClientClasses& client_classes,
                         const DuidPtr& duid,
                         const isc::asiolink::IOAddress& hint);
     protected:
@@ -147,6 +155,20 @@ protected:
         static isc::asiolink::IOAddress
         increasePrefix(const isc::asiolink::IOAddress& prefix,
                        const uint8_t prefix_len);
+
+        /// @brief Returns the next address or prefix
+        ///
+        /// This method works for IPv4 addresses, IPv6 addresses and
+        /// IPv6 prefixes.
+        ///
+        /// @param address address or prefix to be increased
+        /// @param prefix true when the previous argument is a prefix
+        /// @param prefix_len length of the prefix
+        /// @return result address or prefix
+        static isc::asiolink::IOAddress
+        increaseAddress(const isc::asiolink::IOAddress& address,
+                        bool prefix, const uint8_t prefix_len);
+
     };
 
     /// @brief Address/prefix allocator that gets an address based on a hash
@@ -164,12 +186,15 @@ protected:
         /// @todo: Implement this method
         ///
         /// @param subnet an address will be picked from pool of that subnet
+        /// @param client_classes list of classes client belongs to
         /// @param duid Client's DUID
         /// @param hint a hint (last address that was picked)
         /// @return selected address
-        virtual isc::asiolink::IOAddress pickAddress(const SubnetPtr& subnet,
-                                                     const DuidPtr& duid,
-                                                     const isc::asiolink::IOAddress& hint);
+        virtual isc::asiolink::IOAddress
+            pickAddress(const SubnetPtr& subnet,
+                        const ClientClasses& client_classes,
+                        const DuidPtr& duid,
+                        const isc::asiolink::IOAddress& hint);
     };
 
     /// @brief Random allocator that picks address randomly
@@ -187,11 +212,14 @@ protected:
         /// @todo: Implement this method
         ///
         /// @param subnet an address will be picked from pool of that subnet
+        /// @param client_classes list of classes client belongs to
         /// @param duid Client's DUID (ignored)
         /// @param hint the last address that was picked (ignored)
         /// @return a random address from the pool
         virtual isc::asiolink::IOAddress
-        pickAddress(const SubnetPtr& subnet, const DuidPtr& duid,
+        pickAddress(const SubnetPtr& subnet,
+                    const ClientClasses& client_classes,
+                    const DuidPtr& duid,
                     const isc::asiolink::IOAddress& hint);
     };
 
@@ -348,6 +376,9 @@ public:
 
         /// @brief Holds addresses and prefixes allocated for all IAs.
         ResourceContainer allocated_resources_;
+
+        /// @brief A collection of newly allocated leases.
+        Lease6Collection new_leases_;
 
         //@}
 
@@ -718,28 +749,6 @@ public:
 
 private:
 
-    /// @brief Type of the function used by @ref findReservationInternal to
-    /// retrieve reservations by subnet identifier and host identifier.
-    typedef boost::function<ConstHostPtr(const SubnetID&,
-                                         const Host::IdentifierType&,
-                                         const uint8_t*, const size_t)> HostGetFunc;
-
-    /// @brief Common function for searching host reservations.
-    ///
-    /// This is a common function called by variants of @ref findReservation
-    /// functions.
-    ///
-    /// @param ctx Reference to a @ref ClientContext6 or @ref ClientContext4.
-    /// @param host_get Pointer to the @ref HostMgr functions to be used
-    /// to retrieve reservation by subnet identifier and host identifier.
-    /// @param ipv6_only Boolean value indicating if only IPv6 reservations
-    /// should be retrieved.
-    /// @tparam ContextType Either @ref ClientContext6 or @ref ClientContext4.
-    template<typename ContextType>
-    static void findReservationInternal(ContextType& ctx,
-                                        const HostGetFunc& host_get,
-                                        const bool ipv6_only = false);
-
     /// @brief creates a lease and inserts it in LeaseMgr if necessary
     ///
     /// Creates a lease based on specified parameters and tries to insert it
@@ -803,14 +812,25 @@ private:
     /// @brief Removes leases that are reserved for someone else.
     ///
     /// Goes through the list specified in existing_leases and removes those that
-    /// are reserved by someone else. The removed leases are added to the
-    /// ctx.removed_leases_ collection.
+    /// are reserved by someone else or do not belong to an allowed pool.
+    /// The removed leases are added to the ctx.removed_leases_ collection.
     ///
     /// @param ctx client context that contains all details (subnet, client-id, etc.)
     /// @param existing_leases [in/out] leases that should be checked
     void
     removeNonmatchingReservedLeases6(ClientContext6& ctx,
                                      Lease6Collection& existing_leases);
+
+    /// @brief Removes leases that are reserved for someone else.
+    ///
+    /// Simplified version of removeNonmatchingReservedLeases6 to be
+    /// used when host reservations are disabled.
+    ///
+    /// @param ctx client context that contains all details (subnet, client-id, etc.)
+    /// @param existing_leases [in/out] leases that should be checked
+    void
+    removeNonmatchingReservedNoHostLeases6(ClientContext6& ctx,
+                                           Lease6Collection& existing_leases);
 
     /// @brief Removed leases that are not reserved for this client
     ///
@@ -1086,6 +1106,9 @@ public:
 
         /// @brief A pointer to an old lease that the client had before update.
         Lease4Ptr old_lease_;
+
+        /// @brief A pointer to a newly allocated lease.
+        Lease4Ptr new_lease_;
 
         /// @brief Holds a map of hosts belonging to the client within different
         /// subnets.
@@ -1495,7 +1518,6 @@ private:
     /// @brief Number of consecutive DHCPv6 leases' reclamations after
     /// which there are still expired leases in the database.
     uint16_t incomplete_v6_reclamations_;
-
 };
 
 /// @brief A pointer to the @c AllocEngine object.

@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -397,12 +397,32 @@ public:
     ///
     /// The elements currently supported are:
     /// -# ip-address
+    /// -# ip-addresses
     ///
-    /// @param cfg configuration will be stored here
-    /// @param relay_info JSON structure holding relay parameters to parse
-    void parse(const isc::dhcp::Network::RelayInfoPtr& cfg,
-               isc::data::ConstElementPtr relay_info);
+    /// Note that ip-address and ip-addresses are mutually exclusive, with
+    /// former being deprecated.  The use of ip-address will cause an debug
+    /// log to be emitted, reminded users to switch.
+    ///
+    /// @param relay_info configuration will be stored here
+    /// @param relay_elem Element tree containing the relay and its members
+    /// @throw isc::dhcp::DhcpConfigError if both or neither of ip-address
+    /// and ip-addresses are specified.
+    void parse(const isc::dhcp::Network::RelayInfoPtr& relay_info,
+               isc::data::ConstElementPtr relay_elem);
 
+    /// @brief Attempts to add an IP address to list of relay addresses
+    ///
+    /// @param name name of the element supplying the address string, (either
+    /// "ip-address" or "ip-addresses")
+    /// @param address string form of the IP address to add
+    /// @param relay_elem parent relay element (needed for position info)
+    /// @param relay_info RelayInfo to which the address should be added
+    /// @throw isc::dhcp::DhcpConfigError if the address string is not a valid
+    /// IP address, is an address of the wrong family, or is already in the
+    /// relay address list
+    void addAddress(const std::string& name, const std::string& address_str, 
+                    isc::data::ConstElementPtr relay_elem,
+                    const isc::dhcp::Network::RelayInfoPtr& relay_info);
 private:
 
     /// Protocol family (IPv4 or IPv6)
@@ -651,7 +671,15 @@ private:
     /// A storage for pool specific option values.
     CfgOptionPtr options_;
 
+    /// @brief User context (optional, may be null)
+    ///
+    /// User context is arbitrary user data, to be used by hooks.
     isc::data::ConstElementPtr user_context_;
+
+    /// @brief Client class (a client has to belong to to use this pd-pool)
+    ///
+    /// If null, everyone is allowed.
+    isc::data::ConstElementPtr client_class_;
 };
 
 /// @brief Parser for a list of prefix delegation pools.

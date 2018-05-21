@@ -5,7 +5,7 @@
 if [ -e ${prefix}/share/kea/scripts/admin-utils.sh ]; then
     . ${prefix}/share/kea/scripts/admin-utils.sh
 else
-    . /home/wlodek/dev/kea/src/bin/admin/admin-utils.sh
+    . /home/wlodek/dev/kea_rel_1.4/src/bin/admin/admin-utils.sh
 fi
 
 VERSION=`pgsql_version "$@"`
@@ -138,6 +138,10 @@ CREATE TABLE lease_hwaddr_source (
   name VARCHAR(40) DEFAULT NULL
 );
 
+-- In the event hardware address cannot be determined, we need to satisfy
+-- foreign key constraint between lease6 and lease_hardware_source
+INSERT INTO lease_hwaddr_source VALUES (0, 'HWADDR_SOURCE_UNKNOWN');
+
 -- Hardware address obtained from raw sockets
 INSERT INTO lease_hwaddr_source VALUES (1, 'HWADDR_SOURCE_RAW');
 
@@ -160,10 +164,6 @@ INSERT INTO lease_hwaddr_source VALUES (32, 'HWADDR_SOURCE_SUBSCRIBER_ID');
 INSERT INTO lease_hwaddr_source VALUES (64, 'HWADDR_SOURCE_DOCSIS_CMTS');
 
 INSERT INTO lease_hwaddr_source VALUES (128, 'HWADDR_SOURCE_DOCSIS_MODEM');
-
--- In the event hardware address cannot be determined, we need to satisfy
--- foreign key constraint between lease6 and lease_hardware_source
-INSERT INTO lease_hwaddr_source VALUES (0, 'HWADDR_SOURCE_UNKNOWN');
 
 -- Adding ORDER BY clause to sort by lease address
 --

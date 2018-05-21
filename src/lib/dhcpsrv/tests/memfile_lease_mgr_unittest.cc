@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,7 +15,7 @@
 #include <dhcpsrv/lease_mgr_factory.h>
 #include <dhcpsrv/memfile_lease_mgr.h>
 #include <dhcpsrv/timer_mgr.h>
-#include <dhcpsrv/tests/lease_file_io.h>
+#include <dhcpsrv/testutils/lease_file_io.h>
 #include <dhcpsrv/tests/test_utils.h>
 #include <dhcpsrv/tests/generic_lease_mgr_unittest.h>
 #include <util/pid_file.h>
@@ -542,7 +542,8 @@ TEST_F(MemfileLeaseMgrTest, leaseFileCleanup4) {
     // Check if we can still write to the lease file.
     std::vector<uint8_t> hwaddr_vec(6);
     HWAddrPtr hwaddr(new HWAddr(hwaddr_vec, HTYPE_ETHER));
-    Lease4Ptr new_lease(new Lease4(IOAddress("192.0.2.45"), hwaddr, 0, 0,
+    Lease4Ptr new_lease(new Lease4(IOAddress("192.0.2.45"), hwaddr,
+                                   static_cast<const uint8_t*>(0), 0,
                                    100, 50, 60, 0, 1));
     ASSERT_NO_THROW(lease_mgr->addLease(new_lease));
 
@@ -873,7 +874,7 @@ TEST_F(MemfileLeaseMgrTest, getLease4ClientIdHWAddrSubnetId) {
 /// @brief Basic Lease4 Checks
 ///
 /// Checks that the addLease, getLease4(by address), getLease4(hwaddr,subnet_id),
-/// updateLease4() and deleteLease (IPv4 address) can handle NULL client-id.
+/// updateLease4() and deleteLease can handle NULL client-id.
 /// (client-id is optional and may not be present)
 TEST_F(MemfileLeaseMgrTest, lease4NullClientId) {
     startBackend(V4);
@@ -915,6 +916,30 @@ TEST_F(MemfileLeaseMgrTest, getLease4ClientIdSize) {
 TEST_F(MemfileLeaseMgrTest, getLease4ClientIdSubnetId) {
     startBackend(V4);
     testGetLease4ClientIdSubnetId();
+}
+
+// This test checks that all IPv4 leases for a specified subnet id are returned.
+TEST_F(MemfileLeaseMgrTest, getLeases4SubnetId) {
+    startBackend(V4);
+    testGetLeases4SubnetId();
+}
+
+// This test checks that all IPv4 leases are returned.
+TEST_F(MemfileLeaseMgrTest, getLeases4) {
+    startBackend(V4);
+    testGetLeases4();
+}
+
+// This test checks that all IPv6 leases for a specified subnet id are returned.
+TEST_F(MemfileLeaseMgrTest, getLeases6SubnetId) {
+    startBackend(V6);
+    testGetLeases6SubnetId();
+}
+
+// This test checks that all IPv6 leases are returned.
+TEST_F(MemfileLeaseMgrTest, getLeases6) {
+    startBackend(V6);
+    testGetLeases6();
 }
 
 /// @brief Basic Lease6 Checks
@@ -1910,4 +1935,17 @@ TEST_F(MemfileLeaseMgrTest, wipeLeases6) {
     testWipeLeases6();
 }
 
-}; // end of anonymous namespace
+// Tests v4 lease stats query variants.
+TEST_F(MemfileLeaseMgrTest, leaseStatsQuery4) {
+    startBackend(V4);
+    testLeaseStatsQuery4();
+}
+
+// Tests v6 lease stats query variants.
+TEST_F(MemfileLeaseMgrTest, leaseStatsQuery6) {
+    startBackend(V6);
+    testLeaseStatsQuery6();
+}
+
+
+}  // namespace

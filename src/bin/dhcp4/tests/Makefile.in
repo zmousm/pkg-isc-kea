@@ -134,6 +134,16 @@ libco2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libco2_la_CXXFLAGS) \
 	$(CXXFLAGS) $(libco2_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_GTEST_TRUE@am_libco2_la_rpath =
+libco3_la_LIBADD =
+am__libco3_la_SOURCES_DIST = callout_library_3.cc \
+	callout_library_common.h
+@HAVE_GTEST_TRUE@am_libco3_la_OBJECTS =  \
+@HAVE_GTEST_TRUE@	libco3_la-callout_library_3.lo
+libco3_la_OBJECTS = $(am_libco3_la_OBJECTS)
+libco3_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libco3_la_CXXFLAGS) \
+	$(CXXFLAGS) $(libco3_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_GTEST_TRUE@am_libco3_la_rpath =
 @HAVE_GTEST_TRUE@am__EXEEXT_1 = dhcp4_unittests$(EXEEXT)
 am__EXEEXT_2 = $(am__EXEEXT_1)
 PROGRAMS = $(noinst_PROGRAMS)
@@ -259,9 +269,10 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libco1_la_SOURCES) $(libco2_la_SOURCES) \
-	$(dhcp4_unittests_SOURCES) $(nodist_dhcp4_unittests_SOURCES)
+	$(libco3_la_SOURCES) $(dhcp4_unittests_SOURCES) \
+	$(nodist_dhcp4_unittests_SOURCES)
 DIST_SOURCES = $(am__libco1_la_SOURCES_DIST) \
-	$(am__libco2_la_SOURCES_DIST) \
+	$(am__libco2_la_SOURCES_DIST) $(am__libco3_la_SOURCES_DIST) \
 	$(am__dhcp4_unittests_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -319,12 +330,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -343,11 +360,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -481,7 +501,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -494,7 +513,7 @@ noinst_SCRIPTS = dhcp4_process_tests.sh
 EXTRA_DIST = dhcp4_process_tests.sh.in
 AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	-I$(top_srcdir)/src -I$(top_builddir)/src \
-	-I$(top_builddir)/src/bin -I$(top_srcdir)/src/bin \
+	-I$(top_srcdir)/src/bin -I$(top_builddir)/src/bin \
 	$(BOOST_INCLUDES) \
 	-DTEST_DATA_BUILDDIR=\"$(abs_top_builddir)/src/bin/dhcp4/tests\" \
 	-DINSTALL_PROG=\"$(abs_top_srcdir)/install-sh\" \
@@ -521,7 +540,7 @@ TESTS_ENVIRONMENT = \
 # own copy of the static objects (e.g. logger, ServerHooks) and that will lead
 # to unexpected errors. For this reason, the --enable-static-link option is
 # ignored for unit tests built here.
-@HAVE_GTEST_TRUE@noinst_LTLIBRARIES = libco1.la libco2.la
+@HAVE_GTEST_TRUE@noinst_LTLIBRARIES = libco1.la libco2.la libco3.la
 
 # -rpath /nowhere is a hack to trigger libtool to not create a
 # convenience archive, resulting in shared modules
@@ -533,6 +552,10 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@libco2_la_CXXFLAGS = $(AM_CXXFLAGS)
 @HAVE_GTEST_TRUE@libco2_la_CPPFLAGS = $(AM_CPPFLAGS)
 @HAVE_GTEST_TRUE@libco2_la_LDFLAGS = -avoid-version -export-dynamic -module -rpath /nowhere
+@HAVE_GTEST_TRUE@libco3_la_SOURCES = callout_library_3.cc callout_library_common.h
+@HAVE_GTEST_TRUE@libco3_la_CXXFLAGS = $(AM_CXXFLAGS)
+@HAVE_GTEST_TRUE@libco3_la_CPPFLAGS = $(AM_CPPFLAGS)
+@HAVE_GTEST_TRUE@libco3_la_LDFLAGS = -avoid-version -export-dynamic -module -rpath /nowhere
 @HAVE_GTEST_TRUE@dhcp4_unittests_SOURCES = d2_unittest.h \
 @HAVE_GTEST_TRUE@	d2_unittest.cc dhcp4_unittests.cc \
 @HAVE_GTEST_TRUE@	dhcp4_srv_unittest.cc dhcp4_test_utils.cc \
@@ -640,6 +663,9 @@ libco1.la: $(libco1_la_OBJECTS) $(libco1_la_DEPENDENCIES) $(EXTRA_libco1_la_DEPE
 libco2.la: $(libco2_la_OBJECTS) $(libco2_la_DEPENDENCIES) $(EXTRA_libco2_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libco2_la_LINK) $(am_libco2_la_rpath) $(libco2_la_OBJECTS) $(libco2_la_LIBADD) $(LIBS)
 
+libco3.la: $(libco3_la_OBJECTS) $(libco3_la_DEPENDENCIES) $(EXTRA_libco3_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libco3_la_LINK) $(am_libco3_la_rpath) $(libco3_la_OBJECTS) $(libco3_la_LIBADD) $(LIBS)
+
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
@@ -685,6 +711,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dhcp4_unittests-simple_parser4_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libco1_la-callout_library_1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libco2_la-callout_library_2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libco3_la-callout_library_3.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -720,6 +747,13 @@ libco2_la-callout_library_2.lo: callout_library_2.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='callout_library_2.cc' object='libco2_la-callout_library_2.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libco2_la_CPPFLAGS) $(CPPFLAGS) $(libco2_la_CXXFLAGS) $(CXXFLAGS) -c -o libco2_la-callout_library_2.lo `test -f 'callout_library_2.cc' || echo '$(srcdir)/'`callout_library_2.cc
+
+libco3_la-callout_library_3.lo: callout_library_3.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libco3_la_CPPFLAGS) $(CPPFLAGS) $(libco3_la_CXXFLAGS) $(CXXFLAGS) -MT libco3_la-callout_library_3.lo -MD -MP -MF $(DEPDIR)/libco3_la-callout_library_3.Tpo -c -o libco3_la-callout_library_3.lo `test -f 'callout_library_3.cc' || echo '$(srcdir)/'`callout_library_3.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libco3_la-callout_library_3.Tpo $(DEPDIR)/libco3_la-callout_library_3.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='callout_library_3.cc' object='libco3_la-callout_library_3.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libco3_la_CPPFLAGS) $(CPPFLAGS) $(libco3_la_CXXFLAGS) $(CXXFLAGS) -c -o libco3_la-callout_library_3.lo `test -f 'callout_library_3.cc' || echo '$(srcdir)/'`callout_library_3.cc
 
 dhcp4_unittests-d2_unittest.o: d2_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dhcp4_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT dhcp4_unittests-d2_unittest.o -MD -MP -MF $(DEPDIR)/dhcp4_unittests-d2_unittest.Tpo -c -o dhcp4_unittests-d2_unittest.o `test -f 'd2_unittest.cc' || echo '$(srcdir)/'`d2_unittest.cc

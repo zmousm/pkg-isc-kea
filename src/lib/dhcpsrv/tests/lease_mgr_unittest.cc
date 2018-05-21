@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -129,6 +129,22 @@ public:
         return (Lease4Ptr());
     }
 
+    /// @brief Returns all IPv4 leases for the particular subnet identifier.
+    ///
+    /// @param subnet_id subnet identifier.
+    ///
+    /// @return Lease collection (may be empty if no IPv4 lease found).
+    virtual Lease4Collection getLeases4(SubnetID) const {
+        return (Lease4Collection());
+    }
+
+    /// @brief Returns all IPv4 leases.
+    ///
+    /// @return Lease collection (may be empty if no IPv4 lease found).
+    virtual Lease4Collection getLeases4() const {
+        return (Lease4Collection());
+    }
+
     /// @brief Returns existing IPv6 lease for a given IPv6 address.
     ///
     /// @param addr address of the searched lease
@@ -160,6 +176,22 @@ public:
     virtual Lease6Collection getLeases6(Lease::Type /* not used yet */,
                                         const DUID&, uint32_t, SubnetID) const {
         return (leases6_);
+    }
+
+    /// @brief Returns all IPv6 leases for the particular subnet identifier.
+    ///
+    /// @param subnet_id subnet identifier.
+    ///
+    /// @return Lease collection (may be empty if no IPv6 lease found).
+    virtual Lease6Collection getLeases6(SubnetID) const {
+        return (Lease6Collection());
+    }
+
+    /// @brief Returns all IPv6 leases.
+    ///
+    /// @return Lease collection (may be empty if no IPv6 lease found).
+    virtual Lease6Collection getLeases6() const {
+        return (Lease6Collection());
     }
 
 
@@ -336,10 +368,49 @@ TEST_F(LeaseMgrTest, getLease6) {
                  MultipleRecords);
 }
 
+// Verify LeaseStatsQuery default construction
+TEST (LeaseStatsQueryTest, defaultCtor) {
+    LeaseStatsQueryPtr qry;
+
+    // Valid construction, verifiy member values.
+    ASSERT_NO_THROW(qry.reset(new LeaseStatsQuery()));
+    ASSERT_EQ(0, qry->getFirstSubnetID());
+    ASSERT_EQ(0, qry->getLastSubnetID());
+    ASSERT_EQ(LeaseStatsQuery::ALL_SUBNETS, qry->getSelectMode());
+}
+
+// Verify LeaseStatsQuery single-subnet construction
+TEST (LeaseStatsQueryTest, singleSubnetCtor) {
+    LeaseStatsQueryPtr qry;
+
+    // Invalid values for subnet_id
+    ASSERT_THROW(qry.reset(new LeaseStatsQuery(0)), BadValue);
+
+    // Valid values should work and set mode accordingly.
+    ASSERT_NO_THROW(qry.reset(new LeaseStatsQuery(77)));
+    ASSERT_EQ(77, qry->getFirstSubnetID());
+    ASSERT_EQ(0, qry->getLastSubnetID());
+    ASSERT_EQ(LeaseStatsQuery::SINGLE_SUBNET, qry->getSelectMode());
+}
+
+// Verify LeaseStatsQuery subnet-range construction
+TEST (LeaseStatsQueryTest, subnetRangeCtor) {
+    LeaseStatsQueryPtr qry;
+
+    // Either ID set to 0, or a backward range should throw
+    ASSERT_THROW(qry.reset(new LeaseStatsQuery(0,1)), BadValue);
+    ASSERT_THROW(qry.reset(new LeaseStatsQuery(1,0)), BadValue);
+    ASSERT_THROW(qry.reset(new LeaseStatsQuery(2,1)), BadValue);
+
+    // Valid values should work and set mode accordingly.
+    ASSERT_NO_THROW(qry.reset(new LeaseStatsQuery(1,2)));
+    ASSERT_EQ(1, qry->getFirstSubnetID());
+    ASSERT_EQ(2, qry->getLastSubnetID());
+    ASSERT_EQ(LeaseStatsQuery::SUBNET_RANGE, qry->getSelectMode());
+}
+
 // There's no point in calling any other methods in LeaseMgr, as they
 // are purely virtual, so we would only call ConcreteLeaseMgr methods.
 // Those methods are just stubs that do not return anything.
-
-
 
 }; // end of anonymous namespace

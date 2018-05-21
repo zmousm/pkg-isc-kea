@@ -105,15 +105,24 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = marker_file.h test_libraries.h
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
+libacl_la_LIBADD =
+am__libacl_la_SOURCES_DIST = async_callout_library.cc
+@HAVE_GTEST_TRUE@am_libacl_la_OBJECTS =  \
+@HAVE_GTEST_TRUE@	libacl_la-async_callout_library.lo
+libacl_la_OBJECTS = $(am_libacl_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+libacl_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libacl_la_CXXFLAGS) \
+	$(CXXFLAGS) $(libacl_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_GTEST_TRUE@am_libacl_la_rpath =
 libbcl_la_LIBADD =
 am__libbcl_la_SOURCES_DIST = basic_callout_library.cc
 @HAVE_GTEST_TRUE@am_libbcl_la_OBJECTS =  \
 @HAVE_GTEST_TRUE@	libbcl_la-basic_callout_library.lo
 libbcl_la_OBJECTS = $(am_libbcl_la_OBJECTS)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 libbcl_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libbcl_la_CXXFLAGS) \
 	$(CXXFLAGS) $(libbcl_la_LDFLAGS) $(LDFLAGS) -o $@
@@ -198,7 +207,8 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 	common_test_class.h handles_unittest.cc \
 	hooks_manager_unittest.cc \
 	library_manager_collection_unittest.cc \
-	library_manager_unittest.cc server_hooks_unittest.cc
+	library_manager_unittest.cc parking_lots_unittest.cc \
+	server_hooks_unittest.cc
 @HAVE_GTEST_TRUE@am_run_unittests_OBJECTS =  \
 @HAVE_GTEST_TRUE@	run_unittests-run_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-callout_handle_unittest.$(OBJEXT) \
@@ -207,6 +217,7 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	run_unittests-hooks_manager_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-library_manager_collection_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-library_manager_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-parking_lots_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-server_hooks_unittest.$(OBJEXT)
 nodist_run_unittests_OBJECTS =
 run_unittests_OBJECTS = $(am_run_unittests_OBJECTS) \
@@ -217,6 +228,7 @@ am__DEPENDENCIES_2 = $(HOOKS_LIB) $(LOG_LIB) $(THREADS_LIB) \
 @HAVE_GTEST_TRUE@run_unittests_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/unittests/libutil_unittests.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
+@HAVE_GTEST_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 @HAVE_GTEST_TRUE@	$(am__DEPENDENCIES_1)
 run_unittests_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -274,16 +286,17 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libbcl_la_SOURCES) $(libfcl_la_SOURCES) \
-	$(libfxl_la_SOURCES) $(libivl_la_SOURCES) $(liblcl_la_SOURCES) \
-	$(liblecl_la_SOURCES) $(libnvl_la_SOURCES) \
-	$(libpcl_la_SOURCES) $(libucl_la_SOURCES) \
+SOURCES = $(libacl_la_SOURCES) $(libbcl_la_SOURCES) \
+	$(libfcl_la_SOURCES) $(libfxl_la_SOURCES) $(libivl_la_SOURCES) \
+	$(liblcl_la_SOURCES) $(liblecl_la_SOURCES) \
+	$(libnvl_la_SOURCES) $(libpcl_la_SOURCES) $(libucl_la_SOURCES) \
 	$(run_unittests_SOURCES) $(nodist_run_unittests_SOURCES)
-DIST_SOURCES = $(am__libbcl_la_SOURCES_DIST) \
-	$(am__libfcl_la_SOURCES_DIST) $(am__libfxl_la_SOURCES_DIST) \
-	$(am__libivl_la_SOURCES_DIST) $(am__liblcl_la_SOURCES_DIST) \
-	$(am__liblecl_la_SOURCES_DIST) $(am__libnvl_la_SOURCES_DIST) \
-	$(am__libpcl_la_SOURCES_DIST) $(am__libucl_la_SOURCES_DIST) \
+DIST_SOURCES = $(am__libacl_la_SOURCES_DIST) \
+	$(am__libbcl_la_SOURCES_DIST) $(am__libfcl_la_SOURCES_DIST) \
+	$(am__libfxl_la_SOURCES_DIST) $(am__libivl_la_SOURCES_DIST) \
+	$(am__liblcl_la_SOURCES_DIST) $(am__liblecl_la_SOURCES_DIST) \
+	$(am__libnvl_la_SOURCES_DIST) $(am__libpcl_la_SOURCES_DIST) \
+	$(am__libucl_la_SOURCES_DIST) \
 	$(am__run_unittests_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
@@ -383,12 +396,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -407,11 +426,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -545,7 +567,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -586,7 +607,7 @@ TESTS_ENVIRONMENT = \
 # to unexpected errors. For this reason, the --enable-static-link option is
 # ignored for unit tests built here.
 @HAVE_GTEST_TRUE@noinst_LTLIBRARIES = libnvl.la  libivl.la libfxl.la libbcl.la liblcl.la \
-@HAVE_GTEST_TRUE@                     liblecl.la libucl.la libfcl.la libpcl.la
+@HAVE_GTEST_TRUE@                     liblecl.la libucl.la libfcl.la libpcl.la libacl.la
 
 
 # -rpath /nowhere is a hack to trigger libtool to not create a
@@ -649,6 +670,12 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@libpcl_la_LDFLAGS = -avoid-version -export-dynamic \
 @HAVE_GTEST_TRUE@	-module -rpath /nowhere \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/libkea-util.la
+
+# The async callout library - parks object for asynchronous task
+@HAVE_GTEST_TRUE@libacl_la_SOURCES = async_callout_library.cc
+@HAVE_GTEST_TRUE@libacl_la_CXXFLAGS = $(AM_CXXFLAGS)
+@HAVE_GTEST_TRUE@libacl_la_CPPFLAGS = $(AM_CPPFLAGS)
+@HAVE_GTEST_TRUE@libacl_la_LDFLAGS = -avoid-version -export-dynamic -module -rpath /nowhere
 @HAVE_GTEST_TRUE@run_unittests_SOURCES = run_unittests.cc \
 @HAVE_GTEST_TRUE@	callout_handle_unittest.cc \
 @HAVE_GTEST_TRUE@	callout_manager_unittest.cc \
@@ -656,6 +683,7 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	hooks_manager_unittest.cc \
 @HAVE_GTEST_TRUE@	library_manager_collection_unittest.cc \
 @HAVE_GTEST_TRUE@	library_manager_unittest.cc \
+@HAVE_GTEST_TRUE@	parking_lots_unittest.cc \
 @HAVE_GTEST_TRUE@	server_hooks_unittest.cc
 @HAVE_GTEST_TRUE@nodist_run_unittests_SOURCES = marker_file.h \
 @HAVE_GTEST_TRUE@	test_libraries.h
@@ -666,7 +694,8 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@run_unittests_LDADD = $(AM_LDADD) $(ALL_LIBS) \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/util/unittests/libutil_unittests.la \
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/cc/libkea-cc.la \
-@HAVE_GTEST_TRUE@	$(GTEST_LDADD)
+@HAVE_GTEST_TRUE@	$(GTEST_LDADD) $(LOG4CPLUS_LIBS) \
+@HAVE_GTEST_TRUE@	$(BOOST_LIBS)
 EXTRA_DIST = marker_file.h.in test_libraries.h.in
 all: all-recursive
 
@@ -718,6 +747,9 @@ clean-noinstLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
+libacl.la: $(libacl_la_OBJECTS) $(libacl_la_DEPENDENCIES) $(EXTRA_libacl_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libacl_la_LINK) $(am_libacl_la_rpath) $(libacl_la_OBJECTS) $(libacl_la_LIBADD) $(LIBS)
+
 libbcl.la: $(libbcl_la_OBJECTS) $(libbcl_la_DEPENDENCIES) $(EXTRA_libbcl_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libbcl_la_LINK) $(am_libbcl_la_rpath) $(libbcl_la_OBJECTS) $(libbcl_la_LIBADD) $(LIBS)
 
@@ -764,6 +796,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libacl_la-async_callout_library.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbcl_la-basic_callout_library.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfcl_la-full_callout_library.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfxl_la-framework_exception_library.Plo@am__quote@
@@ -779,6 +812,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-hooks_manager_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-library_manager_collection_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-library_manager_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-parking_lots_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-run_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-server_hooks_unittest.Po@am__quote@
 
@@ -802,6 +836,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+libacl_la-async_callout_library.lo: async_callout_library.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libacl_la_CPPFLAGS) $(CPPFLAGS) $(libacl_la_CXXFLAGS) $(CXXFLAGS) -MT libacl_la-async_callout_library.lo -MD -MP -MF $(DEPDIR)/libacl_la-async_callout_library.Tpo -c -o libacl_la-async_callout_library.lo `test -f 'async_callout_library.cc' || echo '$(srcdir)/'`async_callout_library.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libacl_la-async_callout_library.Tpo $(DEPDIR)/libacl_la-async_callout_library.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='async_callout_library.cc' object='libacl_la-async_callout_library.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libacl_la_CPPFLAGS) $(CPPFLAGS) $(libacl_la_CXXFLAGS) $(CXXFLAGS) -c -o libacl_la-async_callout_library.lo `test -f 'async_callout_library.cc' || echo '$(srcdir)/'`async_callout_library.cc
 
 libbcl_la-basic_callout_library.lo: basic_callout_library.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbcl_la_CPPFLAGS) $(CPPFLAGS) $(libbcl_la_CXXFLAGS) $(CXXFLAGS) -MT libbcl_la-basic_callout_library.lo -MD -MP -MF $(DEPDIR)/libbcl_la-basic_callout_library.Tpo -c -o libbcl_la-basic_callout_library.lo `test -f 'basic_callout_library.cc' || echo '$(srcdir)/'`basic_callout_library.cc
@@ -963,6 +1004,20 @@ run_unittests-library_manager_unittest.obj: library_manager_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='library_manager_unittest.cc' object='run_unittests-library_manager_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-library_manager_unittest.obj `if test -f 'library_manager_unittest.cc'; then $(CYGPATH_W) 'library_manager_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/library_manager_unittest.cc'; fi`
+
+run_unittests-parking_lots_unittest.o: parking_lots_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-parking_lots_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-parking_lots_unittest.Tpo -c -o run_unittests-parking_lots_unittest.o `test -f 'parking_lots_unittest.cc' || echo '$(srcdir)/'`parking_lots_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-parking_lots_unittest.Tpo $(DEPDIR)/run_unittests-parking_lots_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parking_lots_unittest.cc' object='run_unittests-parking_lots_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-parking_lots_unittest.o `test -f 'parking_lots_unittest.cc' || echo '$(srcdir)/'`parking_lots_unittest.cc
+
+run_unittests-parking_lots_unittest.obj: parking_lots_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-parking_lots_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-parking_lots_unittest.Tpo -c -o run_unittests-parking_lots_unittest.obj `if test -f 'parking_lots_unittest.cc'; then $(CYGPATH_W) 'parking_lots_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/parking_lots_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-parking_lots_unittest.Tpo $(DEPDIR)/run_unittests-parking_lots_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parking_lots_unittest.cc' object='run_unittests-parking_lots_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-parking_lots_unittest.obj `if test -f 'parking_lots_unittest.cc'; then $(CYGPATH_W) 'parking_lots_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/parking_lots_unittest.cc'; fi`
 
 run_unittests-server_hooks_unittest.o: server_hooks_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(run_unittests_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-server_hooks_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-server_hooks_unittest.Tpo -c -o run_unittests-server_hooks_unittest.o `test -f 'server_hooks_unittest.cc' || echo '$(srcdir)/'`server_hooks_unittest.cc

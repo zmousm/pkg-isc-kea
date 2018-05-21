@@ -82,7 +82,10 @@ subdir = src/share/database/scripts/pgsql
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/upgrade_1.0_to_2.0.sh.in \
 	$(srcdir)/upgrade_2.0_to_3.0.sh.in \
-	$(srcdir)/upgrade_3.0_to_3.1.sh.in
+	$(srcdir)/upgrade_3.0_to_3.1.sh.in \
+	$(srcdir)/upgrade_3.1_to_3.2.sh.in \
+	$(srcdir)/upgrade_3.2_to_3.3.sh.in \
+	$(srcdir)/upgrade_3.3_to_4.0.sh.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
@@ -99,7 +102,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = upgrade_1.0_to_2.0.sh upgrade_2.0_to_3.0.sh \
-	upgrade_3.0_to_3.1.sh
+	upgrade_3.0_to_3.1.sh upgrade_3.1_to_3.2.sh \
+	upgrade_3.2_to_3.3.sh upgrade_3.3_to_4.0.sh
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -220,12 +224,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -244,11 +254,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -382,7 +395,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -392,9 +404,11 @@ SUBDIRS = .
 sqlscriptsdir = ${datarootdir}/${PACKAGE_NAME}/scripts/pgsql
 sqlscripts_DATA = dhcpdb_create.pgsql dhcpdb_drop.pgsql \
 	upgrade_1.0_to_2.0.sh upgrade_2.0_to_3.0.sh \
-	upgrade_3.0_to_3.1.sh
+	upgrade_3.0_to_3.1.sh upgrade_3.1_to_3.2.sh \
+	upgrade_3.2_to_3.3.sh upgrade_3.3_to_4.0.sh
 DISTCLEANFILES = upgrade_1.0_to_2.0.sh upgrade_2.0_to_3.0.sh \
-	upgrade_3.0_to_3.1.s
+	upgrade_3.0_to_3.1.sh upgrade_3.1_to_3.2.sh \
+	upgrade_3.2_to_3.3.sh upgrade_3.3_to_4.0.sh
 EXTRA_DIST = ${sqlscripts_DATA}
 all: all-recursive
 
@@ -434,6 +448,12 @@ upgrade_1.0_to_2.0.sh: $(top_builddir)/config.status $(srcdir)/upgrade_1.0_to_2.
 upgrade_2.0_to_3.0.sh: $(top_builddir)/config.status $(srcdir)/upgrade_2.0_to_3.0.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 upgrade_3.0_to_3.1.sh: $(top_builddir)/config.status $(srcdir)/upgrade_3.0_to_3.1.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+upgrade_3.1_to_3.2.sh: $(top_builddir)/config.status $(srcdir)/upgrade_3.1_to_3.2.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+upgrade_3.2_to_3.3.sh: $(top_builddir)/config.status $(srcdir)/upgrade_3.2_to_3.3.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+upgrade_3.3_to_4.0.sh: $(top_builddir)/config.status $(srcdir)/upgrade_3.3_to_4.0.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:

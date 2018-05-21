@@ -15,7 +15,6 @@
 @SET_MAKE@
 
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -89,8 +88,7 @@ sbin_PROGRAMS = kea-dhcp4$(EXEEXT)
 @HAVE_CQL_TRUE@am__append_6 = $(CQL_LIBS)
 subdir = src/bin/dhcp4
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/spec_config.h.pre.in dhcp4_lexer.cc \
-	$(top_srcdir)/depcomp $(top_srcdir)/ylwrap
+	dhcp4_lexer.cc $(top_srcdir)/depcomp $(top_srcdir)/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4macros/ax_boost_for_kea.m4 \
 	$(top_srcdir)/m4macros/ax_cpp11.m4 \
@@ -106,7 +104,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = spec_config.h.pre
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libdhcp4_la_LIBADD =
@@ -120,8 +118,7 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am__installdirs = "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man8dir)" \
-	"$(DESTDIR)$(kea_dhcp4dir)"
+am__installdirs = "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man8dir)"
 PROGRAMS = $(sbin_PROGRAMS)
 am_kea_dhcp4_OBJECTS = main.$(OBJEXT)
 kea_dhcp4_OBJECTS = $(am_kea_dhcp4_OBJECTS)
@@ -254,7 +251,6 @@ am__uninstall_files_from_dir = { \
 man8dir = $(mandir)/man8
 NROFF = nroff
 MANS = $(man_MANS)
-DATA = $(kea_dhcp4_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -318,12 +314,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -342,11 +344,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -480,7 +485,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -493,12 +497,12 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	$(am__append_1) $(am__append_2) $(am__append_3)
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 @USE_STATIC_LINK_TRUE@AM_LDFLAGS = -static
-CLEANFILES = *.gcno *.gcda spec_config.h dhcp4_messages.h dhcp4_messages.cc s-messages
+CLEANFILES = *.gcno *.gcda dhcp4_messages.h dhcp4_messages.cc s-messages
 man_MANS = kea-dhcp4.8
-DISTCLEANFILES = $(man_MANS) spec_config.h.pre
-EXTRA_DIST = $(man_MANS) kea-dhcp4.xml dhcp4.spec dhcp4.dox \
-	dhcp4_hooks.dox dhcp4o6.dox dhcp4_parser.yy dhcp4_messages.mes
-BUILT_SOURCES = spec_config.h dhcp4_messages.h dhcp4_messages.cc
+DISTCLEANFILES = $(man_MANS)
+EXTRA_DIST = $(man_MANS) kea-dhcp4.xml dhcp4.dox dhcp4_hooks.dox \
+	dhcp4o6.dox dhcp4_parser.yy dhcp4_messages.mes
+BUILT_SOURCES = dhcp4_messages.h dhcp4_messages.cc
 
 # convenience archive
 noinst_LTLIBRARIES = libdhcp4.la
@@ -531,7 +535,6 @@ kea_dhcp4_LDADD = libdhcp4.la \
 kea_dhcp4_LDFLAGS = $(AM_LDFLAGS) $(CRYPTO_LDFLAGS) $(am__append_4) \
 	$(am__append_5) $(am__append_6)
 kea_dhcp4dir = $(pkgdatadir)
-kea_dhcp4_DATA = dhcp4.spec
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -567,8 +570,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-spec_config.h.pre: $(top_builddir)/config.status $(srcdir)/spec_config.h.pre.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-noinstLTLIBRARIES:
 	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
@@ -726,27 +727,6 @@ uninstall-man8:
 	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^8][0-9a-z]*$$,8,;x' \
 	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \
 	dir='$(DESTDIR)$(man8dir)'; $(am__uninstall_files_from_dir)
-install-kea_dhcp4DATA: $(kea_dhcp4_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(kea_dhcp4_DATA)'; test -n "$(kea_dhcp4dir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(kea_dhcp4dir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(kea_dhcp4dir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(kea_dhcp4dir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(kea_dhcp4dir)" || exit $$?; \
-	done
-
-uninstall-kea_dhcp4DATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(kea_dhcp4_DATA)'; test -n "$(kea_dhcp4dir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(kea_dhcp4dir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -905,10 +885,10 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(MANS) $(DATA)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(MANS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man8dir)" "$(DESTDIR)$(kea_dhcp4dir)"; do \
+	for dir in "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man8dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -969,7 +949,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-kea_dhcp4DATA install-man
+install-data-am: install-man
 
 install-dvi: install-dvi-recursive
 
@@ -1015,8 +995,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-kea_dhcp4DATA uninstall-man \
-	uninstall-sbinPROGRAMS
+uninstall-am: uninstall-man uninstall-sbinPROGRAMS
 
 uninstall-man: uninstall-man8
 
@@ -1031,14 +1010,14 @@ uninstall-man: uninstall-man8
 	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-kea_dhcp4DATA install-man install-man8 \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-sbinPROGRAMS install-strip installcheck \
-	installcheck-am installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-kea_dhcp4DATA \
-	uninstall-man uninstall-man8 uninstall-sbinPROGRAMS
+	install-info-am install-man install-man8 install-pdf \
+	install-pdf-am install-ps install-ps-am install-sbinPROGRAMS \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-man uninstall-man8 \
+	uninstall-sbinPROGRAMS
 
 
 @GENERATE_DOCS_TRUE@kea-dhcp4.8: kea-dhcp4.xml
@@ -1049,9 +1028,6 @@ uninstall-man: uninstall-man8
 @GENERATE_DOCS_FALSE@$(man_MANS):
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Creating dummy $@.  Configure with --enable-generate-docs to enable it.
 @GENERATE_DOCS_FALSE@	@echo Man generation disabled.  Remove this file, configure with --enable-generate-docs, and rebuild Kea > $@
-
-spec_config.h: spec_config.h.pre
-	$(SED) -e "s|@@LOCALSTATEDIR@@|$(localstatedir)|" spec_config.h.pre >$@
 
 dhcp4_messages.h dhcp4_messages.cc: s-messages
 

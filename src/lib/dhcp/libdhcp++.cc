@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -415,10 +415,11 @@ size_t LibDHCP::unpackOptions6(const OptionBuffer& buf,
         OptionDefContainerTypeRange range;
         // Number of option definitions returned.
         size_t num_defs = 0;
-        if (option_space == DHCP6_OPTION_SPACE) {
-            range = idx.equal_range(opt_type);
-            num_defs = distance(range.first, range.second);
-        }
+
+        // We previously did the lookup only for dhcp6 option space, but with the
+        // addition of S46 options, we now do it for every space.
+        range = idx.equal_range(opt_type);
+        num_defs = distance(range.first, range.second);
 
         // Standard option definitions do not include the definition for
         // our option or we're searching for non-standard option. Try to
@@ -532,10 +533,12 @@ size_t LibDHCP::unpackOptions4(const OptionBuffer& buf,
         OptionDefContainerTypeRange range;
         // Number of option definitions returned.
         size_t num_defs = 0;
-        if (option_space == DHCP4_OPTION_SPACE) {
-            range = idx.equal_range(opt_type);
-            num_defs = distance(range.first, range.second);
-        }
+
+        // Previously we did the lookup only for "dhcp4" option space, but there
+        // may be standard options in other spaces (e.g. radius). So we now do
+        // the lookup for every space.
+        range = idx.equal_range(opt_type);
+        num_defs = distance(range.first, range.second);
 
         // Standard option definitions do not include the definition for
         // our option or we're searching for non-standard option. Try to
@@ -604,7 +607,7 @@ size_t LibDHCP::unpackVendorOptions6(const uint32_t vendor_id,
     // a two-byte type code and a two-byte length field.
     while (offset < length) {
         if (offset + 4 > length) {
-            isc_throw(OutOfRange,
+            isc_throw(SkipRemainingOptionsError,
                       "Vendor option parse failed: truncated header");
         }
 
@@ -615,9 +618,10 @@ size_t LibDHCP::unpackVendorOptions6(const uint32_t vendor_id,
         offset += 2;
 
         if (offset + opt_len > length) {
-            isc_throw(OutOfRange, "Vendor option parse failed. Tried to parse "
-                          << offset + opt_len << " bytes from " << length
-                          << "-byte long buffer.");
+            isc_throw(SkipRemainingOptionsError,
+                      "Vendor option parse failed. Tried to parse "
+                      << offset + opt_len << " bytes from " << length
+                      << "-byte long buffer.");
         }
 
         OptionPtr opt;
@@ -700,7 +704,8 @@ size_t LibDHCP::unpackVendorOptions4(const uint32_t vendor_id, const OptionBuffe
 
         if (offset + data_len > buf.size()) {
             // The option is truncated.
-            isc_throw(OutOfRange, "Attempt to parse truncated vendor option");
+            isc_throw(SkipRemainingOptionsError,
+                      "Attempt to parse truncated vendor option");
         }
 
         uint8_t offset_end = offset + data_len;
@@ -715,14 +720,15 @@ size_t LibDHCP::unpackVendorOptions4(const uint32_t vendor_id, const OptionBuffe
                 // opt_type must be cast to integer so as it is not
                 // treated as unsigned char value (a number is
                 // presented in error message).
-                isc_throw(OutOfRange,
+                isc_throw(SkipRemainingOptionsError,
                           "Attempt to parse truncated vendor option "
                           << static_cast<int>(opt_type));
             }
 
             uint8_t opt_len =  buf[offset++];
             if (offset + opt_len > offset_end) {
-                isc_throw(OutOfRange, "Option parse failed. Tried to parse "
+                isc_throw(SkipRemainingOptionsError,
+                          "Option parse failed. Tried to parse "
                           << offset + opt_len << " bytes from " << buf.size()
                           << "-byte long buffer.");
             }

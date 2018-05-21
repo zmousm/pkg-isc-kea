@@ -1,8 +1,14 @@
-SUBDIRS = interprocess . compiler tests
+SUBDIRS = interprocess .
+if !CROSS_COMPILING
+SUBDIRS += compiler
+endif
+SUBDIRS += tests
 
 AM_CPPFLAGS = -I$(top_builddir)/src/lib -I$(top_srcdir)/src/lib
 AM_CPPFLAGS += $(BOOST_INCLUDES)
 AM_CPPFLAGS += -DTOP_BUILDDIR=\"$(abs_top_builddir)\"
+
+AM_CXXFLAGS = $(KEA_CXXFLAGS)
 
 CLEANFILES = *.gcno *.gcda
 
@@ -48,7 +54,7 @@ libkea_log_la_LIBADD  += $(top_builddir)/src/lib/util/threads/libkea-threads.la
 libkea_log_la_LIBADD  += $(top_builddir)/src/lib/util/libkea-util.la
 libkea_log_la_LIBADD  += $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
 libkea_log_la_LIBADD  += $(LOG4CPLUS_LIBS)
-libkea_log_la_LDFLAGS = -no-undefined -version-info 3:0:0
+libkea_log_la_LDFLAGS = -no-undefined -version-info 3:1:0
 
 # Specify the headers for copying into the installation directory tree.
 libkea_log_includedir = $(pkgincludedir)/log

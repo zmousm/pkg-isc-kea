@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <config.h>
+
 #include <eval/token.h>
 #include <eval/eval_log.h>
 #include <eval/eval_context.h>
@@ -703,6 +705,20 @@ TokenOr::evaluate(Pkt& /*pkt*/, ValueStack& values) {
     LOG_DEBUG(eval_logger, EVAL_DBG_STACK, EVAL_DEBUG_OR)
         .arg('\'' + op1 + '\'')
         .arg('\'' + op2 + '\'')
+        .arg('\'' + values.top() + '\'');
+}
+
+void
+TokenMember::evaluate(Pkt& pkt, ValueStack& values) {
+    if (pkt.inClass(client_class_)) {
+        values.push("true");
+    } else {
+        values.push("false");
+    }
+
+    // Log what we pushed
+    LOG_DEBUG(eval_logger, EVAL_DBG_STACK, EVAL_DEBUG_MEMBER)
+        .arg(client_class_)
         .arg('\'' + values.top() + '\'');
 }
 

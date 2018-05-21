@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,6 +8,8 @@
 #define DATABASE_CONNECTION_H
 
 #include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <exceptions/exceptions.h>
 #include <map>
 #include <string>
@@ -63,6 +65,68 @@ public:
         isc::Exception(file, line, what) {}
 };
 
+/// @brief Warehouses DB reconnect control values
+///
+/// When a DatabaseConnection loses connectivity to its backend, it
+/// creates an instance of this class based on its configuration parameters and
+/// passes the instance into connection's DB lost callback.  This allows
+/// the layer(s) above the connection to know how to proceed.
+///
+class ReconnectCtl {
+public:
+    /// @brief Constructor
+    /// @param backend_type type of the caller backend.
+    /// @param max_retries maximum number of reconnect attempts to make
+    /// @param retry_interval amount of time to between reconnect attempts
+    ReconnectCtl(const std::string& backend_type, unsigned int max_retries,
+                 unsigned int retry_interval)
+        : backend_type_(backend_type), max_retries_(max_retries),
+          retries_left_(max_retries), retry_interval_(retry_interval) {}
+
+    /// @brief Returns the type of the caller backend.
+    std::string backendType() const {
+        return (backend_type_);
+    }
+
+    /// @brief Decrements the number of retries remaining
+    ///
+    /// Each call decrements the number of retries by one until zero is reached.
+    /// @return true the number of retries remaining is greater than zero.
+    bool checkRetries() {
+        return (retries_left_ ? --retries_left_ : false);
+    }
+
+    /// @brief Returns the maximum number for retries allowed 
+    unsigned int maxRetries() {
+        return (max_retries_);
+    }
+
+    /// @brief Returns the number for retries remaining
+    unsigned int retriesLeft() {
+        return (retries_left_);
+    }
+
+    /// @brief Returns the amount of time to wait between reconnect attempts
+    unsigned int retryInterval() {
+        return (retry_interval_);
+    }
+
+private:
+    /// @brief Caller backend type.
+    const std::string backend_type_;
+
+    /// @brief Maximum number of retry attempts to make
+    unsigned int max_retries_;
+
+    /// @brief Number of attempts remaining
+    unsigned int retries_left_;
+
+    /// @brief The amount of time to wait between reconnect attempts
+    unsigned int retry_interval_;
+};
+
+/// @brief Pointer to an instance of ReconnectCtl
+typedef boost::shared_ptr<ReconnectCtl> ReconnectCtlPtr;
 
 /// @brief Common database connection class.
 ///
@@ -93,6 +157,14 @@ public:
     DatabaseConnection(const ParameterMap& parameters)
         :parameters_(parameters) {
     }
+
+    /// @brief Destructor
+    virtual ~DatabaseConnection(){};
+
+    /// @brief Instantiates a ReconnectCtl based on the connection's
+    /// reconnect parameters
+    /// @return pointer to the new ReconnectCtl object
+    virtual ReconnectCtlPtr makeReconnectCtl() const;
 
     /// @brief Returns value of a connection parameter.
     ///
@@ -128,6 +200,24 @@ public:
     /// false if "readonly" parameter is not specified or it is specified
     /// and set to false.
     bool configuredReadOnly() const;
+
+    /// @brief Defines a callback prototype for propogating events upward
+    typedef boost::function<bool (ReconnectCtlPtr db_retry)> DbLostCallback;
+
+    /// @brief Invokes the connection's lost connectivity callback
+    ///
+    /// This function may be called by derivations when the connectivity
+    /// to their data server is lost.  If connectivity callback was specified,
+    /// this function will instantiate a ReconnectCtl and pass it to the
+    /// callback.
+    ///
+    /// @return Returns the result of the callback or false if there is no
+    /// callback.
+    bool invokeDbLostCallback() const;
+
+    /// @brief Optional call back function to invoke if a successfully
+    /// open connection subsequently fails
+    static DbLostCallback db_lost_callback;
 
 private:
 

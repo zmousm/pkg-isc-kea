@@ -113,16 +113,26 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 @HAVE_GTEST_TRUE@	$(top_builddir)/src/lib/log/libkea-log.la
 am__libdhcpsrvtest_la_SOURCES_DIST = config_result_check.cc \
 	config_result_check.h dhcp4o6_test_ipc.cc dhcp4o6_test_ipc.h \
-	schema.cc schema.h mysql_schema.cc mysql_schema.h \
-	pgsql_schema.cc pgsql_schema.h cql_schema.cc cql_schema.h
+	host_data_source_utils.cc host_data_source_utils.h \
+	memory_host_data_source.cc memory_host_data_source.h \
+	generic_host_data_source_unittest.cc \
+	generic_host_data_source_unittest.h schema.cc schema.h \
+	lease_file_io.cc lease_file_io.h mysql_schema.cc \
+	mysql_schema.h pgsql_schema.cc pgsql_schema.h cql_schema.cc \
+	cql_schema.h
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@am__objects_1 = libdhcpsrvtest_la-mysql_schema.lo
 @HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@am__objects_2 = libdhcpsrvtest_la-pgsql_schema.lo
 @HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__objects_3 = libdhcpsrvtest_la-cql_schema.lo
 @HAVE_GTEST_TRUE@am_libdhcpsrvtest_la_OBJECTS =  \
 @HAVE_GTEST_TRUE@	libdhcpsrvtest_la-config_result_check.lo \
 @HAVE_GTEST_TRUE@	libdhcpsrvtest_la-dhcp4o6_test_ipc.lo \
-@HAVE_GTEST_TRUE@	libdhcpsrvtest_la-schema.lo $(am__objects_1) \
-@HAVE_GTEST_TRUE@	$(am__objects_2) $(am__objects_3)
+@HAVE_GTEST_TRUE@	libdhcpsrvtest_la-host_data_source_utils.lo \
+@HAVE_GTEST_TRUE@	libdhcpsrvtest_la-memory_host_data_source.lo \
+@HAVE_GTEST_TRUE@	libdhcpsrvtest_la-generic_host_data_source_unittest.lo \
+@HAVE_GTEST_TRUE@	libdhcpsrvtest_la-schema.lo \
+@HAVE_GTEST_TRUE@	libdhcpsrvtest_la-lease_file_io.lo \
+@HAVE_GTEST_TRUE@	$(am__objects_1) $(am__objects_2) \
+@HAVE_GTEST_TRUE@	$(am__objects_3)
 libdhcpsrvtest_la_OBJECTS = $(am_libdhcpsrvtest_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -263,12 +273,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -287,11 +303,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -425,7 +444,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -440,7 +458,13 @@ CLEANFILES = *.gcno *.gcda
 @HAVE_GTEST_TRUE@noinst_LTLIBRARIES = libdhcpsrvtest.la
 @HAVE_GTEST_TRUE@libdhcpsrvtest_la_SOURCES = config_result_check.cc \
 @HAVE_GTEST_TRUE@	config_result_check.h dhcp4o6_test_ipc.cc \
-@HAVE_GTEST_TRUE@	dhcp4o6_test_ipc.h schema.cc schema.h \
+@HAVE_GTEST_TRUE@	dhcp4o6_test_ipc.h host_data_source_utils.cc \
+@HAVE_GTEST_TRUE@	host_data_source_utils.h \
+@HAVE_GTEST_TRUE@	memory_host_data_source.cc \
+@HAVE_GTEST_TRUE@	memory_host_data_source.h \
+@HAVE_GTEST_TRUE@	generic_host_data_source_unittest.cc \
+@HAVE_GTEST_TRUE@	generic_host_data_source_unittest.h schema.cc \
+@HAVE_GTEST_TRUE@	schema.h lease_file_io.cc lease_file_io.h \
 @HAVE_GTEST_TRUE@	$(am__append_1) $(am__append_2) \
 @HAVE_GTEST_TRUE@	$(am__append_3)
 @HAVE_GTEST_TRUE@libdhcpsrvtest_la_CXXFLAGS = $(AM_CXXFLAGS)
@@ -511,6 +535,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-config_result_check.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-cql_schema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-dhcp4o6_test_ipc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-generic_host_data_source_unittest.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-host_data_source_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-lease_file_io.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-memory_host_data_source.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-mysql_schema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-pgsql_schema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrvtest_la-schema.Plo@am__quote@
@@ -550,12 +578,40 @@ libdhcpsrvtest_la-dhcp4o6_test_ipc.lo: dhcp4o6_test_ipc.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrvtest_la-dhcp4o6_test_ipc.lo `test -f 'dhcp4o6_test_ipc.cc' || echo '$(srcdir)/'`dhcp4o6_test_ipc.cc
 
+libdhcpsrvtest_la-host_data_source_utils.lo: host_data_source_utils.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrvtest_la-host_data_source_utils.lo -MD -MP -MF $(DEPDIR)/libdhcpsrvtest_la-host_data_source_utils.Tpo -c -o libdhcpsrvtest_la-host_data_source_utils.lo `test -f 'host_data_source_utils.cc' || echo '$(srcdir)/'`host_data_source_utils.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrvtest_la-host_data_source_utils.Tpo $(DEPDIR)/libdhcpsrvtest_la-host_data_source_utils.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='host_data_source_utils.cc' object='libdhcpsrvtest_la-host_data_source_utils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrvtest_la-host_data_source_utils.lo `test -f 'host_data_source_utils.cc' || echo '$(srcdir)/'`host_data_source_utils.cc
+
+libdhcpsrvtest_la-memory_host_data_source.lo: memory_host_data_source.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrvtest_la-memory_host_data_source.lo -MD -MP -MF $(DEPDIR)/libdhcpsrvtest_la-memory_host_data_source.Tpo -c -o libdhcpsrvtest_la-memory_host_data_source.lo `test -f 'memory_host_data_source.cc' || echo '$(srcdir)/'`memory_host_data_source.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrvtest_la-memory_host_data_source.Tpo $(DEPDIR)/libdhcpsrvtest_la-memory_host_data_source.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='memory_host_data_source.cc' object='libdhcpsrvtest_la-memory_host_data_source.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrvtest_la-memory_host_data_source.lo `test -f 'memory_host_data_source.cc' || echo '$(srcdir)/'`memory_host_data_source.cc
+
+libdhcpsrvtest_la-generic_host_data_source_unittest.lo: generic_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrvtest_la-generic_host_data_source_unittest.lo -MD -MP -MF $(DEPDIR)/libdhcpsrvtest_la-generic_host_data_source_unittest.Tpo -c -o libdhcpsrvtest_la-generic_host_data_source_unittest.lo `test -f 'generic_host_data_source_unittest.cc' || echo '$(srcdir)/'`generic_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrvtest_la-generic_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrvtest_la-generic_host_data_source_unittest.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='generic_host_data_source_unittest.cc' object='libdhcpsrvtest_la-generic_host_data_source_unittest.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrvtest_la-generic_host_data_source_unittest.lo `test -f 'generic_host_data_source_unittest.cc' || echo '$(srcdir)/'`generic_host_data_source_unittest.cc
+
 libdhcpsrvtest_la-schema.lo: schema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrvtest_la-schema.lo -MD -MP -MF $(DEPDIR)/libdhcpsrvtest_la-schema.Tpo -c -o libdhcpsrvtest_la-schema.lo `test -f 'schema.cc' || echo '$(srcdir)/'`schema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrvtest_la-schema.Tpo $(DEPDIR)/libdhcpsrvtest_la-schema.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='schema.cc' object='libdhcpsrvtest_la-schema.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrvtest_la-schema.lo `test -f 'schema.cc' || echo '$(srcdir)/'`schema.cc
+
+libdhcpsrvtest_la-lease_file_io.lo: lease_file_io.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrvtest_la-lease_file_io.lo -MD -MP -MF $(DEPDIR)/libdhcpsrvtest_la-lease_file_io.Tpo -c -o libdhcpsrvtest_la-lease_file_io.lo `test -f 'lease_file_io.cc' || echo '$(srcdir)/'`lease_file_io.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrvtest_la-lease_file_io.Tpo $(DEPDIR)/libdhcpsrvtest_la-lease_file_io.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='lease_file_io.cc' object='libdhcpsrvtest_la-lease_file_io.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrvtest_la-lease_file_io.lo `test -f 'lease_file_io.cc' || echo '$(srcdir)/'`lease_file_io.cc
 
 libdhcpsrvtest_la-mysql_schema.lo: mysql_schema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrvtest_la_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrvtest_la_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrvtest_la-mysql_schema.lo -MD -MP -MF $(DEPDIR)/libdhcpsrvtest_la-mysql_schema.Tpo -c -o libdhcpsrvtest_la-mysql_schema.lo `test -f 'mysql_schema.cc' || echo '$(srcdir)/'`mysql_schema.cc

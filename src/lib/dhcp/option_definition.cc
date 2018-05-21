@@ -1,10 +1,11 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <config.h>
+
 #include <dhcp/dhcp4.h>
 #include <dhcp/dhcp6.h>
 #include <dhcp/option4_addrlst.h>
@@ -38,7 +39,6 @@ using namespace isc::util;
 
 namespace isc {
 namespace dhcp {
-
 
 OptionDefinition::OptionDefinition(const std::string& name,
                                  const uint16_t code,
@@ -221,6 +221,9 @@ OptionDefinition::optionFactory(Option::Universe u, uint16_t type,
             ;
         }
         return (OptionPtr(new OptionCustom(*this, u, begin, end)));
+    } catch (const SkipRemainingOptionsError& ex) {
+        // We need to throw this one as is.
+        throw ex;
     } catch (const Exception& ex) {
         isc_throw(InvalidOptionValue, ex.what());
     }
@@ -655,7 +658,6 @@ OptionDefinition::writeToBuffer(Option::Universe u,
                           << " is not valid.");
             }
 
-
             // Write a prefix.
             OptionDataTypeUtil::writePrefix(PrefixLen(len), address, buf);
 
@@ -814,7 +816,7 @@ OptionPtr
 OptionDefinition::factoryFqdnList(Option::Universe u,
                                   OptionBufferConstIter begin,
                                   OptionBufferConstIter end) const {
-    
+
     const std::vector<uint8_t> data(begin, end);
     if (data.empty()) {
         isc_throw(InvalidOptionValue, "FQDN list option has invalid length of 0");

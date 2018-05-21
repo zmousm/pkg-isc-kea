@@ -86,9 +86,12 @@ TESTS = $(am__EXEEXT_1)
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@	mysql_host_data_source_unittest.cc
 @HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@am__append_3 =  \
 @HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	pgsql_exchange_unittest.cc \
-@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	pgsql_host_data_source_unittest.cc \
-@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	pgsql_lease_mgr_unittest.cc
-@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__append_4 = cql_lease_mgr_unittest.cc
+@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	pgsql_lease_mgr_unittest.cc \
+@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	pgsql_host_data_source_unittest.cc
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__append_4 =  \
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@	cql_connection_unittest.cc \
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@	cql_lease_mgr_unittest.cc \
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@	cql_host_data_source_unittest.cc
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@am__append_5 = $(MYSQL_CPPFLAGS)
 @HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@am__append_6 = $(PGSQL_CPPFLAGS)
 @HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__append_7 = $(CQL_CPPFLAGS)
@@ -168,33 +171,34 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 	d2_client_unittest.cc d2_udp_unittest.cc daemon_unittest.cc \
 	database_connection_unittest.cc dbaccess_parser_unittest.cc \
 	dhcp4o6_ipc_unittest.cc duid_config_parser_unittest.cc \
-	expiration_config_parser_unittest.cc host_mgr_unittest.cc \
+	expiration_config_parser_unittest.cc host_cache_unittest.cc \
+	host_data_source_factory_unittest.cc host_mgr_unittest.cc \
 	host_unittest.cc host_reservation_parser_unittest.cc \
 	host_reservations_list_parser_unittest.cc \
-	ifaces_config_parser_unittest.cc lease_file_io.cc \
-	lease_file_io.h lease_file_loader_unittest.cc \
+	ifaces_config_parser_unittest.cc lease_file_loader_unittest.cc \
 	lease_unittest.cc lease_mgr_factory_unittest.cc \
 	lease_mgr_unittest.cc logging_unittest.cc \
 	logging_info_unittest.cc generic_lease_mgr_unittest.cc \
-	generic_lease_mgr_unittest.h \
-	generic_host_data_source_unittest.cc \
-	generic_host_data_source_unittest.h \
-	memfile_lease_mgr_unittest.cc dhcp_parsers_unittest.cc \
+	generic_lease_mgr_unittest.h memfile_lease_mgr_unittest.cc \
+	dhcp_parsers_unittest.cc ncr_generator_unittest.cc \
 	mysql_lease_mgr_unittest.cc mysql_host_data_source_unittest.cc \
-	ncr_generator_unittest.cc pgsql_exchange_unittest.cc \
-	pgsql_host_data_source_unittest.cc pgsql_lease_mgr_unittest.cc \
-	cql_lease_mgr_unittest.cc pool_unittest.cc \
-	shared_network_parser_unittest.cc shared_network_unittest.cc \
+	pgsql_exchange_unittest.cc pgsql_lease_mgr_unittest.cc \
+	pgsql_host_data_source_unittest.cc cql_connection_unittest.cc \
+	cql_lease_mgr_unittest.cc cql_host_data_source_unittest.cc \
+	pool_unittest.cc shared_network_parser_unittest.cc \
+	shared_network_unittest.cc \
 	shared_networks_list_parser_unittest.cc srv_config_unittest.cc \
 	subnet_unittest.cc test_get_callout_handle.cc \
 	test_get_callout_handle.h triplet_unittest.cc test_utils.cc \
-	test_utils.h timer_mgr_unittest.cc
+	test_utils.h timer_mgr_unittest.cc network_state_unittest.cc
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@am__objects_1 = libdhcpsrv_unittests-mysql_lease_mgr_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@@HAVE_MYSQL_TRUE@	libdhcpsrv_unittests-mysql_host_data_source_unittest.$(OBJEXT)
 @HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@am__objects_2 = libdhcpsrv_unittests-pgsql_exchange_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	libdhcpsrv_unittests-pgsql_host_data_source_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	libdhcpsrv_unittests-pgsql_lease_mgr_unittest.$(OBJEXT)
-@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__objects_3 = libdhcpsrv_unittests-cql_lease_mgr_unittest.$(OBJEXT)
+@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	libdhcpsrv_unittests-pgsql_lease_mgr_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@@HAVE_PGSQL_TRUE@	libdhcpsrv_unittests-pgsql_host_data_source_unittest.$(OBJEXT)
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@am__objects_3 = libdhcpsrv_unittests-cql_connection_unittest.$(OBJEXT) \
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cql_lease_mgr_unittest.$(OBJEXT) \
+@HAVE_CQL_TRUE@@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-cql_host_data_source_unittest.$(OBJEXT)
 @HAVE_GTEST_TRUE@am_libdhcpsrv_unittests_OBJECTS =  \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-run_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-addr_utilities_unittest.$(OBJEXT) \
@@ -231,12 +235,13 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-dhcp4o6_ipc_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-duid_config_parser_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-expiration_config_parser_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-host_cache_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-host_data_source_factory_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-host_mgr_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-host_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-host_reservation_parser_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-host_reservations_list_parser_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-ifaces_config_parser_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-lease_file_io.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-lease_file_loader_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-lease_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-lease_mgr_factory_unittest.$(OBJEXT) \
@@ -244,12 +249,11 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-logging_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-logging_info_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-generic_lease_mgr_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-generic_host_data_source_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-memfile_lease_mgr_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-dhcp_parsers_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	$(am__objects_1) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-ncr_generator_unittest.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	$(am__objects_2) $(am__objects_3) \
+@HAVE_GTEST_TRUE@	$(am__objects_1) $(am__objects_2) \
+@HAVE_GTEST_TRUE@	$(am__objects_3) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-pool_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-shared_network_parser_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-shared_network_unittest.$(OBJEXT) \
@@ -259,7 +263,8 @@ am__libdhcpsrv_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-test_get_callout_handle.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-triplet_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libdhcpsrv_unittests-test_utils.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-timer_mgr_unittest.$(OBJEXT)
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-timer_mgr_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libdhcpsrv_unittests-network_state_unittest.$(OBJEXT)
 libdhcpsrv_unittests_OBJECTS = $(am_libdhcpsrv_unittests_OBJECTS)
 am__DEPENDENCIES_1 =
 @HAVE_GTEST_TRUE@libdhcpsrv_unittests_DEPENDENCIES = $(top_builddir)/src/lib/dhcpsrv/testutils/libdhcpsrvtest.la \
@@ -442,12 +447,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -466,11 +477,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -604,7 +618,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -616,7 +629,6 @@ AM_CPPFLAGS = -I$(top_builddir)/src/lib -I$(top_srcdir)/src/lib \
 	-DTEST_DATA_BUILDDIR=\"$(abs_top_builddir)/src/lib/dhcpsrv/tests\" \
 	-DDHCP_DATA_DIR=\"$(abs_top_builddir)/src/lib/dhcpsrv/tests\" \
 	-DKEA_LFC_BUILD_DIR=\"$(abs_top_builddir)/src/bin/lfc\" \
-	-DLOGGING_SPEC_FILE=\"$(abs_top_srcdir)/src/lib/dhcpsrv/logging.spec\" \
 	-DINSTALL_PROG=\"$(abs_top_srcdir)/install-sh\"
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
 @USE_STATIC_LINK_TRUE@AM_LDFLAGS = -static
@@ -685,11 +697,12 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	dhcp4o6_ipc_unittest.cc \
 @HAVE_GTEST_TRUE@	duid_config_parser_unittest.cc \
 @HAVE_GTEST_TRUE@	expiration_config_parser_unittest.cc \
+@HAVE_GTEST_TRUE@	host_cache_unittest.cc \
+@HAVE_GTEST_TRUE@	host_data_source_factory_unittest.cc \
 @HAVE_GTEST_TRUE@	host_mgr_unittest.cc host_unittest.cc \
 @HAVE_GTEST_TRUE@	host_reservation_parser_unittest.cc \
 @HAVE_GTEST_TRUE@	host_reservations_list_parser_unittest.cc \
 @HAVE_GTEST_TRUE@	ifaces_config_parser_unittest.cc \
-@HAVE_GTEST_TRUE@	lease_file_io.cc lease_file_io.h \
 @HAVE_GTEST_TRUE@	lease_file_loader_unittest.cc \
 @HAVE_GTEST_TRUE@	lease_unittest.cc \
 @HAVE_GTEST_TRUE@	lease_mgr_factory_unittest.cc \
@@ -697,12 +710,11 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	logging_info_unittest.cc \
 @HAVE_GTEST_TRUE@	generic_lease_mgr_unittest.cc \
 @HAVE_GTEST_TRUE@	generic_lease_mgr_unittest.h \
-@HAVE_GTEST_TRUE@	generic_host_data_source_unittest.cc \
-@HAVE_GTEST_TRUE@	generic_host_data_source_unittest.h \
 @HAVE_GTEST_TRUE@	memfile_lease_mgr_unittest.cc \
-@HAVE_GTEST_TRUE@	dhcp_parsers_unittest.cc $(am__append_2) \
-@HAVE_GTEST_TRUE@	ncr_generator_unittest.cc $(am__append_3) \
-@HAVE_GTEST_TRUE@	$(am__append_4) pool_unittest.cc \
+@HAVE_GTEST_TRUE@	dhcp_parsers_unittest.cc \
+@HAVE_GTEST_TRUE@	ncr_generator_unittest.cc $(am__append_2) \
+@HAVE_GTEST_TRUE@	$(am__append_3) $(am__append_4) \
+@HAVE_GTEST_TRUE@	pool_unittest.cc \
 @HAVE_GTEST_TRUE@	shared_network_parser_unittest.cc \
 @HAVE_GTEST_TRUE@	shared_network_unittest.cc \
 @HAVE_GTEST_TRUE@	shared_networks_list_parser_unittest.cc \
@@ -710,7 +722,8 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	test_get_callout_handle.cc \
 @HAVE_GTEST_TRUE@	test_get_callout_handle.h triplet_unittest.cc \
 @HAVE_GTEST_TRUE@	test_utils.cc test_utils.h \
-@HAVE_GTEST_TRUE@	timer_mgr_unittest.cc
+@HAVE_GTEST_TRUE@	timer_mgr_unittest.cc \
+@HAVE_GTEST_TRUE@	network_state_unittest.cc
 @HAVE_GTEST_TRUE@libdhcpsrv_unittests_CPPFLAGS = $(AM_CPPFLAGS) \
 @HAVE_GTEST_TRUE@	$(GTEST_INCLUDES) $(am__append_5) \
 @HAVE_GTEST_TRUE@	$(am__append_6) $(am__append_7)
@@ -843,6 +856,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cfgmgr_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-client_class_def_parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-client_class_def_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-cql_lease_mgr_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-csv_lease_file4_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-csv_lease_file6_unittest.Po@am__quote@
@@ -855,14 +870,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-dhcp_parsers_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-duid_config_parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-expiration_config_parser_unittest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-generic_lease_mgr_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-host_mgr_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-host_reservation_parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-host_reservations_list_parser_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-host_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-ifaces_config_parser_unittest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-lease_file_loader_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-lease_mgr_factory_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-lease_mgr_unittest.Po@am__quote@
@@ -873,6 +888,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-mysql_host_data_source_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-mysql_lease_mgr_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-pgsql_exchange_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdhcpsrv_unittests-pgsql_lease_mgr_unittest.Po@am__quote@
@@ -1420,6 +1436,34 @@ libdhcpsrv_unittests-expiration_config_parser_unittest.obj: expiration_config_pa
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-expiration_config_parser_unittest.obj `if test -f 'expiration_config_parser_unittest.cc'; then $(CYGPATH_W) 'expiration_config_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/expiration_config_parser_unittest.cc'; fi`
 
+libdhcpsrv_unittests-host_cache_unittest.o: host_cache_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-host_cache_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Tpo -c -o libdhcpsrv_unittests-host_cache_unittest.o `test -f 'host_cache_unittest.cc' || echo '$(srcdir)/'`host_cache_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='host_cache_unittest.cc' object='libdhcpsrv_unittests-host_cache_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-host_cache_unittest.o `test -f 'host_cache_unittest.cc' || echo '$(srcdir)/'`host_cache_unittest.cc
+
+libdhcpsrv_unittests-host_cache_unittest.obj: host_cache_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-host_cache_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Tpo -c -o libdhcpsrv_unittests-host_cache_unittest.obj `if test -f 'host_cache_unittest.cc'; then $(CYGPATH_W) 'host_cache_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/host_cache_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-host_cache_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='host_cache_unittest.cc' object='libdhcpsrv_unittests-host_cache_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-host_cache_unittest.obj `if test -f 'host_cache_unittest.cc'; then $(CYGPATH_W) 'host_cache_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/host_cache_unittest.cc'; fi`
+
+libdhcpsrv_unittests-host_data_source_factory_unittest.o: host_data_source_factory_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-host_data_source_factory_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Tpo -c -o libdhcpsrv_unittests-host_data_source_factory_unittest.o `test -f 'host_data_source_factory_unittest.cc' || echo '$(srcdir)/'`host_data_source_factory_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='host_data_source_factory_unittest.cc' object='libdhcpsrv_unittests-host_data_source_factory_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-host_data_source_factory_unittest.o `test -f 'host_data_source_factory_unittest.cc' || echo '$(srcdir)/'`host_data_source_factory_unittest.cc
+
+libdhcpsrv_unittests-host_data_source_factory_unittest.obj: host_data_source_factory_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-host_data_source_factory_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Tpo -c -o libdhcpsrv_unittests-host_data_source_factory_unittest.obj `if test -f 'host_data_source_factory_unittest.cc'; then $(CYGPATH_W) 'host_data_source_factory_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/host_data_source_factory_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-host_data_source_factory_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='host_data_source_factory_unittest.cc' object='libdhcpsrv_unittests-host_data_source_factory_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-host_data_source_factory_unittest.obj `if test -f 'host_data_source_factory_unittest.cc'; then $(CYGPATH_W) 'host_data_source_factory_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/host_data_source_factory_unittest.cc'; fi`
+
 libdhcpsrv_unittests-host_mgr_unittest.o: host_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-host_mgr_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-host_mgr_unittest.Tpo -c -o libdhcpsrv_unittests-host_mgr_unittest.o `test -f 'host_mgr_unittest.cc' || echo '$(srcdir)/'`host_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-host_mgr_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-host_mgr_unittest.Po
@@ -1489,20 +1533,6 @@ libdhcpsrv_unittests-ifaces_config_parser_unittest.obj: ifaces_config_parser_uni
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ifaces_config_parser_unittest.cc' object='libdhcpsrv_unittests-ifaces_config_parser_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-ifaces_config_parser_unittest.obj `if test -f 'ifaces_config_parser_unittest.cc'; then $(CYGPATH_W) 'ifaces_config_parser_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/ifaces_config_parser_unittest.cc'; fi`
-
-libdhcpsrv_unittests-lease_file_io.o: lease_file_io.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-lease_file_io.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Tpo -c -o libdhcpsrv_unittests-lease_file_io.o `test -f 'lease_file_io.cc' || echo '$(srcdir)/'`lease_file_io.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Tpo $(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='lease_file_io.cc' object='libdhcpsrv_unittests-lease_file_io.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-lease_file_io.o `test -f 'lease_file_io.cc' || echo '$(srcdir)/'`lease_file_io.cc
-
-libdhcpsrv_unittests-lease_file_io.obj: lease_file_io.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-lease_file_io.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Tpo -c -o libdhcpsrv_unittests-lease_file_io.obj `if test -f 'lease_file_io.cc'; then $(CYGPATH_W) 'lease_file_io.cc'; else $(CYGPATH_W) '$(srcdir)/lease_file_io.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Tpo $(DEPDIR)/libdhcpsrv_unittests-lease_file_io.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='lease_file_io.cc' object='libdhcpsrv_unittests-lease_file_io.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-lease_file_io.obj `if test -f 'lease_file_io.cc'; then $(CYGPATH_W) 'lease_file_io.cc'; else $(CYGPATH_W) '$(srcdir)/lease_file_io.cc'; fi`
 
 libdhcpsrv_unittests-lease_file_loader_unittest.o: lease_file_loader_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-lease_file_loader_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-lease_file_loader_unittest.Tpo -c -o libdhcpsrv_unittests-lease_file_loader_unittest.o `test -f 'lease_file_loader_unittest.cc' || echo '$(srcdir)/'`lease_file_loader_unittest.cc
@@ -1602,20 +1632,6 @@ libdhcpsrv_unittests-generic_lease_mgr_unittest.obj: generic_lease_mgr_unittest.
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-generic_lease_mgr_unittest.obj `if test -f 'generic_lease_mgr_unittest.cc'; then $(CYGPATH_W) 'generic_lease_mgr_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/generic_lease_mgr_unittest.cc'; fi`
 
-libdhcpsrv_unittests-generic_host_data_source_unittest.o: generic_host_data_source_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-generic_host_data_source_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-generic_host_data_source_unittest.o `test -f 'generic_host_data_source_unittest.cc' || echo '$(srcdir)/'`generic_host_data_source_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='generic_host_data_source_unittest.cc' object='libdhcpsrv_unittests-generic_host_data_source_unittest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-generic_host_data_source_unittest.o `test -f 'generic_host_data_source_unittest.cc' || echo '$(srcdir)/'`generic_host_data_source_unittest.cc
-
-libdhcpsrv_unittests-generic_host_data_source_unittest.obj: generic_host_data_source_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-generic_host_data_source_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-generic_host_data_source_unittest.obj `if test -f 'generic_host_data_source_unittest.cc'; then $(CYGPATH_W) 'generic_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/generic_host_data_source_unittest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-generic_host_data_source_unittest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='generic_host_data_source_unittest.cc' object='libdhcpsrv_unittests-generic_host_data_source_unittest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-generic_host_data_source_unittest.obj `if test -f 'generic_host_data_source_unittest.cc'; then $(CYGPATH_W) 'generic_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/generic_host_data_source_unittest.cc'; fi`
-
 libdhcpsrv_unittests-memfile_lease_mgr_unittest.o: memfile_lease_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-memfile_lease_mgr_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-memfile_lease_mgr_unittest.Tpo -c -o libdhcpsrv_unittests-memfile_lease_mgr_unittest.o `test -f 'memfile_lease_mgr_unittest.cc' || echo '$(srcdir)/'`memfile_lease_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-memfile_lease_mgr_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-memfile_lease_mgr_unittest.Po
@@ -1643,6 +1659,20 @@ libdhcpsrv_unittests-dhcp_parsers_unittest.obj: dhcp_parsers_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dhcp_parsers_unittest.cc' object='libdhcpsrv_unittests-dhcp_parsers_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-dhcp_parsers_unittest.obj `if test -f 'dhcp_parsers_unittest.cc'; then $(CYGPATH_W) 'dhcp_parsers_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/dhcp_parsers_unittest.cc'; fi`
+
+libdhcpsrv_unittests-ncr_generator_unittest.o: ncr_generator_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-ncr_generator_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo -c -o libdhcpsrv_unittests-ncr_generator_unittest.o `test -f 'ncr_generator_unittest.cc' || echo '$(srcdir)/'`ncr_generator_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncr_generator_unittest.cc' object='libdhcpsrv_unittests-ncr_generator_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-ncr_generator_unittest.o `test -f 'ncr_generator_unittest.cc' || echo '$(srcdir)/'`ncr_generator_unittest.cc
+
+libdhcpsrv_unittests-ncr_generator_unittest.obj: ncr_generator_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-ncr_generator_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo -c -o libdhcpsrv_unittests-ncr_generator_unittest.obj `if test -f 'ncr_generator_unittest.cc'; then $(CYGPATH_W) 'ncr_generator_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/ncr_generator_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncr_generator_unittest.cc' object='libdhcpsrv_unittests-ncr_generator_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-ncr_generator_unittest.obj `if test -f 'ncr_generator_unittest.cc'; then $(CYGPATH_W) 'ncr_generator_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/ncr_generator_unittest.cc'; fi`
 
 libdhcpsrv_unittests-mysql_lease_mgr_unittest.o: mysql_lease_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-mysql_lease_mgr_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-mysql_lease_mgr_unittest.Tpo -c -o libdhcpsrv_unittests-mysql_lease_mgr_unittest.o `test -f 'mysql_lease_mgr_unittest.cc' || echo '$(srcdir)/'`mysql_lease_mgr_unittest.cc
@@ -1672,20 +1702,6 @@ libdhcpsrv_unittests-mysql_host_data_source_unittest.obj: mysql_host_data_source
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-mysql_host_data_source_unittest.obj `if test -f 'mysql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'mysql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/mysql_host_data_source_unittest.cc'; fi`
 
-libdhcpsrv_unittests-ncr_generator_unittest.o: ncr_generator_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-ncr_generator_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo -c -o libdhcpsrv_unittests-ncr_generator_unittest.o `test -f 'ncr_generator_unittest.cc' || echo '$(srcdir)/'`ncr_generator_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncr_generator_unittest.cc' object='libdhcpsrv_unittests-ncr_generator_unittest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-ncr_generator_unittest.o `test -f 'ncr_generator_unittest.cc' || echo '$(srcdir)/'`ncr_generator_unittest.cc
-
-libdhcpsrv_unittests-ncr_generator_unittest.obj: ncr_generator_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-ncr_generator_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo -c -o libdhcpsrv_unittests-ncr_generator_unittest.obj `if test -f 'ncr_generator_unittest.cc'; then $(CYGPATH_W) 'ncr_generator_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/ncr_generator_unittest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-ncr_generator_unittest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncr_generator_unittest.cc' object='libdhcpsrv_unittests-ncr_generator_unittest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-ncr_generator_unittest.obj `if test -f 'ncr_generator_unittest.cc'; then $(CYGPATH_W) 'ncr_generator_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/ncr_generator_unittest.cc'; fi`
-
 libdhcpsrv_unittests-pgsql_exchange_unittest.o: pgsql_exchange_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pgsql_exchange_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pgsql_exchange_unittest.Tpo -c -o libdhcpsrv_unittests-pgsql_exchange_unittest.o `test -f 'pgsql_exchange_unittest.cc' || echo '$(srcdir)/'`pgsql_exchange_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-pgsql_exchange_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-pgsql_exchange_unittest.Po
@@ -1699,20 +1715,6 @@ libdhcpsrv_unittests-pgsql_exchange_unittest.obj: pgsql_exchange_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pgsql_exchange_unittest.cc' object='libdhcpsrv_unittests-pgsql_exchange_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pgsql_exchange_unittest.obj `if test -f 'pgsql_exchange_unittest.cc'; then $(CYGPATH_W) 'pgsql_exchange_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pgsql_exchange_unittest.cc'; fi`
-
-libdhcpsrv_unittests-pgsql_host_data_source_unittest.o: pgsql_host_data_source_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pgsql_host_data_source_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.o `test -f 'pgsql_host_data_source_unittest.cc' || echo '$(srcdir)/'`pgsql_host_data_source_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pgsql_host_data_source_unittest.cc' object='libdhcpsrv_unittests-pgsql_host_data_source_unittest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.o `test -f 'pgsql_host_data_source_unittest.cc' || echo '$(srcdir)/'`pgsql_host_data_source_unittest.cc
-
-libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj: pgsql_host_data_source_unittest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj `if test -f 'pgsql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'pgsql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pgsql_host_data_source_unittest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pgsql_host_data_source_unittest.cc' object='libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj `if test -f 'pgsql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'pgsql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pgsql_host_data_source_unittest.cc'; fi`
 
 libdhcpsrv_unittests-pgsql_lease_mgr_unittest.o: pgsql_lease_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pgsql_lease_mgr_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pgsql_lease_mgr_unittest.Tpo -c -o libdhcpsrv_unittests-pgsql_lease_mgr_unittest.o `test -f 'pgsql_lease_mgr_unittest.cc' || echo '$(srcdir)/'`pgsql_lease_mgr_unittest.cc
@@ -1728,6 +1730,34 @@ libdhcpsrv_unittests-pgsql_lease_mgr_unittest.obj: pgsql_lease_mgr_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pgsql_lease_mgr_unittest.obj `if test -f 'pgsql_lease_mgr_unittest.cc'; then $(CYGPATH_W) 'pgsql_lease_mgr_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pgsql_lease_mgr_unittest.cc'; fi`
 
+libdhcpsrv_unittests-pgsql_host_data_source_unittest.o: pgsql_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pgsql_host_data_source_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.o `test -f 'pgsql_host_data_source_unittest.cc' || echo '$(srcdir)/'`pgsql_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pgsql_host_data_source_unittest.cc' object='libdhcpsrv_unittests-pgsql_host_data_source_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.o `test -f 'pgsql_host_data_source_unittest.cc' || echo '$(srcdir)/'`pgsql_host_data_source_unittest.cc
+
+libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj: pgsql_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj `if test -f 'pgsql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'pgsql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pgsql_host_data_source_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-pgsql_host_data_source_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pgsql_host_data_source_unittest.cc' object='libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-pgsql_host_data_source_unittest.obj `if test -f 'pgsql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'pgsql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/pgsql_host_data_source_unittest.cc'; fi`
+
+libdhcpsrv_unittests-cql_connection_unittest.o: cql_connection_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cql_connection_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Tpo -c -o libdhcpsrv_unittests-cql_connection_unittest.o `test -f 'cql_connection_unittest.cc' || echo '$(srcdir)/'`cql_connection_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_connection_unittest.cc' object='libdhcpsrv_unittests-cql_connection_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cql_connection_unittest.o `test -f 'cql_connection_unittest.cc' || echo '$(srcdir)/'`cql_connection_unittest.cc
+
+libdhcpsrv_unittests-cql_connection_unittest.obj: cql_connection_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cql_connection_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Tpo -c -o libdhcpsrv_unittests-cql_connection_unittest.obj `if test -f 'cql_connection_unittest.cc'; then $(CYGPATH_W) 'cql_connection_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cql_connection_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cql_connection_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_connection_unittest.cc' object='libdhcpsrv_unittests-cql_connection_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cql_connection_unittest.obj `if test -f 'cql_connection_unittest.cc'; then $(CYGPATH_W) 'cql_connection_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cql_connection_unittest.cc'; fi`
+
 libdhcpsrv_unittests-cql_lease_mgr_unittest.o: cql_lease_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cql_lease_mgr_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cql_lease_mgr_unittest.Tpo -c -o libdhcpsrv_unittests-cql_lease_mgr_unittest.o `test -f 'cql_lease_mgr_unittest.cc' || echo '$(srcdir)/'`cql_lease_mgr_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cql_lease_mgr_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cql_lease_mgr_unittest.Po
@@ -1741,6 +1771,20 @@ libdhcpsrv_unittests-cql_lease_mgr_unittest.obj: cql_lease_mgr_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_lease_mgr_unittest.cc' object='libdhcpsrv_unittests-cql_lease_mgr_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cql_lease_mgr_unittest.obj `if test -f 'cql_lease_mgr_unittest.cc'; then $(CYGPATH_W) 'cql_lease_mgr_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cql_lease_mgr_unittest.cc'; fi`
+
+libdhcpsrv_unittests-cql_host_data_source_unittest.o: cql_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cql_host_data_source_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-cql_host_data_source_unittest.o `test -f 'cql_host_data_source_unittest.cc' || echo '$(srcdir)/'`cql_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_host_data_source_unittest.cc' object='libdhcpsrv_unittests-cql_host_data_source_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cql_host_data_source_unittest.o `test -f 'cql_host_data_source_unittest.cc' || echo '$(srcdir)/'`cql_host_data_source_unittest.cc
+
+libdhcpsrv_unittests-cql_host_data_source_unittest.obj: cql_host_data_source_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-cql_host_data_source_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Tpo -c -o libdhcpsrv_unittests-cql_host_data_source_unittest.obj `if test -f 'cql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'cql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cql_host_data_source_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-cql_host_data_source_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_host_data_source_unittest.cc' object='libdhcpsrv_unittests-cql_host_data_source_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-cql_host_data_source_unittest.obj `if test -f 'cql_host_data_source_unittest.cc'; then $(CYGPATH_W) 'cql_host_data_source_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/cql_host_data_source_unittest.cc'; fi`
 
 libdhcpsrv_unittests-pool_unittest.o: pool_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-pool_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-pool_unittest.Tpo -c -o libdhcpsrv_unittests-pool_unittest.o `test -f 'pool_unittest.cc' || echo '$(srcdir)/'`pool_unittest.cc
@@ -1881,6 +1925,20 @@ libdhcpsrv_unittests-timer_mgr_unittest.obj: timer_mgr_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='timer_mgr_unittest.cc' object='libdhcpsrv_unittests-timer_mgr_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-timer_mgr_unittest.obj `if test -f 'timer_mgr_unittest.cc'; then $(CYGPATH_W) 'timer_mgr_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/timer_mgr_unittest.cc'; fi`
+
+libdhcpsrv_unittests-network_state_unittest.o: network_state_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-network_state_unittest.o -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Tpo -c -o libdhcpsrv_unittests-network_state_unittest.o `test -f 'network_state_unittest.cc' || echo '$(srcdir)/'`network_state_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network_state_unittest.cc' object='libdhcpsrv_unittests-network_state_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-network_state_unittest.o `test -f 'network_state_unittest.cc' || echo '$(srcdir)/'`network_state_unittest.cc
+
+libdhcpsrv_unittests-network_state_unittest.obj: network_state_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -MT libdhcpsrv_unittests-network_state_unittest.obj -MD -MP -MF $(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Tpo -c -o libdhcpsrv_unittests-network_state_unittest.obj `if test -f 'network_state_unittest.cc'; then $(CYGPATH_W) 'network_state_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/network_state_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Tpo $(DEPDIR)/libdhcpsrv_unittests-network_state_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network_state_unittest.cc' object='libdhcpsrv_unittests-network_state_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdhcpsrv_unittests_CPPFLAGS) $(CPPFLAGS) $(libdhcpsrv_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libdhcpsrv_unittests-network_state_unittest.obj `if test -f 'network_state_unittest.cc'; then $(CYGPATH_W) 'network_state_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/network_state_unittest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

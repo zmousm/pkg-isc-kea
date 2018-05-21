@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -220,6 +220,18 @@ public:
     virtual Lease4Ptr getLease4(const ClientId& clientid,
                                 SubnetID subnet_id) const;
 
+    /// @brief Returns all IPv4 leases for the particular subnet identifier.
+    ///
+    /// @param subnet_id subnet identifier.
+    ///
+    /// @return Lease collection (may be empty if no IPv4 lease found).
+    virtual Lease4Collection getLeases4(SubnetID subnet_id) const;
+
+    /// @brief Returns all IPv4 leases.
+    ///
+    /// @return Lease collection (may be empty if no IPv4 lease found).
+    virtual Lease4Collection getLeases4() const;
+
     /// @brief Returns existing IPv6 lease for a given IPv6 address.
     ///
     /// This function returns a copy of the lease. The modification in the
@@ -259,19 +271,17 @@ public:
                                         uint32_t iaid,
                                         SubnetID subnet_id) const;
 
-    /// @brief Returns a collection of expired DHCPv6 leases.
+    /// @brief Returns all IPv6 leases for the particular subnet identifier.
     ///
-    /// This method returns at most @c max_leases expired leases. The leases
-    /// returned haven't been reclaimed, i.e. the database query must exclude
-    /// reclaimed leases from the results returned.
+    /// @param subnet_id subnet identifier.
     ///
-    /// @param [out] expired_leases A container to which expired leases returned
-    /// by the database backend are added.
-    /// @param max_leases A maximum number of leases to be returned. If this
-    /// value is set to 0, all expired (but not reclaimed) leases are returned.
-    virtual void getExpiredLeases6(Lease6Collection& expired_leases,
-                                   const size_t max_leases) const;
+    /// @return Lease collection (may be empty if no IPv6 lease found).
+    virtual Lease6Collection getLeases6(SubnetID subnet_id) const;
 
+    /// @brief Returns all IPv6 leases.
+    ///
+    /// @return Lease collection (may be empty if no IPv6 lease found).
+    virtual Lease6Collection getLeases6() const;
 
     /// @brief Returns a collection of expired DHCPv4 leases.
     ///
@@ -284,6 +294,19 @@ public:
     /// @param max_leases A maximum number of leases to be returned. If this
     /// value is set to 0, all expired (but not reclaimed) leases are returned.
     virtual void getExpiredLeases4(Lease4Collection& expired_leases,
+                                   const size_t max_leases) const;
+
+    /// @brief Returns a collection of expired DHCPv6 leases.
+    ///
+    /// This method returns at most @c max_leases expired leases. The leases
+    /// returned haven't been reclaimed, i.e. the database query must exclude
+    /// reclaimed leases from the results returned.
+    ///
+    /// @param [out] expired_leases A container to which expired leases returned
+    /// by the database backend are added.
+    /// @param max_leases A maximum number of leases to be returned. If this
+    /// value is set to 0, all expired (but not reclaimed) leases are returned.
+    virtual void getExpiredLeases6(Lease6Collection& expired_leases,
                                    const size_t max_leases) const;
 
     /// @brief Updates IPv4 lease.
@@ -615,12 +638,34 @@ public:
 
     /// @brief Creates and runs the IPv4 lease stats query
     ///
-    /// It creates an instance of a MemfileLeaseStatsQuery4 and then
-    /// invokes its start method in which the query constructs its
+    /// It creates an instance of a MemfileLeaseStatsQuery4 for an all subnets
+    /// query and then invokes its start method in which the query constructs its
     /// statistical data result set.  The query object is then returned.
     ///
     /// @return The populated query as a pointer to an LeaseStatsQuery
     virtual LeaseStatsQueryPtr startLeaseStatsQuery4();
+
+    /// @brief Creates and runs the IPv4 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a MemfileLeaseStatsQuery4 for a single subnet
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param subnet_id id of the subnet for which stats are desired
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetLeaseStatsQuery4(const SubnetID& subnet_id);
+
+    /// @brief Creates and runs the IPv4 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a MemfileLeaseStatsQuery4 for a subnet range
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param first_subnet_id first subnet in the range of subnets
+    /// @param last_subnet_id last subnet in the range of subnets
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetRangeLeaseStatsQuery4(const SubnetID& first_subnet_id,
+                                                                const SubnetID& last_subnet_id);
 
     /// @brief Creates and runs the IPv6 lease stats query
     ///
@@ -630,6 +675,28 @@ public:
     ///
     /// @return The populated query as a pointer to an LeaseStatsQuery.
     virtual LeaseStatsQueryPtr startLeaseStatsQuery6();
+
+    /// @brief Creates and runs the IPv6 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a MemfileLeaseStatsQuery6 for a single subnet
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param subnet_id id of the subnet for which stats are desired
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetLeaseStatsQuery6(const SubnetID& subnet_id);
+
+    /// @brief Creates and runs the IPv6 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a MemfileLeaseStatsQuery6 for a subnet range
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param first_subnet_id first subnet in the range of subnets
+    /// @param last_subnet_id last subnet in the range of subnets
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetRangeLeaseStatsQuery6(const SubnetID& first_subnet_id,
+                                                                const SubnetID& last_subnet_id);
 
     /// @name Protected methods used for %Lease File Cleanup.
     /// The following methods are protected so as they can be accessed and

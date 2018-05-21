@@ -11,10 +11,13 @@
 /* #undef ENABLE_LOGGER_CHECKS */
 
 /* Extended Kea version */
-#define EXTENDED_VERSION "git cbdbd62a0df920a589081e863c064ebcae74a231"
+#define EXTENDED_VERSION "git a6c4644775b8b7198ce6f0165cf30941a6222bd4"
 
 /* Does this platform have some undefined pthreads behavior? */
 /* #undef HAS_UNDEFINED_PTHREAD_BEHAVIOR */
+
+/* Define to 1 if you have the <boost/asio/coroutine.hpp> header file. */
+#define HAVE_BOOST_ASIO_COROUTINE_HPP 1
 
 /* Define to 1 if you have the <boost/asio.hpp> header file. */
 #define HAVE_BOOST_ASIO_HPP 1
@@ -87,6 +90,9 @@
 /* Define to 1 if sockaddr has a sa_len member, and corresponding sin_len and
    sun_len */
 /* #undef HAVE_SA_LEN */
+
+/* Define to 1 if you have the `srandomdev' function. */
+/* #undef HAVE_SRANDOMDEV */
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #define HAVE_STDBOOL_H 1
@@ -165,7 +171,7 @@
 #define PACKAGE_NAME "kea"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "kea 1.3.0"
+#define PACKAGE_STRING "kea 1.4.0-beta"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "kea"
@@ -174,10 +180,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.3.0"
-
-/* Kea-premium package found */
-/* #undef PREMIUM */
+#define PACKAGE_VERSION "1.4.0-beta"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -186,7 +189,7 @@
 /* #undef USE_STATIC_LINK */
 
 /* Version number of package */
-#define VERSION "1.3.0"
+#define VERSION "1.4.0-beta"
 
 /* Compile with Botan crypto */
 #define WITH_BOTAN /**/

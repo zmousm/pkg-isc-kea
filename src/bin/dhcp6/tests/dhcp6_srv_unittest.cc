@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2011-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -164,7 +164,11 @@ TEST_F(NakedDhcpv6SrvTest, SolicitNoSubnet) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr reply = srv.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply = srv.processSolicit(ctx);
 
     // check that we get the right NAK
     checkNakResponse(reply, DHCPV6_ADVERTISE, 1234, STATUS_NoAddrsAvail,
@@ -385,7 +389,11 @@ TEST_F(Dhcpv6SrvTest, advertiseOptions) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr adv = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv_.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr adv = srv_.processSolicit(ctx);
 
     // check if we get response at all
     ASSERT_TRUE(adv);
@@ -409,7 +417,10 @@ TEST_F(Dhcpv6SrvTest, advertiseOptions) {
     sol->addOption(option_oro);
 
     // Need to process SOLICIT again after requesting new option.
-    adv = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx2;
+    srv_.initContext(sol, ctx2, drop);
+    ASSERT_FALSE(drop);
+    adv = srv_.processSolicit(ctx2);
     ASSERT_TRUE(adv);
 
     OptionPtr tmp = adv->getOption(D6O_NAME_SERVERS);
@@ -470,7 +481,11 @@ TEST_F(Dhcpv6SrvTest, SolicitBasic) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr reply = srv.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply = srv.processSolicit(ctx);
 
     // check if we get response at all
     checkResponse(reply, DHCPV6_ADVERTISE, 1234);
@@ -514,7 +529,11 @@ TEST_F(Dhcpv6SrvTest, pdSolicitBasic) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr reply = srv.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply = srv.processSolicit(ctx);
 
     // check if we get response at all
     checkResponse(reply, DHCPV6_ADVERTISE, 1234);
@@ -567,7 +586,11 @@ TEST_F(Dhcpv6SrvTest, SolicitHint) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr reply = srv.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply = srv.processSolicit(ctx);
 
     // check if we get response at all
     checkResponse(reply, DHCPV6_ADVERTISE, 1234);
@@ -620,7 +643,11 @@ TEST_F(Dhcpv6SrvTest, SolicitInvalidHint) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr reply = srv.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply = srv.processSolicit(ctx);
 
     // check if we get response at all
     checkResponse(reply, DHCPV6_ADVERTISE, 1234);
@@ -678,9 +705,19 @@ TEST_F(Dhcpv6SrvTest, ManySolicits) {
     sol3->addOption(clientid3);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr reply1 = srv.processSolicit(sol1);
-    Pkt6Ptr reply2 = srv.processSolicit(sol2);
-    Pkt6Ptr reply3 = srv.processSolicit(sol3);
+    AllocEngine::ClientContext6 ctx1;
+    bool drop = false;
+    srv.initContext(sol1, ctx1, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply1 = srv.processSolicit(ctx1);
+    AllocEngine::ClientContext6 ctx2;
+    srv.initContext(sol2, ctx2, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply2 = srv.processSolicit(ctx2);
+    AllocEngine::ClientContext6 ctx3;
+    srv.initContext(sol3, ctx3, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr reply3 = srv.processSolicit(ctx3);
 
     // check if we get response at all
     checkResponse(reply1, DHCPV6_ADVERTISE, 1234);
@@ -1233,7 +1270,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetAddr) {
 
     // The clause for assuming local subnet if there is only one subnet is was
     // removed.
-    EXPECT_FALSE(srv.selectSubnet(pkt));
+    bool drop = false;
+    EXPECT_FALSE(srv.selectSubnet(pkt, drop));
+    EXPECT_FALSE(drop);
 
     // CASE 2: We have only one subnet defined and we received relayed traffic.
     // We should NOT select it.
@@ -1243,8 +1282,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetAddr) {
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet1); // just a single subnet
     CfgMgr::instance().commit();
     pkt->setRemoteAddr(IOAddress("2001:db8:abcd::2345"));
-    Subnet6Ptr selected = srv.selectSubnet(pkt);
+    Subnet6Ptr selected = srv.selectSubnet(pkt, drop);
     EXPECT_FALSE(selected);
+    EXPECT_FALSE(drop);
 
     // CASE 3: We have three subnets defined and we received local traffic.
     // Nothing should be selected.
@@ -1254,8 +1294,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetAddr) {
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet3);
     CfgMgr::instance().commit();
     pkt->setRemoteAddr(IOAddress("fe80::abcd"));
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_FALSE(selected);
+    EXPECT_FALSE(drop);
 
     // CASE 4: We have three subnets defined and we received relayed traffic
     // that came out of subnet 2. We should select subnet2 then
@@ -1265,8 +1306,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetAddr) {
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet3);
     CfgMgr::instance().commit();
     pkt->setRemoteAddr(IOAddress("2001:db8:2::baca"));
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet2);
+    EXPECT_FALSE(drop);
 
     // CASE 5: We have three subnets defined and we received relayed traffic
     // that came out of undefined subnet. We should select nothing
@@ -1276,7 +1318,8 @@ TEST_F(Dhcpv6SrvTest, selectSubnetAddr) {
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet3);
     CfgMgr::instance().commit();
     pkt->setRemoteAddr(IOAddress("2001:db8:4::baca"));
-    EXPECT_FALSE(srv.selectSubnet(pkt));
+    EXPECT_FALSE(srv.selectSubnet(pkt, drop));
+    EXPECT_FALSE(drop);
 }
 
 // This test verifies if selectSubnet() selects proper subnet for a given
@@ -1300,8 +1343,10 @@ TEST_F(Dhcpv6SrvTest, selectSubnetIface) {
     Pkt6Ptr pkt = Pkt6Ptr(new Pkt6(DHCPV6_SOLICIT, 1234));
     pkt->setIface("eth0");
 
-    Subnet6Ptr selected = srv.selectSubnet(pkt);
+    bool drop = false;
+    Subnet6Ptr selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet1);
+    EXPECT_FALSE(drop);
 
     // CASE 2: We have only one subnet defined and it is available via eth0.
     // Packet came from eth1. We should not select it
@@ -1311,8 +1356,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetIface) {
 
     pkt->setIface("eth1");
 
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_FALSE(selected);
+    EXPECT_FALSE(drop);
 
     // CASE 3: We have only 3 subnets defined, one over eth0, one remote and
     // one over wifi1.
@@ -1324,13 +1370,16 @@ TEST_F(Dhcpv6SrvTest, selectSubnetIface) {
     CfgMgr::instance().commit();
 
     pkt->setIface("eth0");
-    EXPECT_EQ(subnet1, srv.selectSubnet(pkt));
+    EXPECT_EQ(subnet1, srv.selectSubnet(pkt, drop));
+    EXPECT_FALSE(drop);
 
     pkt->setIface("eth3"); // no such interface
-    EXPECT_EQ(Subnet6Ptr(), srv.selectSubnet(pkt)); // nothing selected
+    EXPECT_EQ(Subnet6Ptr(), srv.selectSubnet(pkt, drop)); // nothing selected
+    EXPECT_FALSE(drop);
 
     pkt->setIface("wifi1");
-    EXPECT_EQ(subnet3, srv.selectSubnet(pkt));
+    EXPECT_EQ(subnet3, srv.selectSubnet(pkt, drop));
+    EXPECT_FALSE(drop);
 }
 
 // This test verifies if selectSubnet() selects proper subnet for a given
@@ -1355,8 +1404,10 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayLinkaddr) {
     Pkt6Ptr pkt = Pkt6Ptr(new Pkt6(DHCPV6_SOLICIT, 1234));
     pkt->relay_info_.push_back(relay);
 
-    Subnet6Ptr selected = srv.selectSubnet(pkt);
+    bool drop = false;
+    Subnet6Ptr selected = srv.selectSubnet(pkt, drop);
     EXPECT_FALSE(selected);
+    EXPECT_FALSE(drop);
 
     // CASE 2: We have three subnets defined and we received relayed traffic
     // that came out of subnet 2. We should select subnet2 then
@@ -1365,22 +1416,25 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayLinkaddr) {
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet2);
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet3);
     CfgMgr::instance().commit();
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet2);
+    EXPECT_FALSE(drop);
 
     // Source of the packet should have no meaning. Selection is based
     // on linkaddr field in the relay
     pkt->setRemoteAddr(IOAddress("2001:db8:1::baca"));
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet2);
+    EXPECT_FALSE(drop);
 
     // But not when this linkaddr field is not usable.
     Pkt6::RelayInfo relay2;
     relay2.peeraddr_ = IOAddress("fe80::1");
     pkt->relay_info_.clear();
     pkt->relay_info_.push_back(relay2);
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet1);
+    EXPECT_FALSE(drop);
 
     // CASE 3: We have three subnets defined and we received relayed traffic
     // that came out a layer 2 relay on subnet 2. We should select subnet2 then
@@ -1393,8 +1447,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayLinkaddr) {
     pkt->relay_info_.push_back(relay);
     relay2.hop_count_ = 1;
     pkt->relay_info_.push_back(relay2);
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet2);
+    EXPECT_FALSE(drop);
 
     // The number of level 2 relay doesn't matter
     pkt->relay_info_.clear();
@@ -1415,8 +1470,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayLinkaddr) {
     relay23.peeraddr_ = IOAddress("fe80::1");
     relay23.hop_count_ = 4;
     pkt->relay_info_.push_back(relay23);
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet2);
+    EXPECT_FALSE(drop);
 
     // Only the inner/last relay with a usable address matters
     pkt->relay_info_.clear();
@@ -1429,8 +1485,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayLinkaddr) {
     relay3.peeraddr_ = IOAddress("fe80::1");
     relay3.hop_count_ = 4;
     pkt->relay_info_.push_back(relay3);
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet3);
+    EXPECT_FALSE(drop);
 
     // CASE 4: We have three subnets defined and we received relayed traffic
     // that came out of undefined subnet. We should select nothing
@@ -1443,9 +1500,9 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayLinkaddr) {
     relay.hop_count_ = 0;
     relay.linkaddr_ = IOAddress("2001:db8:4::1234");
     pkt->relay_info_.push_back(relay);
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_FALSE(selected);
-
+    EXPECT_FALSE(drop);
 }
 
 // This test verifies if selectSubnet() selects proper subnet for a given
@@ -1475,16 +1532,19 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayInterfaceId) {
     pkt->relay_info_.push_back(relay);
 
     // There is only one subnet configured and we are outside of that subnet
-    Subnet6Ptr selected = srv.selectSubnet(pkt);
+    bool drop = false;
+    Subnet6Ptr selected = srv.selectSubnet(pkt, drop);
     EXPECT_FALSE(selected);
+    EXPECT_FALSE(drop);
 
     // CASE 2: We have only one subnet defined and it is for interface-id "relay2"
     // Packet came with interface-id "relay2". We should select it
     CfgMgr::instance().clear();
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet2); // just a single subnet
     CfgMgr::instance().commit();
-    selected = srv.selectSubnet(pkt);
+    selected = srv.selectSubnet(pkt, drop);
     EXPECT_EQ(selected, subnet2);
+    EXPECT_FALSE(drop);
 
     // CASE 3: We have only 3 subnets defined: one remote for interface-id "relay1",
     // one remote for interface-id "relay2" and third local
@@ -1495,7 +1555,8 @@ TEST_F(Dhcpv6SrvTest, selectSubnetRelayInterfaceId) {
     CfgMgr::instance().getStagingCfg()->getCfgSubnets6()->add(subnet3);
     CfgMgr::instance().commit();
 
-    EXPECT_EQ(subnet2, srv.selectSubnet(pkt));
+    EXPECT_EQ(subnet2, srv.selectSubnet(pkt, drop));
+    EXPECT_FALSE(drop);
 }
 
 // Checks if server responses are sent to the proper port.
@@ -1548,6 +1609,97 @@ TEST_F(Dhcpv6SrvTest, portsRelayedTraffic) {
     EXPECT_EQ(DHCP6_SERVER_PORT, adv->getRemotePort());
 }
 
+// Test that the server processes relay-source-port option correctly.
+TEST_F(Dhcpv6SrvTest, relaySourcePort) {
+
+    NakedDhcpv6Srv srv(0);
+
+    string config =
+        "{"
+        "    \"preferred-lifetime\": 3000,"
+        "    \"rebind-timer\": 2000, "
+        "    \"renew-timer\": 1000, "
+        "    \"subnet6\": [ { "
+        "        \"pools\": [ { \"pool\": \"2001:db8::/64\" } ],"
+        "        \"subnet\": \"2001:db8::/48\" "
+        "     } ],"
+        "    \"valid-lifetime\": 4000"
+        "}";
+
+    EXPECT_NO_THROW(configure(config, srv));
+
+    // Create a solicit
+    Pkt6Ptr sol(new Pkt6(DHCPV6_SOLICIT, 1234));
+    sol->setRemoteAddr(IOAddress("fe80::abcd"));
+    sol->setIface("eth0");
+    sol->addOption(generateIA(D6O_IA_NA, 234, 1500, 3000));
+    OptionPtr clientid = generateClientId();
+    sol->addOption(clientid);
+
+    // Pretend the packet came via one relay.
+    Pkt6::RelayInfo relay;
+    relay.msg_type_ = DHCPV6_RELAY_FORW;
+    relay.hop_count_ = 1;
+    relay.linkaddr_ = IOAddress("2001:db8::1");
+    relay.peeraddr_ = IOAddress("fe80::1");
+
+    // Set the source port
+    sol->setRemotePort(1234);
+
+    // Simulate that we have received that traffic
+    sol->pack();
+
+    // Add a relay-source-port option
+    OptionBuffer zero(2, 0);
+    OptionPtr opt(new Option(Option::V6, D6O_RELAY_SOURCE_PORT, zero));
+    relay.options_.insert(make_pair(opt->getType(), opt));
+    sol->relay_info_.push_back(relay);
+
+    // Simulate that we have received that traffic
+    sol->pack();
+    EXPECT_EQ(DHCPV6_RELAY_FORW, sol->getBuffer()[0]);
+    Pkt6Ptr query(new Pkt6(static_cast<const uint8_t*>
+                           (sol->getBuffer().getData()),
+                           sol->getBuffer().getLength()));
+    query->setRemoteAddr(sol->getRemoteAddr());
+    query->setRemotePort(sol->getRemotePort());
+    query->setLocalAddr(sol->getLocalAddr());
+    query->setLocalPort(sol->getLocalPort());
+    query->setIface(sol->getIface());
+
+    srv.fakeReceive(query);
+
+    // Server will now process to run its normal loop, but instead of calling
+    // IfaceMgr::receive6(), it will read all packets from the list set by
+    // fakeReceive()
+    srv.run();
+
+    // Check trace of processing
+    EXPECT_EQ(1234, query->getRemotePort());
+    ASSERT_EQ(1, query->relay_info_.size());
+    EXPECT_TRUE(query->getRelayOption(D6O_RELAY_SOURCE_PORT, 0));
+
+    // Get Response...
+    ASSERT_FALSE(srv.fake_sent_.empty());
+    Pkt6Ptr rsp = srv.fake_sent_.front();
+    ASSERT_TRUE(rsp);
+
+    // Check it
+    EXPECT_EQ(1234, rsp->getRemotePort());
+    EXPECT_EQ(DHCPV6_RELAY_REPL, rsp->getBuffer()[0]);
+
+    // Get Advertise
+    Pkt6Ptr adv(new Pkt6(static_cast<const uint8_t*>
+                         (rsp->getBuffer().getData()),
+                         rsp->getBuffer().getLength()));
+    adv->unpack();
+
+    // Check it
+    EXPECT_EQ(DHCPV6_ADVERTISE, adv->getType());
+    ASSERT_EQ(1, adv->relay_info_.size());
+    EXPECT_TRUE(adv->getRelayOption(D6O_RELAY_SOURCE_PORT, 0));
+}
+
 // Checks effect of persistency (aka always-true) flag on the ORO
 TEST_F(Dhcpv6SrvTest, prlPersistency) {
     IfaceMgrTestConfig test_config(true);
@@ -1570,7 +1722,11 @@ TEST_F(Dhcpv6SrvTest, prlPersistency) {
     sol->addOption(oro);
 
     // Let the server process it and generate a response.
-    Pkt6Ptr response = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv_.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr response = srv_.processSolicit(ctx);
 
     // The server should add a subscriber-id option
     ASSERT_TRUE(response->getOption(D6O_SUBSCRIBER_ID));
@@ -1586,7 +1742,10 @@ TEST_F(Dhcpv6SrvTest, prlPersistency) {
 
     // Let the server process it again. This time the name-servers
     // option should be present.
-    response = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx2;
+    srv_.initContext(sol, ctx2, drop);
+    ASSERT_FALSE(drop);
+    response = srv_.processSolicit(ctx2);
 
     // Processing should add a subscriber-id option
     ASSERT_TRUE(response->getOption(D6O_SUBSCRIBER_ID));
@@ -1721,7 +1880,11 @@ TEST_F(Dhcpv6SrvTest, vendorOptionsORO) {
     sol->addOption(clientid);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr adv = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv_.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr adv = srv_.processSolicit(ctx);
 
     // check if we get response at all
     ASSERT_TRUE(adv);
@@ -1740,7 +1903,10 @@ TEST_F(Dhcpv6SrvTest, vendorOptionsORO) {
     sol->addOption(vendor);
 
     // Need to process SOLICIT again after requesting new option.
-    adv = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx2;
+    srv_.initContext(sol, ctx2, drop);
+    ASSERT_FALSE(drop);
+    adv = srv_.processSolicit(ctx2);
     ASSERT_TRUE(adv);
 
     // Check if there is vendor option response
@@ -1810,7 +1976,11 @@ TEST_F(Dhcpv6SrvTest, vendorPersistentOptions) {
     sol->addOption(vendor);
 
     // Pass it to the server and get an advertise
-    Pkt6Ptr adv = srv_.processSolicit(sol);
+    AllocEngine::ClientContext6 ctx;
+    bool drop = false;
+    srv_.initContext(sol, ctx, drop);
+    ASSERT_FALSE(drop);
+    Pkt6Ptr adv = srv_.processSolicit(ctx);
 
     // check if we get response at all
     ASSERT_TRUE(adv);
@@ -1974,24 +2144,30 @@ TEST_F(Dhcpv6SrvTest, relayOverride) {
 
     // This is just a sanity check, we're using regular method: the relay
     // belongs to the first (2001:db8:1::/64) subnet, so it's an easy decision.
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(sol));
+    bool drop = false;
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(sol, drop));
+    EXPECT_FALSE(drop);
 
     // Relay belongs to the second subnet, so it should be selected.
     sol->relay_info_.back().linkaddr_ = IOAddress("2001:db8:2::1");
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(sol));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(sol, drop));
+    EXPECT_FALSE(drop);
 
     // Now let's check if the relay override for the first subnets works
     sol->relay_info_.back().linkaddr_ = IOAddress("2001:db8:3::1");
-    EXPECT_TRUE(subnet1 == srv_.selectSubnet(sol));
+    EXPECT_TRUE(subnet1 == srv_.selectSubnet(sol, drop));
+    EXPECT_FALSE(drop);
 
     // Now repeat that for relay matching the second subnet.
     sol->relay_info_.back().linkaddr_ = IOAddress("2001:db8:3::2");
-    EXPECT_TRUE(subnet2 == srv_.selectSubnet(sol));
+    EXPECT_TRUE(subnet2 == srv_.selectSubnet(sol, drop));
+    EXPECT_FALSE(drop);
 
     // Finally, let's check that completely mismatched relay will not get us
     // anything
     sol->relay_info_.back().linkaddr_ = IOAddress("2001:db8:1234::1");
-    EXPECT_FALSE(srv_.selectSubnet(sol));
+    EXPECT_FALSE(srv_.selectSubnet(sol, drop));
+    EXPECT_FALSE(drop);
 }
 
 /// @brief Creates RSOO option with suboptions
@@ -2480,6 +2656,28 @@ TEST_F(Dhcpv6SrvTest, userContext) {
     ASSERT_TRUE(pools[0]);
     ASSERT_TRUE(pools[0]->getContext());
     EXPECT_EQ("{ \"type\": \"prefixes\" }", pools[0]->getContext()->str());
+}
+
+// Verifies that the server will still process a packet which fails to
+// parse with a SkipRemainingOptions exception
+TEST_F(Dhcpv6SrvTest, truncatedVIVSO) {
+    NakedDhcpv6Srv srv(0);
+
+    // Let's create a SOLICIT with a VIVSO whose length is too short
+    Pkt6Ptr sol = PktCaptures::captureSolicitWithTruncatedVIVSO();
+
+    // Simulate that we have received that traffic
+    srv.fakeReceive(sol);
+
+    // Server will now process to run its normal loop, but instead of calling
+    // IfaceMgr::receive6(), it will read all packets from the list set by
+    // fakeReceive()
+    srv.run();
+
+    // Make sure we got an Advertise...
+    ASSERT_FALSE(srv.fake_sent_.empty());
+    Pkt6Ptr adv = srv.fake_sent_.front();
+    ASSERT_TRUE(adv);
 }
 
 

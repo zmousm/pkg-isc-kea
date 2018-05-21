@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,7 +8,7 @@
 #define MYSQL_CONNECTION_H
 
 #include <dhcpsrv/database_connection.h>
-#include <dhcpsrv/dhcpsrv_log.h>
+#include <dhcpsrv/db_log.h>
 #include <exceptions/exceptions.h>
 #include <boost/scoped_ptr.hpp>
 #include <mysql.h>
@@ -40,8 +40,8 @@ extern const int MLM_MYSQL_FETCH_FAILURE;
 
 /// @name Current database schema version values.
 //@{
-const uint32_t MYSQL_SCHEMA_VERSION_MAJOR = 5;
-const uint32_t MYSQL_SCHEMA_VERSION_MINOR = 1;
+const uint32_t MYSQL_SCHEMA_VERSION_MAJOR = 6;
+const uint32_t MYSQL_SCHEMA_VERSION_MINOR = 0;
 
 //@}
 
@@ -355,15 +355,16 @@ public:
     /// in the event of failures, decide whether or not those failures are
     /// recoverable.
     ///
-    /// If the error is recoverable, the method will throw a DbOperationError.
-    /// In the error is deemed unrecoverable, such as a loss of connectivity
-    /// with the server, this method will log the error and call exit(-1);
+    /// If the error is recoverable, the function will throw a DbOperationError.
+    /// If the error is deemed unrecoverable, such as a loss of connectivity
+    /// with the server, the function will call invokeDbLostCallback(). If the
+    /// invocation returns false then either there is no callback registered
+    /// or the callback has elected not to attempt to reconnect, and exit(-1)
+    /// is called;
     ///
-    /// @todo Calling exit() is viewed as a short term solution for Kea 1.0.
-    /// Two tickets are likely to alter this behavior, first is #3639, which
-    /// calls for the ability to attempt to reconnect to the database. The
-    /// second ticket, #4087 which calls for the implementation of a generic,
-    /// FatalException class which will propagate outward.
+    /// If the invocation returns true, this indicates the calling layer will
+    /// attempt recovery, and the function throws a DbOperationError to allow
+    /// the caller to error handle the failed db access attempt.
     ///
     /// @param status Status code: non-zero implies an error
     /// @param index Index of statement that caused the error
@@ -389,14 +390,22 @@ public:
             case CR_SERVER_LOST:
             case CR_OUT_OF_MEMORY:
             case CR_CONNECTION_ERROR:
-                // We're exiting on fatal
-                LOG_ERROR(dhcpsrv_logger, DHCPSRV_MYSQL_FATAL_ERROR)
-                         .arg(what)
-                         .arg(text_statements_[static_cast<int>(index)])
-                         .arg(mysql_error(mysql_))
-                         .arg(mysql_errno(mysql_));
-                exit (-1);
+                DB_LOG_ERROR(MYSQL_FATAL_ERROR)
+                    .arg(what)
+                    .arg(text_statements_[static_cast<int>(index)])
+                    .arg(mysql_error(mysql_))
+                    .arg(mysql_errno(mysql_));
 
+                // If there's no lost db callback or it returns false,
+                // then we're not attempting to recover so we're done
+                if (!invokeDbLostCallback()) {
+                    exit (-1);
+                }
+
+                // We still need to throw so caller can error out of the current
+                // processing.
+                isc_throw(DbOperationError,
+                          "fatal database errror or connectivity lost");
             default:
                 // Connection is ok, so it must be an SQL error
                 isc_throw(DbOperationError, what << " for <"

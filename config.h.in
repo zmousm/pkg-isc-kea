@@ -15,6 +15,9 @@
 /* Does this platform have some undefined pthreads behavior? */
 #undef HAS_UNDEFINED_PTHREAD_BEHAVIOR
 
+/* Define to 1 if you have the <boost/asio/coroutine.hpp> header file. */
+#undef HAVE_BOOST_ASIO_COROUTINE_HPP
+
 /* Define to 1 if you have the <boost/asio.hpp> header file. */
 #undef HAVE_BOOST_ASIO_HPP
 
@@ -86,6 +89,9 @@
 /* Define to 1 if sockaddr has a sa_len member, and corresponding sin_len and
    sun_len */
 #undef HAVE_SA_LEN
+
+/* Define to 1 if you have the `srandomdev' function. */
+#undef HAVE_SRANDOMDEV
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #undef HAVE_STDBOOL_H
@@ -174,9 +180,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* Kea-premium package found */
-#undef PREMIUM
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 #include <dhcp/option.h>
 #include <dhcpsrv/cfg_db_access.h>
 #include <dhcpsrv/cfgmgr.h>
+#include <dhcpsrv/db_type.h>
 #include <dhcpsrv/dhcpsrv_log.h>
 #include <dhcpsrv/lease_mgr_factory.h>
 #include <dhcpsrv/host_mgr.h>
@@ -56,10 +57,16 @@ DbAccessParser::parse(CfgDbAccessPtr& cfg_db,
     int64_t lfc_interval = 0;
     int64_t timeout = 0;
     int64_t port = 0;
+    int64_t max_reconnect_tries = 0;
+    int64_t reconnect_wait_time = 0;
+    int64_t request_timeout = 0;
+    int64_t tcp_keepalive = 0;
+
     // 2. Update the copy with the passed keywords.
     BOOST_FOREACH(ConfigPair param, database_config->mapValue()) {
         try {
-            if ((param.first == "persist") || (param.first == "readonly")) {
+            if ((param.first == "persist") || (param.first == "readonly") ||
+                (param.first == "tcp-nodelay")) {
                 values_copy[param.first] = (param.second->boolValue() ?
                                             "true" : "false");
 
@@ -72,6 +79,26 @@ DbAccessParser::parse(CfgDbAccessPtr& cfg_db,
                 timeout = param.second->intValue();
                 values_copy[param.first] =
                     boost::lexical_cast<std::string>(timeout);
+
+            } else if (param.first == "max-reconnect-tries") {
+                max_reconnect_tries = param.second->intValue();
+                values_copy[param.first] =
+                    boost::lexical_cast<std::string>(max_reconnect_tries);
+
+            } else if (param.first == "reconnect-wait-time") {
+                reconnect_wait_time = param.second->intValue();
+                values_copy[param.first] =
+                    boost::lexical_cast<std::string>(reconnect_wait_time);
+
+            } else if (param.first == "request-timeout") {
+                request_timeout = param.second->intValue();
+                values_copy[param.first] =
+                    boost::lexical_cast<std::string>(request_timeout);
+
+            } else if (param.first == "tcp-keepalive") {
+                tcp_keepalive = param.second->intValue();
+                values_copy[param.first] =
+                    boost::lexical_cast<std::string>(tcp_keepalive);
 
             } else if (param.first == "port") {
                 port = param.second->intValue();
@@ -94,7 +121,8 @@ DbAccessParser::parse(CfgDbAccessPtr& cfg_db,
     // a. Check if the "type" keyword exists and thrown an exception if not.
     StringPairMap::const_iterator type_ptr = values_copy.find("type");
     if (type_ptr == values_copy.end()) {
-        isc_throw(DhcpConfigError, (type_ == LEASE_DB ? "lease" : "host")
+        isc_throw(DhcpConfigError,
+                  (type_ == DBType::LEASE_DB ? "lease" : "host")
                   << " database access parameters must "
                   "include the keyword 'type' to determine type of database "
                   "to be accessed (" << database_config->getPosition() << ")");
@@ -144,6 +172,39 @@ DbAccessParser::parse(CfgDbAccessPtr& cfg_db,
                   << " (" << value->getPosition() << ")");
     }
 
+    // Check that the max-reconnect-retries reasonable.
+    if (max_reconnect_tries < 0) {
+        ConstElementPtr value = database_config->get("max-reconnect-tries");
+        isc_throw(DhcpConfigError, "max-reconnect-tries cannot be less than zero: "
+                  << " (" << value->getPosition() << ")");
+    }
+
+    // Check that the reconnect-wait-time reasonable.
+    if ((reconnect_wait_time < 0) ||
+        (reconnect_wait_time > std::numeric_limits<uint32_t>::max())) {
+        ConstElementPtr value = database_config->get("reconnect-wait-time");
+        isc_throw(DhcpConfigError, "reconnect-wait-time " << reconnect_wait_time
+                  << " must be in range 0...MAX_UINT32 (4294967295) "
+                  << " (" << value->getPosition() << ")");
+    }
+
+    // Check that request_timeout value makes sense.
+    if ((reconnect_wait_time < 0) ||
+        (reconnect_wait_time > std::numeric_limits<uint32_t>::max())) {
+        ConstElementPtr value = database_config->get("reconnect-wait-time");
+        isc_throw(DhcpConfigError, "reconnect-wait-time " << reconnect_wait_time
+                  << " must be in range 0...MAX_UINT32 (4294967295) "
+                  << " (" << value->getPosition() << ")");
+    }
+    // Check that tcp_keepalive value makes sense.
+    if ((tcp_keepalive < 0) ||
+        (tcp_keepalive > std::numeric_limits<uint32_t>::max())) {
+        ConstElementPtr value = database_config->get("reconnect-wait-time");
+        isc_throw(DhcpConfigError, "tcp-keepalive " << tcp_keepalive
+                  << " must be in range 0...MAX_UINT32 (4294967295) "
+                  << " (" << value->getPosition() << ")");
+    }
+
     // 4. If all is OK, update the stored keyword/value pairs.  We do this by
     // swapping contents - values_copy is destroyed immediately after the
     // operation (when the method exits), so we are not interested in its new
@@ -151,13 +212,11 @@ DbAccessParser::parse(CfgDbAccessPtr& cfg_db,
     values_.swap(values_copy);
 
     // 5. Save the database access string in the Configuration Manager.
-    if (type_ == LEASE_DB) {
+    if (type_ == DBType::LEASE_DB) {
         cfg_db->setLeaseDbAccessString(getDbAccessString());
-
-    } else {
-        cfg_db->setHostDbAccessString(getDbAccessString());
+    } else if (type_ == DBType::HOSTS_DB) {
+        cfg_db->setHostDbAccessString(getDbAccessString(), false);
     }
-
 }
 
 // Create the database access string
@@ -183,5 +242,5 @@ DbAccessParser::getDbAccessString() const {
     return (dbaccess);
 }
 
-};  // namespace dhcp
-};  // namespace isc
+}  // namespace dhcp
+}  // namespace isc

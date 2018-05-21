@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-SUBDIRS = . testutils tests
+SUBDIRS = . testutils tests benchmarks
 
 dhcp_data_dir = @localstatedir@/@PACKAGE@
 kea_lfc_location = @prefix@/sbin/kea-lfc
@@ -89,6 +89,7 @@ libkea_dhcpsrv_la_SOURCES += alloc_engine.cc alloc_engine.h
 libkea_dhcpsrv_la_SOURCES += alloc_engine_log.cc alloc_engine_log.h
 libkea_dhcpsrv_la_SOURCES += assignable_network.h
 libkea_dhcpsrv_la_SOURCES += base_host_data_source.h
+libkea_dhcpsrv_la_SOURCES += cache_host_data_source.h
 libkea_dhcpsrv_la_SOURCES += callout_handle_store.h
 libkea_dhcpsrv_la_SOURCES += cfg_4o6.cc cfg_4o6.h
 libkea_dhcpsrv_la_SOURCES += cfg_db_access.cc cfg_db_access.h
@@ -114,8 +115,11 @@ libkea_dhcpsrv_la_SOURCES += d2_client_mgr.cc d2_client_mgr.h
 libkea_dhcpsrv_la_SOURCES += daemon.cc daemon.h
 libkea_dhcpsrv_la_SOURCES += database_connection.cc database_connection.h
 libkea_dhcpsrv_la_SOURCES += db_exceptions.h
+libkea_dhcpsrv_la_SOURCES += db_log.cc db_log.h
+libkea_dhcpsrv_la_SOURCES += db_type.h
 libkea_dhcpsrv_la_SOURCES += dhcp4o6_ipc.cc dhcp4o6_ipc.h
 libkea_dhcpsrv_la_SOURCES += dhcpsrv_log.cc dhcpsrv_log.h
+libkea_dhcpsrv_la_SOURCES += dhcpsrv_db_log.cc dhcpsrv_db_log.h
 libkea_dhcpsrv_la_SOURCES += host.cc host.h
 libkea_dhcpsrv_la_SOURCES += host_container.h
 libkea_dhcpsrv_la_SOURCES += host_data_source_factory.cc host_data_source_factory.h
@@ -131,6 +135,7 @@ libkea_dhcpsrv_la_SOURCES += logging.cc logging.h
 libkea_dhcpsrv_la_SOURCES += logging_info.cc logging_info.h
 libkea_dhcpsrv_la_SOURCES += memfile_lease_mgr.cc memfile_lease_mgr.h
 libkea_dhcpsrv_la_SOURCES += memfile_lease_storage.h
+libkea_dhcpsrv_la_SOURCES += sql_common.h
 
 if HAVE_MYSQL
 libkea_dhcpsrv_la_SOURCES += mysql_lease_mgr.cc mysql_lease_mgr.h
@@ -140,6 +145,7 @@ endif
 
 libkea_dhcpsrv_la_SOURCES += ncr_generator.cc ncr_generator.h
 libkea_dhcpsrv_la_SOURCES += network.cc network.h
+libkea_dhcpsrv_la_SOURCES += network_state.cc network_state.h
 
 if HAVE_PGSQL
 libkea_dhcpsrv_la_SOURCES += pgsql_connection.cc pgsql_connection.h
@@ -147,10 +153,14 @@ libkea_dhcpsrv_la_SOURCES += pgsql_exchange.cc pgsql_exchange.h
 libkea_dhcpsrv_la_SOURCES += pgsql_host_data_source.cc pgsql_host_data_source.h
 libkea_dhcpsrv_la_SOURCES += pgsql_lease_mgr.cc pgsql_lease_mgr.h
 endif
+
 if HAVE_CQL
-libkea_dhcpsrv_la_SOURCES += cql_lease_mgr.cc cql_lease_mgr.h
 libkea_dhcpsrv_la_SOURCES += cql_connection.cc cql_connection.h
+libkea_dhcpsrv_la_SOURCES += cql_exchange.cc cql_exchange.h
+libkea_dhcpsrv_la_SOURCES += cql_host_data_source.cc cql_host_data_source.h
+libkea_dhcpsrv_la_SOURCES += cql_lease_mgr.cc cql_lease_mgr.h
 endif
+
 libkea_dhcpsrv_la_SOURCES += pool.cc pool.h
 libkea_dhcpsrv_la_SOURCES += shared_network.cc shared_network.h
 libkea_dhcpsrv_la_SOURCES += srv_config.cc srv_config.h
@@ -211,7 +221,7 @@ libkea_dhcpsrv_la_LIBADD  += $(top_builddir)/src/lib/util/libkea-util.la
 libkea_dhcpsrv_la_LIBADD  += $(top_builddir)/src/lib/exceptions/libkea-exceptions.la
 libkea_dhcpsrv_la_LIBADD  += $(LOG4CPLUS_LIBS) $(CRYPTO_LIBS) $(BOOST_LIBS)
 
-libkea_dhcpsrv_la_LDFLAGS  = -no-undefined -version-info 8:0:0
+libkea_dhcpsrv_la_LDFLAGS  = -no-undefined -version-info 9:0:0
 libkea_dhcpsrv_la_LDFLAGS += $(CRYPTO_LDFLAGS)
 if HAVE_MYSQL
 libkea_dhcpsrv_la_LDFLAGS += $(MYSQL_LIBS)
@@ -232,9 +242,6 @@ EXTRA_DIST += hosts_messages.mes
 # Database schema creation script moved to src/bin/admin
 EXTRA_DIST += database_backends.dox libdhcpsrv.dox
 
-# Specification file
-EXTRA_DIST += logging.spec
-
 # Specify the headers for copying into the installation directory tree.
 libkea_dhcpsrv_includedir = $(pkgincludedir)/dhcpsrv
 libkea_dhcpsrv_include_HEADERS = \
@@ -243,6 +250,7 @@ libkea_dhcpsrv_include_HEADERS = \
 	alloc_engine_log.h \
 	assignable_network.h \
 	base_host_data_source.h \
+	cache_host_data_source.h \
 	callout_handle_store.h \
 	cfg_4o6.h \
 	cfg_db_access.h \
@@ -268,7 +276,10 @@ libkea_dhcpsrv_include_HEADERS = \
 	daemon.h \
 	database_connection.h \
 	db_exceptions.h \
+	db_log.h \
+	db_type.h \
 	dhcp4o6_ipc.h \
+	dhcpsrv_db_log.h \
 	dhcpsrv_log.h \
 	host.h \
 	host_container.h \
@@ -287,8 +298,10 @@ libkea_dhcpsrv_include_HEADERS = \
 	memfile_lease_storage.h \
 	ncr_generator.h \
 	network.h \
+	network_state.h \
 	pool.h \
 	shared_network.h \
+	sql_common.h \
 	srv_config.h \
 	subnet.h \
 	subnet_id.h \
@@ -301,6 +314,8 @@ libkea_dhcpsrv_include_HEADERS = \
 if HAVE_CQL
 libkea_dhcpsrv_include_HEADERS += \
 	cql_connection.h \
+	cql_exchange.h \
+	cql_host_data_source.h \
 	cql_lease_mgr.h
 endif
 
@@ -339,5 +354,3 @@ libkea_dhcpsrv_parsers_include_HEADERS = \
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(dhcp_data_dir)
-
-

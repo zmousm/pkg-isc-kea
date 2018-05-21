@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2017 Internet Systems Consortium, Inc. ("ISC")
+/* Copyright (C) 2016-2018 Internet Systems Consortium, Inc. ("ISC")
 
    This Source Code Form is subject to the terms of the Mozilla Public
    License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -135,6 +135,8 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
             return isc::dhcp::Dhcp4Parser::make_SUB_HOOKS_LIBRARY(driver.loc_);
         case Parser4Context::PARSER_DHCP_DDNS:
             return isc::dhcp::Dhcp4Parser::make_SUB_DHCP_DDNS(driver.loc_);
+        case Parser4Context::PARSER_LOGGING:
+            return isc::dhcp::Dhcp4Parser::make_SUB_LOGGING(driver.loc_);
         }
     }
 %}
@@ -292,6 +294,15 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
     }
 }
 
+\"hosts-databases\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::DHCP4:
+        return isc::dhcp::Dhcp4Parser::make_HOSTS_DATABASES(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("hosts-databases", driver.loc_);
+    }
+}
+
 \"readonly\" {
     switch(driver.ctx_) {
     case isc::dhcp::Parser4Context::HOSTS_DATABASE:
@@ -428,6 +439,46 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
     }
 }
 
+\"reconnect-wait-time\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::LEASE_DATABASE:
+    case isc::dhcp::Parser4Context::HOSTS_DATABASE:
+        return isc::dhcp::Dhcp4Parser::make_RECONNECT_WAIT_TIME(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("reconnect-wait-time", driver.loc_);
+    }
+}
+
+\"request-timeout\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::LEASE_DATABASE:
+    case isc::dhcp::Parser4Context::HOSTS_DATABASE:
+        return isc::dhcp::Dhcp4Parser::make_REQUEST_TIMEOUT(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("request-timeout", driver.loc_);
+    }
+}
+
+\"tcp-keepalive\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::LEASE_DATABASE:
+    case isc::dhcp::Parser4Context::HOSTS_DATABASE:
+        return isc::dhcp::Dhcp4Parser::make_TCP_KEEPALIVE(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("tcp-keepalive", driver.loc_);
+    }
+}
+
+\"tcp-nodelay\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::LEASE_DATABASE:
+    case isc::dhcp::Parser4Context::HOSTS_DATABASE:
+        return isc::dhcp::Dhcp4Parser::make_TCP_NODELAY(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("tcp-nodelay", driver.loc_);
+    }
+}
+
 \"contact-points\" {
     switch(driver.ctx_) {
     case isc::dhcp::Parser4Context::LEASE_DATABASE:
@@ -435,6 +486,16 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
         return isc::dhcp::Dhcp4Parser::make_CONTACT_POINTS(driver.loc_);
     default:
         return isc::dhcp::Dhcp4Parser::make_STRING("contact-points", driver.loc_);
+    }
+}
+
+\"max-reconnect-tries\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::LEASE_DATABASE:
+    case isc::dhcp::Parser4Context::HOSTS_DATABASE:
+        return isc::dhcp::Dhcp4Parser::make_MAX_RECONNECT_TRIES(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("max-reconnect-tries", driver.loc_);
     }
 }
 
@@ -517,7 +578,6 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
     case isc::dhcp::Parser4Context::POOLS:
     case isc::dhcp::Parser4Context::RESERVATIONS:
     case isc::dhcp::Parser4Context::CLIENT_CLASSES:
-    case isc::dhcp::Parser4Context::CLIENT_CLASS:
         return isc::dhcp::Dhcp4Parser::make_OPTION_DATA(driver.loc_);
     default:
         return isc::dhcp::Dhcp4Parser::make_STRING("option-data", driver.loc_);
@@ -531,7 +591,6 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
     case isc::dhcp::Parser4Context::OPTION_DEF:
     case isc::dhcp::Parser4Context::OPTION_DATA:
     case isc::dhcp::Parser4Context::CLIENT_CLASSES:
-    case isc::dhcp::Parser4Context::CLIENT_CLASS:
     case isc::dhcp::Parser4Context::SHARED_NETWORK:
     case isc::dhcp::Parser4Context::LOGGERS:
         return isc::dhcp::Dhcp4Parser::make_NAME(driver.loc_);
@@ -578,11 +637,41 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
 
 \"user-context\" {
     switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::DHCP4:
+    case isc::dhcp::Parser4Context::INTERFACES_CONFIG:
     case isc::dhcp::Parser4Context::SUBNET4:
     case isc::dhcp::Parser4Context::POOLS:
+    case isc::dhcp::Parser4Context::SHARED_NETWORK:
+    case isc::dhcp::Parser4Context::OPTION_DEF:
+    case isc::dhcp::Parser4Context::OPTION_DATA:
+    case isc::dhcp::Parser4Context::RESERVATIONS:
+    case isc::dhcp::Parser4Context::CLIENT_CLASSES:
+    case isc::dhcp::Parser4Context::CONTROL_SOCKET:
+    case isc::dhcp::Parser4Context::LOGGERS:
+    case isc::dhcp::Parser4Context::DHCP_DDNS:
         return isc::dhcp::Dhcp4Parser::make_USER_CONTEXT(driver.loc_);
     default:
         return isc::dhcp::Dhcp4Parser::make_STRING("user-context", driver.loc_);
+    }
+}
+
+\"comment\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::DHCP4:
+    case isc::dhcp::Parser4Context::INTERFACES_CONFIG:
+    case isc::dhcp::Parser4Context::SUBNET4:
+    case isc::dhcp::Parser4Context::POOLS:
+    case isc::dhcp::Parser4Context::SHARED_NETWORK:
+    case isc::dhcp::Parser4Context::OPTION_DEF:
+    case isc::dhcp::Parser4Context::OPTION_DATA:
+    case isc::dhcp::Parser4Context::RESERVATIONS:
+    case isc::dhcp::Parser4Context::CLIENT_CLASSES:
+    case isc::dhcp::Parser4Context::CONTROL_SOCKET:
+    case isc::dhcp::Parser4Context::LOGGERS:
+    case isc::dhcp::Parser4Context::DHCP_DDNS:
+        return isc::dhcp::Dhcp4Parser::make_COMMENT(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("comment", driver.loc_);
     }
 }
 
@@ -788,9 +877,21 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
     }
 }
 
+\"require-client-classes\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::SUBNET4:
+    case isc::dhcp::Parser4Context::POOLS:
+    case isc::dhcp::Parser4Context::SHARED_NETWORK:
+        return isc::dhcp::Dhcp4Parser::make_REQUIRE_CLIENT_CLASSES(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("require-client-classes", driver.loc_);
+    }
+}
+
 \"client-class\" {
     switch(driver.ctx_) {
     case isc::dhcp::Parser4Context::SUBNET4:
+    case isc::dhcp::Parser4Context::POOLS:
     case isc::dhcp::Parser4Context::SHARED_NETWORK:
     case isc::dhcp::Parser4Context::CLIENT_CLASSES:
         return isc::dhcp::Dhcp4Parser::make_CLIENT_CLASS(driver.loc_);
@@ -802,10 +903,18 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
 \"test\" {
     switch(driver.ctx_) {
     case isc::dhcp::Parser4Context::CLIENT_CLASSES:
-    case isc::dhcp::Parser4Context::CLIENT_CLASS:
         return isc::dhcp::Dhcp4Parser::make_TEST(driver.loc_);
     default:
         return isc::dhcp::Dhcp4Parser::make_STRING("test", driver.loc_);
+    }
+}
+
+\"only-if-required\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::CLIENT_CLASSES:
+        return isc::dhcp::Dhcp4Parser::make_ONLY_IF_REQUIRED(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("only-if-required", driver.loc_);
     }
 }
 
@@ -940,6 +1049,15 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
     return isc::dhcp::Dhcp4Parser::make_IP_ADDRESS(driver.loc_);
     default:
         return isc::dhcp::Dhcp4Parser::make_STRING("ip-address", driver.loc_);
+    }
+}
+
+\"ip-addresses\" {
+    switch(driver.ctx_) {
+    case isc::dhcp::Parser4Context::RELAY:
+    return isc::dhcp::Dhcp4Parser::make_IP_ADDRESSES(driver.loc_);
+    default:
+        return isc::dhcp::Dhcp4Parser::make_STRING("ip-addresses", driver.loc_);
     }
 }
 
@@ -1426,6 +1544,7 @@ ControlCharacterFill            [^"\\]|\\{JSONEscapeSequence}
         case '"':
             /* impossible condition */
             driver.error(driver.loc_, "Bad quote in \"" + raw + "\"");
+            break;
         case '\\':
             ++pos;
             if (pos >= len) {

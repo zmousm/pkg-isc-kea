@@ -106,14 +106,14 @@ enum DHCPv6OptionType {
 // D6O_V6_PCP_SERVER                       = 86, /* RFC7291 */
    D6O_DHCPV4_MSG                          = 87, /* RFC7341 */
    D6O_DHCPV4_O_DHCPV6_SERVER              = 88, /* RFC7341 */
-// D6O_S46_RULE                            = 89, /* RFC7598 */
-// D6O_S46_BR                              = 90, /* RFC7598 */
-// D6O_S46_DMR                             = 91, /* RFC7598 */
-// D6O_S46_V4V6BIND                        = 92, /* RFC7598 */
-// D6O_S46_PORTPARAMS                      = 93, /* RFC7598 */
-// D6O_S46_CONT_MAPE                       = 94, /* RFC7598 */
-// D6O_S46_CONT_MAPT                       = 95, /* RFC7598 */
-// D6O_S46_CONT_LW                         = 96, /* RFC7598 */
+   D6O_S46_RULE                            = 89, /* RFC7598 */
+   D6O_S46_BR                              = 90, /* RFC7598 */
+   D6O_S46_DMR                             = 91, /* RFC7598 */
+   D6O_S46_V4V6BIND                        = 92, /* RFC7598 */
+   D6O_S46_PORTPARAMS                      = 93, /* RFC7598 */
+   D6O_S46_CONT_MAPE                       = 94, /* RFC7598 */
+   D6O_S46_CONT_MAPT                       = 95, /* RFC7598 */
+   D6O_S46_CONT_LW                         = 96, /* RFC7598 */
 // D6O_4RD                                 = 97, /* RFC7600 */
 // D6O_4RD_MAP_RULE                        = 98, /* RFC7600 */
 // D6O_4RD_NON_MAP_RULE                    = 99, /* RFC7600 */
@@ -152,7 +152,8 @@ enum DHCPv6OptionType {
 // D6O_F_SERVER_STATE                     = 132, /* RFC8156 */
 // D6O_F_START_TIME_OF_STATE              = 133, /* RFC8156 */
 // D6O_F_STATE_EXPIRATION_TIME            = 134, /* RFC8156 */
-   // 135-142 unassigned
+   D6O_RELAY_SOURCE_PORT                  = 135, /* RFC8357 */
+   // 136-142 unassigned
    D6O_IPV6_ADDRESS_ANDSF                 = 143, /* RFC6153 */
 
 // The following are EXPERIMENTAL and may change when IANA assigns official
@@ -278,6 +279,7 @@ static const uint32_t ENTERPRISE_ID_ISC = 2495;
    codes for the ISC vendor specific options used in 4o6 */
 static const uint16_t ISC_V6_4O6_INTERFACE = 60000;
 static const uint16_t ISC_V6_4O6_SRC_ADDRESS = 60001;
+static const uint16_t ISC_V6_4O6_SRC_PORT = 60002;
 
 /* Offsets into IA_*'s where Option spaces commence.  */
 static const uint16_t IA_NA_OFFSET = 12; /* IAID, T1, T2, all 4 octets each */

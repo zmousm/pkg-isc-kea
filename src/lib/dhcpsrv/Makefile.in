@@ -91,13 +91,17 @@ host_triplet = @host@
 @HAVE_PGSQL_TRUE@	pgsql_host_data_source.cc \
 @HAVE_PGSQL_TRUE@	pgsql_host_data_source.h pgsql_lease_mgr.cc \
 @HAVE_PGSQL_TRUE@	pgsql_lease_mgr.h
-@HAVE_CQL_TRUE@am__append_6 = cql_lease_mgr.cc cql_lease_mgr.h \
-@HAVE_CQL_TRUE@	cql_connection.cc cql_connection.h
+@HAVE_CQL_TRUE@am__append_6 = cql_connection.cc cql_connection.h \
+@HAVE_CQL_TRUE@	cql_exchange.cc cql_exchange.h \
+@HAVE_CQL_TRUE@	cql_host_data_source.cc cql_host_data_source.h \
+@HAVE_CQL_TRUE@	cql_lease_mgr.cc cql_lease_mgr.h
 @HAVE_MYSQL_TRUE@am__append_7 = $(MYSQL_LIBS)
 @HAVE_PGSQL_TRUE@am__append_8 = $(PGSQL_LIBS)
 @HAVE_CQL_TRUE@am__append_9 = $(CQL_LIBS)
 @HAVE_CQL_TRUE@am__append_10 = \
 @HAVE_CQL_TRUE@	cql_connection.h \
+@HAVE_CQL_TRUE@	cql_exchange.h \
+@HAVE_CQL_TRUE@	cql_host_data_source.h \
 @HAVE_CQL_TRUE@	cql_lease_mgr.h
 
 @HAVE_MYSQL_TRUE@am__append_11 = \
@@ -185,40 +189,44 @@ libkea_dhcpsrv_la_DEPENDENCIES =  \
 am__libkea_dhcpsrv_la_SOURCES_DIST = addr_utilities.cc \
 	addr_utilities.h alloc_engine.cc alloc_engine.h \
 	alloc_engine_log.cc alloc_engine_log.h assignable_network.h \
-	base_host_data_source.h callout_handle_store.h cfg_4o6.cc \
-	cfg_4o6.h cfg_db_access.cc cfg_db_access.h cfg_duid.cc \
-	cfg_duid.h cfg_hosts.cc cfg_hosts.h cfg_hosts_util.cc \
-	cfg_hosts_util.h cfg_iface.cc cfg_iface.h cfg_expiration.cc \
-	cfg_expiration.h cfg_host_operations.cc cfg_host_operations.h \
-	cfg_option.cc cfg_option.h cfg_option_def.cc cfg_option_def.h \
-	cfg_rsoo.cc cfg_rsoo.h cfg_shared_networks.cc \
-	cfg_shared_networks.h cfg_subnets4.cc cfg_subnets4.h \
-	cfg_subnets6.cc cfg_subnets6.h cfg_mac_source.cc \
-	cfg_mac_source.h cfgmgr.cc cfgmgr.h client_class_def.cc \
-	client_class_def.h csv_lease_file4.cc csv_lease_file4.h \
-	csv_lease_file6.cc csv_lease_file6.h d2_client_cfg.cc \
-	d2_client_cfg.h d2_client_mgr.cc d2_client_mgr.h daemon.cc \
-	daemon.h database_connection.cc database_connection.h \
-	db_exceptions.h dhcp4o6_ipc.cc dhcp4o6_ipc.h dhcpsrv_log.cc \
-	dhcpsrv_log.h host.cc host.h host_container.h \
-	host_data_source_factory.cc host_data_source_factory.h \
-	host_mgr.cc host_mgr.h hosts_log.cc hosts_log.h key_from_key.h \
-	lease.cc lease.h lease_file_loader.h lease_file_stats.h \
-	lease_mgr.cc lease_mgr.h lease_mgr_factory.cc \
-	lease_mgr_factory.h logging.cc logging.h logging_info.cc \
-	logging_info.h memfile_lease_mgr.cc memfile_lease_mgr.h \
-	memfile_lease_storage.h mysql_lease_mgr.cc mysql_lease_mgr.h \
-	mysql_connection.cc mysql_connection.h \
+	base_host_data_source.h cache_host_data_source.h \
+	callout_handle_store.h cfg_4o6.cc cfg_4o6.h cfg_db_access.cc \
+	cfg_db_access.h cfg_duid.cc cfg_duid.h cfg_hosts.cc \
+	cfg_hosts.h cfg_hosts_util.cc cfg_hosts_util.h cfg_iface.cc \
+	cfg_iface.h cfg_expiration.cc cfg_expiration.h \
+	cfg_host_operations.cc cfg_host_operations.h cfg_option.cc \
+	cfg_option.h cfg_option_def.cc cfg_option_def.h cfg_rsoo.cc \
+	cfg_rsoo.h cfg_shared_networks.cc cfg_shared_networks.h \
+	cfg_subnets4.cc cfg_subnets4.h cfg_subnets6.cc cfg_subnets6.h \
+	cfg_mac_source.cc cfg_mac_source.h cfgmgr.cc cfgmgr.h \
+	client_class_def.cc client_class_def.h csv_lease_file4.cc \
+	csv_lease_file4.h csv_lease_file6.cc csv_lease_file6.h \
+	d2_client_cfg.cc d2_client_cfg.h d2_client_mgr.cc \
+	d2_client_mgr.h daemon.cc daemon.h database_connection.cc \
+	database_connection.h db_exceptions.h db_log.cc db_log.h \
+	db_type.h dhcp4o6_ipc.cc dhcp4o6_ipc.h dhcpsrv_log.cc \
+	dhcpsrv_log.h dhcpsrv_db_log.cc dhcpsrv_db_log.h host.cc \
+	host.h host_container.h host_data_source_factory.cc \
+	host_data_source_factory.h host_mgr.cc host_mgr.h hosts_log.cc \
+	hosts_log.h key_from_key.h lease.cc lease.h \
+	lease_file_loader.h lease_file_stats.h lease_mgr.cc \
+	lease_mgr.h lease_mgr_factory.cc lease_mgr_factory.h \
+	logging.cc logging.h logging_info.cc logging_info.h \
+	memfile_lease_mgr.cc memfile_lease_mgr.h \
+	memfile_lease_storage.h sql_common.h mysql_lease_mgr.cc \
+	mysql_lease_mgr.h mysql_connection.cc mysql_connection.h \
 	mysql_host_data_source.cc mysql_host_data_source.h \
 	ncr_generator.cc ncr_generator.h network.cc network.h \
-	pgsql_connection.cc pgsql_connection.h pgsql_exchange.cc \
-	pgsql_exchange.h pgsql_host_data_source.cc \
-	pgsql_host_data_source.h pgsql_lease_mgr.cc pgsql_lease_mgr.h \
-	cql_lease_mgr.cc cql_lease_mgr.h cql_connection.cc \
-	cql_connection.h pool.cc pool.h shared_network.cc \
-	shared_network.h srv_config.cc srv_config.h subnet.cc subnet.h \
-	subnet_id.h subnet_selector.h timer_mgr.cc timer_mgr.h \
-	triplet.h utils.h writable_host_data_source.h \
+	network_state.cc network_state.h pgsql_connection.cc \
+	pgsql_connection.h pgsql_exchange.cc pgsql_exchange.h \
+	pgsql_host_data_source.cc pgsql_host_data_source.h \
+	pgsql_lease_mgr.cc pgsql_lease_mgr.h cql_connection.cc \
+	cql_connection.h cql_exchange.cc cql_exchange.h \
+	cql_host_data_source.cc cql_host_data_source.h \
+	cql_lease_mgr.cc cql_lease_mgr.h pool.cc pool.h \
+	shared_network.cc shared_network.h srv_config.cc srv_config.h \
+	subnet.cc subnet.h subnet_id.h subnet_selector.h timer_mgr.cc \
+	timer_mgr.h triplet.h utils.h writable_host_data_source.h \
 	parsers/client_class_def_parser.cc \
 	parsers/client_class_def_parser.h parsers/dbaccess_parser.cc \
 	parsers/dbaccess_parser.h parsers/dhcp_parsers.cc \
@@ -244,8 +252,10 @@ am__libkea_dhcpsrv_la_SOURCES_DIST = addr_utilities.cc \
 @HAVE_PGSQL_TRUE@	libkea_dhcpsrv_la-pgsql_exchange.lo \
 @HAVE_PGSQL_TRUE@	libkea_dhcpsrv_la-pgsql_host_data_source.lo \
 @HAVE_PGSQL_TRUE@	libkea_dhcpsrv_la-pgsql_lease_mgr.lo
-@HAVE_CQL_TRUE@am__objects_3 = libkea_dhcpsrv_la-cql_lease_mgr.lo \
-@HAVE_CQL_TRUE@	libkea_dhcpsrv_la-cql_connection.lo
+@HAVE_CQL_TRUE@am__objects_3 = libkea_dhcpsrv_la-cql_connection.lo \
+@HAVE_CQL_TRUE@	libkea_dhcpsrv_la-cql_exchange.lo \
+@HAVE_CQL_TRUE@	libkea_dhcpsrv_la-cql_host_data_source.lo \
+@HAVE_CQL_TRUE@	libkea_dhcpsrv_la-cql_lease_mgr.lo
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libkea_dhcpsrv_la_OBJECTS = libkea_dhcpsrv_la-addr_utilities.lo \
 	libkea_dhcpsrv_la-alloc_engine.lo \
@@ -271,8 +281,9 @@ am_libkea_dhcpsrv_la_OBJECTS = libkea_dhcpsrv_la-addr_utilities.lo \
 	libkea_dhcpsrv_la-d2_client_cfg.lo \
 	libkea_dhcpsrv_la-d2_client_mgr.lo libkea_dhcpsrv_la-daemon.lo \
 	libkea_dhcpsrv_la-database_connection.lo \
-	libkea_dhcpsrv_la-dhcp4o6_ipc.lo \
-	libkea_dhcpsrv_la-dhcpsrv_log.lo libkea_dhcpsrv_la-host.lo \
+	libkea_dhcpsrv_la-db_log.lo libkea_dhcpsrv_la-dhcp4o6_ipc.lo \
+	libkea_dhcpsrv_la-dhcpsrv_log.lo \
+	libkea_dhcpsrv_la-dhcpsrv_db_log.lo libkea_dhcpsrv_la-host.lo \
 	libkea_dhcpsrv_la-host_data_source_factory.lo \
 	libkea_dhcpsrv_la-host_mgr.lo libkea_dhcpsrv_la-hosts_log.lo \
 	libkea_dhcpsrv_la-lease.lo libkea_dhcpsrv_la-lease_mgr.lo \
@@ -280,8 +291,10 @@ am_libkea_dhcpsrv_la_OBJECTS = libkea_dhcpsrv_la-addr_utilities.lo \
 	libkea_dhcpsrv_la-logging.lo libkea_dhcpsrv_la-logging_info.lo \
 	libkea_dhcpsrv_la-memfile_lease_mgr.lo $(am__objects_1) \
 	libkea_dhcpsrv_la-ncr_generator.lo \
-	libkea_dhcpsrv_la-network.lo $(am__objects_2) $(am__objects_3) \
-	libkea_dhcpsrv_la-pool.lo libkea_dhcpsrv_la-shared_network.lo \
+	libkea_dhcpsrv_la-network.lo \
+	libkea_dhcpsrv_la-network_state.lo $(am__objects_2) \
+	$(am__objects_3) libkea_dhcpsrv_la-pool.lo \
+	libkea_dhcpsrv_la-shared_network.lo \
 	libkea_dhcpsrv_la-srv_config.lo libkea_dhcpsrv_la-subnet.lo \
 	libkea_dhcpsrv_la-timer_mgr.lo \
 	parsers/libkea_dhcpsrv_la-client_class_def_parser.lo \
@@ -379,21 +392,24 @@ am__can_run_installinfo = \
   esac
 am__libkea_dhcpsrv_include_HEADERS_DIST = addr_utilities.h \
 	alloc_engine.h alloc_engine_log.h assignable_network.h \
-	base_host_data_source.h callout_handle_store.h cfg_4o6.h \
-	cfg_db_access.h cfg_duid.h cfg_expiration.h \
-	cfg_host_operations.h cfg_hosts.h cfg_hosts_util.h cfg_iface.h \
-	cfg_mac_source.h cfg_option.h cfg_option_def.h cfg_rsoo.h \
-	cfg_shared_networks.h cfg_subnets4.h cfg_subnets6.h cfgmgr.h \
-	client_class_def.h csv_lease_file4.h csv_lease_file6.h \
-	d2_client_cfg.h d2_client_mgr.h daemon.h database_connection.h \
-	db_exceptions.h dhcp4o6_ipc.h dhcpsrv_log.h host.h \
-	host_container.h host_data_source_factory.h host_mgr.h \
-	hosts_log.h key_from_key.h lease.h lease_file_loader.h \
-	lease_file_stats.h lease_mgr.h lease_mgr_factory.h logging.h \
-	logging_info.h memfile_lease_mgr.h memfile_lease_storage.h \
-	ncr_generator.h network.h pool.h shared_network.h srv_config.h \
-	subnet.h subnet_id.h subnet_selector.h timer_mgr.h triplet.h \
-	utils.h writable_host_data_source.h cql_connection.h \
+	base_host_data_source.h cache_host_data_source.h \
+	callout_handle_store.h cfg_4o6.h cfg_db_access.h cfg_duid.h \
+	cfg_expiration.h cfg_host_operations.h cfg_hosts.h \
+	cfg_hosts_util.h cfg_iface.h cfg_mac_source.h cfg_option.h \
+	cfg_option_def.h cfg_rsoo.h cfg_shared_networks.h \
+	cfg_subnets4.h cfg_subnets6.h cfgmgr.h client_class_def.h \
+	csv_lease_file4.h csv_lease_file6.h d2_client_cfg.h \
+	d2_client_mgr.h daemon.h database_connection.h db_exceptions.h \
+	db_log.h db_type.h dhcp4o6_ipc.h dhcpsrv_db_log.h \
+	dhcpsrv_log.h host.h host_container.h \
+	host_data_source_factory.h host_mgr.h hosts_log.h \
+	key_from_key.h lease.h lease_file_loader.h lease_file_stats.h \
+	lease_mgr.h lease_mgr_factory.h logging.h logging_info.h \
+	memfile_lease_mgr.h memfile_lease_storage.h ncr_generator.h \
+	network.h network_state.h pool.h shared_network.h sql_common.h \
+	srv_config.h subnet.h subnet_id.h subnet_selector.h \
+	timer_mgr.h triplet.h utils.h writable_host_data_source.h \
+	cql_connection.h cql_exchange.h cql_host_data_source.h \
 	cql_lease_mgr.h mysql_connection.h mysql_host_data_source.h \
 	mysql_lease_mgr.h pgsql_connection.h pgsql_exchange.h \
 	pgsql_host_data_source.h pgsql_lease_mgr.h
@@ -462,12 +478,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -486,11 +508,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -624,14 +649,13 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-SUBDIRS = . testutils tests
+SUBDIRS = . testutils tests benchmarks
 dhcp_data_dir = @localstatedir@/@PACKAGE@
 kea_lfc_location = @prefix@/sbin/kea-lfc
 # Set location of the kea-lfc binary.
@@ -656,8 +680,6 @@ AM_CXXFLAGS = $(KEA_CXXFLAGS)
 
 # Distribute backend documentation
 # Database schema creation script moved to src/bin/admin
-
-# Specification file
 EXTRA_DIST = parsers/client_class_def_parser.cc \
 	parsers/client_class_def_parser.h parsers/dbaccess_parser.cc \
 	parsers/dbaccess_parser.h parsers/dhcp_parsers.cc \
@@ -671,8 +693,7 @@ EXTRA_DIST = parsers/client_class_def_parser.cc \
 	parsers/simple_parser4.h parsers/simple_parser6.cc \
 	parsers/simple_parser6.h images/pgsql_host_data_source.svg \
 	alloc_engine_messages.mes dhcpsrv_messages.mes \
-	hosts_messages.mes database_backends.dox libdhcpsrv.dox \
-	logging.spec
+	hosts_messages.mes database_backends.dox libdhcpsrv.dox
 
 # Tell Automake that the {alloc_engine,dhcpsrv,hosts}_messages.{cc,h} source files
 # are created in the build process, so it must create these before doing anything
@@ -697,30 +718,33 @@ lib_LTLIBRARIES = libkea-dhcpsrv.la
 libkea_dhcpsrv_la_SOURCES = addr_utilities.cc addr_utilities.h \
 	alloc_engine.cc alloc_engine.h alloc_engine_log.cc \
 	alloc_engine_log.h assignable_network.h \
-	base_host_data_source.h callout_handle_store.h cfg_4o6.cc \
-	cfg_4o6.h cfg_db_access.cc cfg_db_access.h cfg_duid.cc \
-	cfg_duid.h cfg_hosts.cc cfg_hosts.h cfg_hosts_util.cc \
-	cfg_hosts_util.h cfg_iface.cc cfg_iface.h cfg_expiration.cc \
-	cfg_expiration.h cfg_host_operations.cc cfg_host_operations.h \
-	cfg_option.cc cfg_option.h cfg_option_def.cc cfg_option_def.h \
-	cfg_rsoo.cc cfg_rsoo.h cfg_shared_networks.cc \
-	cfg_shared_networks.h cfg_subnets4.cc cfg_subnets4.h \
-	cfg_subnets6.cc cfg_subnets6.h cfg_mac_source.cc \
-	cfg_mac_source.h cfgmgr.cc cfgmgr.h client_class_def.cc \
-	client_class_def.h csv_lease_file4.cc csv_lease_file4.h \
-	csv_lease_file6.cc csv_lease_file6.h d2_client_cfg.cc \
-	d2_client_cfg.h d2_client_mgr.cc d2_client_mgr.h daemon.cc \
-	daemon.h database_connection.cc database_connection.h \
-	db_exceptions.h dhcp4o6_ipc.cc dhcp4o6_ipc.h dhcpsrv_log.cc \
-	dhcpsrv_log.h host.cc host.h host_container.h \
-	host_data_source_factory.cc host_data_source_factory.h \
-	host_mgr.cc host_mgr.h hosts_log.cc hosts_log.h key_from_key.h \
-	lease.cc lease.h lease_file_loader.h lease_file_stats.h \
-	lease_mgr.cc lease_mgr.h lease_mgr_factory.cc \
-	lease_mgr_factory.h logging.cc logging.h logging_info.cc \
-	logging_info.h memfile_lease_mgr.cc memfile_lease_mgr.h \
-	memfile_lease_storage.h $(am__append_4) ncr_generator.cc \
-	ncr_generator.h network.cc network.h $(am__append_5) \
+	base_host_data_source.h cache_host_data_source.h \
+	callout_handle_store.h cfg_4o6.cc cfg_4o6.h cfg_db_access.cc \
+	cfg_db_access.h cfg_duid.cc cfg_duid.h cfg_hosts.cc \
+	cfg_hosts.h cfg_hosts_util.cc cfg_hosts_util.h cfg_iface.cc \
+	cfg_iface.h cfg_expiration.cc cfg_expiration.h \
+	cfg_host_operations.cc cfg_host_operations.h cfg_option.cc \
+	cfg_option.h cfg_option_def.cc cfg_option_def.h cfg_rsoo.cc \
+	cfg_rsoo.h cfg_shared_networks.cc cfg_shared_networks.h \
+	cfg_subnets4.cc cfg_subnets4.h cfg_subnets6.cc cfg_subnets6.h \
+	cfg_mac_source.cc cfg_mac_source.h cfgmgr.cc cfgmgr.h \
+	client_class_def.cc client_class_def.h csv_lease_file4.cc \
+	csv_lease_file4.h csv_lease_file6.cc csv_lease_file6.h \
+	d2_client_cfg.cc d2_client_cfg.h d2_client_mgr.cc \
+	d2_client_mgr.h daemon.cc daemon.h database_connection.cc \
+	database_connection.h db_exceptions.h db_log.cc db_log.h \
+	db_type.h dhcp4o6_ipc.cc dhcp4o6_ipc.h dhcpsrv_log.cc \
+	dhcpsrv_log.h dhcpsrv_db_log.cc dhcpsrv_db_log.h host.cc \
+	host.h host_container.h host_data_source_factory.cc \
+	host_data_source_factory.h host_mgr.cc host_mgr.h hosts_log.cc \
+	hosts_log.h key_from_key.h lease.cc lease.h \
+	lease_file_loader.h lease_file_stats.h lease_mgr.cc \
+	lease_mgr.h lease_mgr_factory.cc lease_mgr_factory.h \
+	logging.cc logging.h logging_info.cc logging_info.h \
+	memfile_lease_mgr.cc memfile_lease_mgr.h \
+	memfile_lease_storage.h sql_common.h $(am__append_4) \
+	ncr_generator.cc ncr_generator.h network.cc network.h \
+	network_state.cc network_state.h $(am__append_5) \
 	$(am__append_6) pool.cc pool.h shared_network.cc \
 	shared_network.h srv_config.cc srv_config.h subnet.cc subnet.h \
 	subnet_id.h subnet_selector.h timer_mgr.cc timer_mgr.h \
@@ -763,7 +787,7 @@ libkea_dhcpsrv_la_LIBADD =  \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(LOG4CPLUS_LIBS) $(CRYPTO_LIBS) $(BOOST_LIBS)
-libkea_dhcpsrv_la_LDFLAGS = -no-undefined -version-info 8:0:0 \
+libkea_dhcpsrv_la_LDFLAGS = -no-undefined -version-info 9:0:0 \
 	$(CRYPTO_LDFLAGS) $(am__append_7) $(am__append_8) \
 	$(am__append_9)
 
@@ -771,22 +795,24 @@ libkea_dhcpsrv_la_LDFLAGS = -no-undefined -version-info 8:0:0 \
 libkea_dhcpsrv_includedir = $(pkgincludedir)/dhcpsrv
 libkea_dhcpsrv_include_HEADERS = addr_utilities.h alloc_engine.h \
 	alloc_engine_log.h assignable_network.h \
-	base_host_data_source.h callout_handle_store.h cfg_4o6.h \
-	cfg_db_access.h cfg_duid.h cfg_expiration.h \
-	cfg_host_operations.h cfg_hosts.h cfg_hosts_util.h cfg_iface.h \
-	cfg_mac_source.h cfg_option.h cfg_option_def.h cfg_rsoo.h \
-	cfg_shared_networks.h cfg_subnets4.h cfg_subnets6.h cfgmgr.h \
-	client_class_def.h csv_lease_file4.h csv_lease_file6.h \
-	d2_client_cfg.h d2_client_mgr.h daemon.h database_connection.h \
-	db_exceptions.h dhcp4o6_ipc.h dhcpsrv_log.h host.h \
-	host_container.h host_data_source_factory.h host_mgr.h \
-	hosts_log.h key_from_key.h lease.h lease_file_loader.h \
-	lease_file_stats.h lease_mgr.h lease_mgr_factory.h logging.h \
-	logging_info.h memfile_lease_mgr.h memfile_lease_storage.h \
-	ncr_generator.h network.h pool.h shared_network.h srv_config.h \
-	subnet.h subnet_id.h subnet_selector.h timer_mgr.h triplet.h \
-	utils.h writable_host_data_source.h $(am__append_10) \
-	$(am__append_11) $(am__append_12)
+	base_host_data_source.h cache_host_data_source.h \
+	callout_handle_store.h cfg_4o6.h cfg_db_access.h cfg_duid.h \
+	cfg_expiration.h cfg_host_operations.h cfg_hosts.h \
+	cfg_hosts_util.h cfg_iface.h cfg_mac_source.h cfg_option.h \
+	cfg_option_def.h cfg_rsoo.h cfg_shared_networks.h \
+	cfg_subnets4.h cfg_subnets6.h cfgmgr.h client_class_def.h \
+	csv_lease_file4.h csv_lease_file6.h d2_client_cfg.h \
+	d2_client_mgr.h daemon.h database_connection.h db_exceptions.h \
+	db_log.h db_type.h dhcp4o6_ipc.h dhcpsrv_db_log.h \
+	dhcpsrv_log.h host.h host_container.h \
+	host_data_source_factory.h host_mgr.h hosts_log.h \
+	key_from_key.h lease.h lease_file_loader.h lease_file_stats.h \
+	lease_mgr.h lease_mgr_factory.h logging.h logging_info.h \
+	memfile_lease_mgr.h memfile_lease_storage.h ncr_generator.h \
+	network.h network_state.h pool.h shared_network.h sql_common.h \
+	srv_config.h subnet.h subnet_id.h subnet_selector.h \
+	timer_mgr.h triplet.h utils.h writable_host_data_source.h \
+	$(am__append_10) $(am__append_11) $(am__append_12)
 
 # Specify parsers' headers for copying into installation directory tree.
 libkea_dhcpsrv_parsers_includedir = $(pkgincludedir)/dhcpsrv/parsers
@@ -937,6 +963,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-cfgmgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-client_class_def.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-cql_connection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-cql_exchange.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-cql_host_data_source.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-csv_lease_file4.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-csv_lease_file6.Plo@am__quote@
@@ -944,7 +972,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-d2_client_mgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-daemon.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-database_connection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-db_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-dhcp4o6_ipc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-dhcpsrv_db_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-dhcpsrv_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-dhcpsrv_messages.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-host.Plo@am__quote@
@@ -963,6 +993,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-mysql_lease_mgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-ncr_generator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-network.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-network_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-pgsql_connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-pgsql_exchange.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_dhcpsrv_la-pgsql_host_data_source.Plo@am__quote@
@@ -1190,6 +1221,13 @@ libkea_dhcpsrv_la-database_connection.lo: database_connection.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-database_connection.lo `test -f 'database_connection.cc' || echo '$(srcdir)/'`database_connection.cc
 
+libkea_dhcpsrv_la-db_log.lo: db_log.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-db_log.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-db_log.Tpo -c -o libkea_dhcpsrv_la-db_log.lo `test -f 'db_log.cc' || echo '$(srcdir)/'`db_log.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-db_log.Tpo $(DEPDIR)/libkea_dhcpsrv_la-db_log.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='db_log.cc' object='libkea_dhcpsrv_la-db_log.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-db_log.lo `test -f 'db_log.cc' || echo '$(srcdir)/'`db_log.cc
+
 libkea_dhcpsrv_la-dhcp4o6_ipc.lo: dhcp4o6_ipc.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-dhcp4o6_ipc.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-dhcp4o6_ipc.Tpo -c -o libkea_dhcpsrv_la-dhcp4o6_ipc.lo `test -f 'dhcp4o6_ipc.cc' || echo '$(srcdir)/'`dhcp4o6_ipc.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-dhcp4o6_ipc.Tpo $(DEPDIR)/libkea_dhcpsrv_la-dhcp4o6_ipc.Plo
@@ -1203,6 +1241,13 @@ libkea_dhcpsrv_la-dhcpsrv_log.lo: dhcpsrv_log.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dhcpsrv_log.cc' object='libkea_dhcpsrv_la-dhcpsrv_log.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-dhcpsrv_log.lo `test -f 'dhcpsrv_log.cc' || echo '$(srcdir)/'`dhcpsrv_log.cc
+
+libkea_dhcpsrv_la-dhcpsrv_db_log.lo: dhcpsrv_db_log.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-dhcpsrv_db_log.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-dhcpsrv_db_log.Tpo -c -o libkea_dhcpsrv_la-dhcpsrv_db_log.lo `test -f 'dhcpsrv_db_log.cc' || echo '$(srcdir)/'`dhcpsrv_db_log.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-dhcpsrv_db_log.Tpo $(DEPDIR)/libkea_dhcpsrv_la-dhcpsrv_db_log.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dhcpsrv_db_log.cc' object='libkea_dhcpsrv_la-dhcpsrv_db_log.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-dhcpsrv_db_log.lo `test -f 'dhcpsrv_db_log.cc' || echo '$(srcdir)/'`dhcpsrv_db_log.cc
 
 libkea_dhcpsrv_la-host.lo: host.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-host.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-host.Tpo -c -o libkea_dhcpsrv_la-host.lo `test -f 'host.cc' || echo '$(srcdir)/'`host.cc
@@ -1309,6 +1354,13 @@ libkea_dhcpsrv_la-network.lo: network.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-network.lo `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
 
+libkea_dhcpsrv_la-network_state.lo: network_state.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-network_state.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-network_state.Tpo -c -o libkea_dhcpsrv_la-network_state.lo `test -f 'network_state.cc' || echo '$(srcdir)/'`network_state.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-network_state.Tpo $(DEPDIR)/libkea_dhcpsrv_la-network_state.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network_state.cc' object='libkea_dhcpsrv_la-network_state.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-network_state.lo `test -f 'network_state.cc' || echo '$(srcdir)/'`network_state.cc
+
 libkea_dhcpsrv_la-pgsql_connection.lo: pgsql_connection.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-pgsql_connection.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-pgsql_connection.Tpo -c -o libkea_dhcpsrv_la-pgsql_connection.lo `test -f 'pgsql_connection.cc' || echo '$(srcdir)/'`pgsql_connection.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-pgsql_connection.Tpo $(DEPDIR)/libkea_dhcpsrv_la-pgsql_connection.Plo
@@ -1337,19 +1389,33 @@ libkea_dhcpsrv_la-pgsql_lease_mgr.lo: pgsql_lease_mgr.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-pgsql_lease_mgr.lo `test -f 'pgsql_lease_mgr.cc' || echo '$(srcdir)/'`pgsql_lease_mgr.cc
 
-libkea_dhcpsrv_la-cql_lease_mgr.lo: cql_lease_mgr.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-cql_lease_mgr.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Tpo -c -o libkea_dhcpsrv_la-cql_lease_mgr.lo `test -f 'cql_lease_mgr.cc' || echo '$(srcdir)/'`cql_lease_mgr.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Tpo $(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_lease_mgr.cc' object='libkea_dhcpsrv_la-cql_lease_mgr.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-cql_lease_mgr.lo `test -f 'cql_lease_mgr.cc' || echo '$(srcdir)/'`cql_lease_mgr.cc
-
 libkea_dhcpsrv_la-cql_connection.lo: cql_connection.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-cql_connection.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-cql_connection.Tpo -c -o libkea_dhcpsrv_la-cql_connection.lo `test -f 'cql_connection.cc' || echo '$(srcdir)/'`cql_connection.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-cql_connection.Tpo $(DEPDIR)/libkea_dhcpsrv_la-cql_connection.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_connection.cc' object='libkea_dhcpsrv_la-cql_connection.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-cql_connection.lo `test -f 'cql_connection.cc' || echo '$(srcdir)/'`cql_connection.cc
+
+libkea_dhcpsrv_la-cql_exchange.lo: cql_exchange.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-cql_exchange.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-cql_exchange.Tpo -c -o libkea_dhcpsrv_la-cql_exchange.lo `test -f 'cql_exchange.cc' || echo '$(srcdir)/'`cql_exchange.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-cql_exchange.Tpo $(DEPDIR)/libkea_dhcpsrv_la-cql_exchange.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_exchange.cc' object='libkea_dhcpsrv_la-cql_exchange.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-cql_exchange.lo `test -f 'cql_exchange.cc' || echo '$(srcdir)/'`cql_exchange.cc
+
+libkea_dhcpsrv_la-cql_host_data_source.lo: cql_host_data_source.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-cql_host_data_source.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-cql_host_data_source.Tpo -c -o libkea_dhcpsrv_la-cql_host_data_source.lo `test -f 'cql_host_data_source.cc' || echo '$(srcdir)/'`cql_host_data_source.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-cql_host_data_source.Tpo $(DEPDIR)/libkea_dhcpsrv_la-cql_host_data_source.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_host_data_source.cc' object='libkea_dhcpsrv_la-cql_host_data_source.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-cql_host_data_source.lo `test -f 'cql_host_data_source.cc' || echo '$(srcdir)/'`cql_host_data_source.cc
+
+libkea_dhcpsrv_la-cql_lease_mgr.lo: cql_lease_mgr.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-cql_lease_mgr.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Tpo -c -o libkea_dhcpsrv_la-cql_lease_mgr.lo `test -f 'cql_lease_mgr.cc' || echo '$(srcdir)/'`cql_lease_mgr.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Tpo $(DEPDIR)/libkea_dhcpsrv_la-cql_lease_mgr.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cql_lease_mgr.cc' object='libkea_dhcpsrv_la-cql_lease_mgr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_dhcpsrv_la-cql_lease_mgr.lo `test -f 'cql_lease_mgr.cc' || echo '$(srcdir)/'`cql_lease_mgr.cc
 
 libkea_dhcpsrv_la-pool.lo: pool.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_dhcpsrv_la_CPPFLAGS) $(CPPFLAGS) $(libkea_dhcpsrv_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_dhcpsrv_la-pool.lo -MD -MP -MF $(DEPDIR)/libkea_dhcpsrv_la-pool.Tpo -c -o libkea_dhcpsrv_la-pool.lo `test -f 'pool.cc' || echo '$(srcdir)/'`pool.cc

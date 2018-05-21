@@ -1,12 +1,14 @@
-// Copyright (C) 2015-2016 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2015-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <config.h>
+
 #include <dhcpsrv/database_connection.h>
 #include <dhcpsrv/db_exceptions.h>
-#include <dhcpsrv/dhcpsrv_log.h>
+#include <dhcpsrv/db_log.h>
 #include <exceptions/exceptions.h>
 
 #include <boost/algorithm/string.hpp>
@@ -48,7 +50,7 @@ DatabaseConnection::parse(const std::string& dbaccess) {
                 string value = token.substr(pos + 1);
                 mapped_tokens.insert(make_pair(name, value));
             } else {
-                LOG_ERROR(dhcpsrv_logger, DHCPSRV_INVALID_ACCESS).arg(dbaccess);
+                DB_LOG_ERROR(DB_INVALID_ACCESS).arg(dbaccess);
                 isc_throw(InvalidParameter, "Cannot parse " << token
                           << ", expected format is name=value");
             }
@@ -105,6 +107,53 @@ DatabaseConnection::configuredReadOnly() const {
 
     return (readonly_value == "true");
 }
+
+ReconnectCtlPtr
+DatabaseConnection::makeReconnectCtl() const {
+    ReconnectCtlPtr retry;
+    string type = "unknown";
+    unsigned int retries = 0;
+    unsigned int interval = 0;
+
+    // Assumes that parsing ensurse only valid values are present
+    try {
+        type = getParameter("type");
+    } catch (...) {
+        // Wasn't specified so we'll use default of "unknown".
+    }
+
+    std::string parm_str;
+    try {
+        parm_str = getParameter("max-reconnect-tries");
+        retries = boost::lexical_cast<unsigned int>(parm_str);
+    } catch (...) {
+        // Wasn't specified so we'll use default of 0;
+    }
+
+    try {
+        parm_str = getParameter("reconnect-wait-time");
+        interval = boost::lexical_cast<unsigned int>(parm_str);
+    } catch (...) {
+        // Wasn't specified so we'll use default of 0;
+    }
+
+    retry.reset(new ReconnectCtl(type, retries, interval));
+    return (retry);
+}
+
+bool
+DatabaseConnection::invokeDbLostCallback() const {
+    if (DatabaseConnection::db_lost_callback) {
+        // Invoke the callback, passing in a new instance of ReconnectCtl
+        return (DatabaseConnection::db_lost_callback)(makeReconnectCtl());
+    }
+
+    return (false);
+}
+
+
+DatabaseConnection::DbLostCallback
+DatabaseConnection::db_lost_callback = 0;
 
 };
 };

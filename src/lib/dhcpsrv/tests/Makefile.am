@@ -5,7 +5,6 @@ AM_CPPFLAGS += $(BOOST_INCLUDES)
 AM_CPPFLAGS += -DTEST_DATA_BUILDDIR=\"$(abs_top_builddir)/src/lib/dhcpsrv/tests\"
 AM_CPPFLAGS += -DDHCP_DATA_DIR=\"$(abs_top_builddir)/src/lib/dhcpsrv/tests\"
 AM_CPPFLAGS += -DKEA_LFC_BUILD_DIR=\"$(abs_top_builddir)/src/bin/lfc\"
-AM_CPPFLAGS += -DLOGGING_SPEC_FILE=\"$(abs_top_srcdir)/src/lib/dhcpsrv/logging.spec\"
 AM_CPPFLAGS += -DINSTALL_PROG=\"$(abs_top_srcdir)/install-sh\"
 
 AM_CXXFLAGS = $(KEA_CXXFLAGS)
@@ -92,12 +91,13 @@ libdhcpsrv_unittests_SOURCES += dbaccess_parser_unittest.cc
 libdhcpsrv_unittests_SOURCES += dhcp4o6_ipc_unittest.cc
 libdhcpsrv_unittests_SOURCES += duid_config_parser_unittest.cc
 libdhcpsrv_unittests_SOURCES += expiration_config_parser_unittest.cc
+libdhcpsrv_unittests_SOURCES += host_cache_unittest.cc
+libdhcpsrv_unittests_SOURCES += host_data_source_factory_unittest.cc
 libdhcpsrv_unittests_SOURCES += host_mgr_unittest.cc
 libdhcpsrv_unittests_SOURCES += host_unittest.cc
 libdhcpsrv_unittests_SOURCES += host_reservation_parser_unittest.cc
 libdhcpsrv_unittests_SOURCES += host_reservations_list_parser_unittest.cc
 libdhcpsrv_unittests_SOURCES += ifaces_config_parser_unittest.cc
-libdhcpsrv_unittests_SOURCES += lease_file_io.cc lease_file_io.h
 libdhcpsrv_unittests_SOURCES += lease_file_loader_unittest.cc
 libdhcpsrv_unittests_SOURCES += lease_unittest.cc
 libdhcpsrv_unittests_SOURCES += lease_mgr_factory_unittest.cc
@@ -105,23 +105,22 @@ libdhcpsrv_unittests_SOURCES += lease_mgr_unittest.cc
 libdhcpsrv_unittests_SOURCES += logging_unittest.cc
 libdhcpsrv_unittests_SOURCES += logging_info_unittest.cc
 libdhcpsrv_unittests_SOURCES += generic_lease_mgr_unittest.cc generic_lease_mgr_unittest.h
-libdhcpsrv_unittests_SOURCES += generic_host_data_source_unittest.cc generic_host_data_source_unittest.h
 libdhcpsrv_unittests_SOURCES += memfile_lease_mgr_unittest.cc
 libdhcpsrv_unittests_SOURCES += dhcp_parsers_unittest.cc
+libdhcpsrv_unittests_SOURCES += ncr_generator_unittest.cc
 if HAVE_MYSQL
 libdhcpsrv_unittests_SOURCES += mysql_lease_mgr_unittest.cc
 libdhcpsrv_unittests_SOURCES += mysql_host_data_source_unittest.cc
 endif
-
-libdhcpsrv_unittests_SOURCES += ncr_generator_unittest.cc
-
 if HAVE_PGSQL
 libdhcpsrv_unittests_SOURCES += pgsql_exchange_unittest.cc
-libdhcpsrv_unittests_SOURCES += pgsql_host_data_source_unittest.cc
 libdhcpsrv_unittests_SOURCES += pgsql_lease_mgr_unittest.cc
+libdhcpsrv_unittests_SOURCES += pgsql_host_data_source_unittest.cc
 endif
 if HAVE_CQL
+libdhcpsrv_unittests_SOURCES += cql_connection_unittest.cc
 libdhcpsrv_unittests_SOURCES += cql_lease_mgr_unittest.cc
+libdhcpsrv_unittests_SOURCES += cql_host_data_source_unittest.cc
 endif
 libdhcpsrv_unittests_SOURCES += pool_unittest.cc
 libdhcpsrv_unittests_SOURCES += shared_network_parser_unittest.cc
@@ -133,6 +132,7 @@ libdhcpsrv_unittests_SOURCES += test_get_callout_handle.cc test_get_callout_hand
 libdhcpsrv_unittests_SOURCES += triplet_unittest.cc
 libdhcpsrv_unittests_SOURCES += test_utils.cc test_utils.h
 libdhcpsrv_unittests_SOURCES += timer_mgr_unittest.cc
+libdhcpsrv_unittests_SOURCES += network_state_unittest.cc
 
 libdhcpsrv_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 if HAVE_MYSQL

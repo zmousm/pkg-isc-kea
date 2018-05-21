@@ -1,13 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
-<!ENTITY mdash  "&#x2014;" >
-]>
-
- <chapter id="dhcp6">
+<!--
+ - Copyright (C) 2014-2018 Internet Systems Consortium, Inc. ("ISC")
+ -
+ - This Source Code Form is subject to the terms of the Mozilla Public
+ - License, v. 2.0. If a copy of the MPL was not distributed with this
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+<!-- Converted by db4-upgrade version 1.1 -->
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="dhcp6">
     <title>The DHCPv6 Server</title>
 
-    <section id="dhcp6-start-stop">
+    <section xml:id="dhcp6-start-stop">
       <title>Starting and Stopping the DHCPv6 Server</title>
 
       <para>
@@ -132,7 +134,7 @@ strings <userinput>path</userinput>/kea-dhcp6 | sed -n 's/;;;; //p'
       </para>
     </section>
 
-    <section id="dhcp6-configuration">
+    <section xml:id="dhcp6-configuration">
       <title>DHCPv6 Server Configuration</title>
 <section>
   <title>Introduction</title>
@@ -208,8 +210,8 @@ the configuration file must be well formed JSON. That means that parameters
 for any given scope must be separated by a comma and there must not be a comma
 after the last parameter. When reordering a configuration file, keep in mind that
 moving a parameter to or from the last position in a given scope may also require
-moving the comma. The second caveat is that it is uncommon &mdash; although
-legal JSON &mdash; to
+moving the comma. The second caveat is that it is uncommon — although
+legal JSON — to
 repeat the same parameter multiple times. If that happens, the last occurrence of a
 given parameter in a given scope is used while all previous instances are
 ignored. This is unlikely to cause any confusion as there are no real life
@@ -303,8 +305,7 @@ be followed by a comma and another object definition.</para>
   <title>Memfile - Basic Storage for Leases</title>
 
   <para>The server is able to store lease data in different repositories. Larger
-  deployments may elect to store leases in a database. <xref
-  linkend="database-configuration6"/> describes this option. In typical
+  deployments may elect to store leases in a database. <xref linkend="database-configuration6"/> describes this option. In typical
   smaller deployments though, the server will store lease information in a CSV file rather
   than a database. As well as requiring less administration, an
   advantage of using a file for storage is that it
@@ -415,12 +416,12 @@ be followed by a comma and another object definition.</para>
   file used by the server to record lease updates. There are also other files
   being created as a side effect of the lease file cleanup. The detailed
   description of the LFC is located on the Kea wiki:
-  <ulink url="http://kea.isc.org/wiki/LFCDesign"/>.
+  <uri xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://kea.isc.org/wiki/LFCDesign">http://kea.isc.org/wiki/LFCDesign</uri>.
   </para>
 
 </section>
 
-<section id="database-configuration6">
+<section xml:id="database-configuration6">
   <title>Lease Database Configuration</title>
 
   <note>
@@ -444,21 +445,33 @@ be followed by a comma and another object definition.</para>
 <screen>
 "Dhcp6": { "lease-database": { <userinput>"name": "<replaceable>database-name</replaceable>" </userinput>, ... }, ... }
 </screen>
+  For Cassandra:
+<screen>
+"Dhcp6": { "lease-database": { <userinput>"keyspace": "<replaceable>database-name</replaceable>" </userinput>, ... }, ... }
+</screen>
   If the database is located on a different system to the DHCPv6 server, the
   database host name must also be specified. (It should be noted that this
   configuration may have a severe impact on server performance.):
 <screen>
-"Dhcp6": { "lease-database": { <userinput>"host": <replaceable>remote-host-name</replaceable></userinput>, ... }, ... }
+"Dhcp6": { "lease-database": { <userinput>"host": "<replaceable>remote-host-name</replaceable>"</userinput>, ... }, ... }
+</screen>
+  For Cassandra, multiple contact points can be provided:
+<screen>
+"Dhcp6": { "lease-database": { <userinput>"contact-points": "<replaceable>remote-host-name[, ...]</replaceable>" </userinput>, ... }, ... }
 </screen>
   The usual state of affairs will be to have the database on the same machine as
   the DHCPv6 server.  In this case, set the value to the empty string:
 <screen>
 "Dhcp6": { "lease-database": { <userinput>"host" : ""</userinput>, ... }, ... }
 </screen>
+  For Cassandra:
+<screen>
+"Dhcp6": { "lease-database": { <userinput>"contact-points": ""</userinput>, ... }, ... }
+</screen>
   Should the database use a port different than default, it may be
   specified as well:
 <screen>
-"Dhcp4": { "lease-database": { <userinput>"port" : 12345</userinput>, ... }, ... }
+"Dhcp6": { "lease-database": { <userinput>"port" : 12345</userinput>, ... }, ... }
 </screen>
   Should the database be located on a different system, you may need to specify a longer interval
   for the connection timeout:
@@ -468,14 +481,33 @@ be followed by a comma and another object definition.</para>
 The default value of five seconds should be more than adequate for local connections.
 If a timeout is given though, it should be an integer greater than zero.
   </para>
-
+  <para>
+The maxiumum number of times the server will automatically attempt to reconnect to
+the lease database after connectivity has been lost may be specified:
+<screen>
+"Dhcp6": { "lease-database": { <userinput>"max-reconnect-tries" : <replaceable>number-of-tries</replaceable></userinput>, ... }, ... }
+</screen>
+If the server is unable to reconnect to the database after making the maximum number
+of attempts the server will exit. A value of zero (the default) disables automatic
+recovery and the server will exit immediately upon detecting a loss of connectivity
+(MySQL and Postgres only).
+  </para>
+  <para>
+The number of seconds the server will wait in between attempts to reconnect to the
+lease database after connectivity has been lost may also be specified:
+<screen>
+"Dhcp6": { "lease-database": { <userinput>"reconnect-wait-time" : <replaceable>number-of-seconds</replaceable></userinput>, ... }, ... }
+</screen>
+A value of zero (the default) disables automatic recovery and the server will exit
+immediately upon detecting a loss of connectivity (MySQL and Postgres only).
+  </para>
   <para>
     Note that host parameter is used by MySQL and PostgreSQL
     backends. Cassandra has a concept of contact points that could be
     used to contact the cluster, instead of a single IP or
     hostname. It takes a list of comma separated IP addresses. This may be specified as:
 <screen>
-"Dhcp4": { "lease-database": { <userinput>"contact-points" : "192.0.2.1,192.0.2.2"</userinput>, ... }, ... }
+"Dhcp6": { "lease-database": { <userinput>"contact-points" : "192.0.2.1,192.0.2.2"</userinput>, ... }, ... }
 </screen>
   </para>
 
@@ -490,9 +522,16 @@ If a timeout is given though, it should be an integer greater than zero.
   If there is no password to the account, set the password to the empty string
   "". (This is also the default.)</para>
 </section>
+
+<section xml:id="cassandra-database-configuration6">
+    <title>Cassandra specific parameters</title>
+<para>The parameters are the same for DHCPv4 and DHCPv6. See <xref
+linkend="cassandra-database-configuration4"/> for details.</para>
 </section>
 
-<section id="hosts6-storage">
+</section>
+
+<section xml:id="hosts6-storage">
   <title>Hosts Storage</title>
     <para>Kea is also able to store information about host reservations in the
     database. The hosts database configuration uses the same syntax as the lease
@@ -512,7 +551,13 @@ If a timeout is given though, it should be an integer greater than zero.
     from the configuration file are checked first and external storage is checked
     later, if necessary.</para>
 
-<section id="hosts-database-configuration6">
+    <para>Version 1.4 extends the host storage to multiple storages. Operations
+    are performed on host storages in the configuration order with a special
+    case for addition: read-only storages must be configured after a
+    required read-write storage, or host reservation addition will
+    always fail.</para>
+
+<section xml:id="hosts-databases-configuration6">
   <title>DHCPv6 Hosts Database Configuration</title>
 
   <para>Hosts database configuration is controlled through the Dhcp6/hosts-database
@@ -539,8 +584,28 @@ If a timeout is given though, it should be an integer greater than zero.
 "Dhcp6": { "hosts-database": { <userinput>"host" : ""</userinput>, ... }, ... }
 </screen>
 <screen>
-"Dhcp4": { "hosts-database": { <userinput>"port" : 12345</userinput>, ... }, ... }
+"Dhcp6": { "hosts-database": { <userinput>"port" : 12345</userinput>, ... }, ... }
 </screen>
+  </para>
+  <para>
+The maxiumum number of times the server will automatically attempt to reconnect to
+the host database after connectivity has been lost may be specified:
+<screen>
+"Dhcp6": { "host-database": { <userinput>"max-reconnect-tries" : <replaceable>number-of-tries</replaceable></userinput>, ... }, ... }
+</screen>
+If the server is unable to reconnect to the database after making the maximum number
+of attempts the server will exit. A value of zero (the default) disables automatic
+recovery and the server will exit immediately upon detecting a loss of connectivity
+(MySQL and Postgres only).
+  </para>
+  <para>
+The number of seconds the server will wait in between attempts to reconnect to the
+host database after connectivity has been lost may also be specified:
+<screen>
+"Dhcp6": { "hosts-database": { <userinput>"reconnect-wait-time" : <replaceable>number-of-seconds</replaceable></userinput>, ... }, ... }
+</screen>
+A value of zero (the default) disables automatic recovery and the server will exit
+immediately upon detecting a loss of connectivity (MySQL and Postgres only).
   </para>
   <para>Finally, the credentials of the account under which the server will
   access the database should be set:
@@ -552,9 +617,22 @@ If a timeout is given though, it should be an integer greater than zero.
 </screen>
   If there is no password to the account, set the password to the empty string
   "". (This is also the default.)</para>
+
+  <para>The multiple storage extension uses a similar syntax: a configuration
+  is placed into a "hosts-databases" list instead of into a "hosts-database"
+  entry as in:
+<screen>
+"Dhcp6": { "hosts-databases": [ { <userinput>"type": "mysql"</userinput>, ... }, ... ], ... }
+</screen>
+  </para>
+
+  <para>
+    For additional Cassandra specific parameters, see <xref
+    linkend="cassandra-database-configuration4" />.</para>
+
 </section>
 
-<section id="read-only-database-configuration6">
+<section xml:id="read-only-database-configuration6">
 <title>Using Read-Only Databases for Host Reservations</title>
 <para>
 In some deployments the database user whose name is specified in the database backend
@@ -587,8 +665,7 @@ for MySQL and PostgreSQL databases.</para></note>
 
 </section>
 
-
-<section id="dhcp6-interface-selection">
+<section xml:id="dhcp6-interface-selection">
   <title>Interface Selection</title>
   <para>The DHCPv6 server has to be configured to listen on specific network
   interfaces.  The simplest network interface configuration instructs the server to
@@ -643,9 +720,24 @@ temporarily override a list of interface names and listen on all interfaces.
 }
   </screen>
 
+  <para>The loopback interfaces (i.e. the "lo" or "lo0" interface)
+  are not configured by default, unles explicitely mentioned in
+  the configration. Note Kea requires a link-local address which does
+  not exist on all systems, or a specified unicast address as in:
+  </para>
+
+  <screen>
+"Dhcp6": {
+    "interfaces-config": {
+        "interfaces": [ <userinput>"lo/::1"</userinput> ]
+    },
+    ...
+}
+  </screen>
+
 </section>
 
-    <section id="ipv6-subnet-id">
+    <section xml:id="ipv6-subnet-id">
       <title>IPv6 Subnet Identifier</title>
       <para>
         The subnet identifier is a unique number associated with a particular subnet.
@@ -690,7 +782,7 @@ temporarily override a list of interface names and listen on all interfaces.
       id -->
     </section>
 
-    <section id="dhcp6-unicast">
+    <section xml:id="dhcp6-unicast">
       <title>Unicast Traffic Support</title>
       <para>
         When the DHCPv6 server starts, by default it listens to the DHCP traffic
@@ -746,7 +838,7 @@ temporarily override a list of interface names and listen on all interfaces.
       </para>
     </section>
 
-    <section id="dhcp6-address-config">
+    <section xml:id="dhcp6-address-config">
       <title>Subnet and Address Pool</title>
       <para>
         The main role of a DHCPv6 server is address assignment. For this,
@@ -851,7 +943,7 @@ temporarily override a list of interface names and listen on all interfaces.
       <title>Subnet and Prefix Delegation Pools</title>
       <para>
         Subnets may also be configured to delegate prefixes, as defined in
-        <ulink url="http://tools.ietf.org/html/rfc3633">RFC 3633</ulink>.  A
+        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3633">RFC 3633</link>.  A
         subnet may have one or more prefix delegation pools.  Each pool has a
         prefixed address, which is specified as a prefix
         (<command>prefix</command>) and a prefix length
@@ -884,12 +976,12 @@ temporarily override a list of interface names and listen on all interfaces.
 
     </section>
 
-    <section id="pd-exclude-option">
+    <section xml:id="pd-exclude-option">
         <title>Prefix Exclude Option</title>
         <para>
           For each delegated prefix the delegating router may choose to exclude
           a single prefix out of the delegated prefix as specified in the
-          <ulink url="http://tools.ietf.org/html/rfc6603"> RFC 6603</ulink>.
+          <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6603"> RFC 6603</link>.
           The requesting router must not assign the excluded prefix to any
           of its downstream interfaces and it is intended to be used on a
           link through which the delegating router exchanges DHCPv6 messages with
@@ -919,7 +1011,7 @@ temporarily override a list of interface names and listen on all interfaces.
 </screen>
     </section>
 
-    <section id="dhcp6-std-options">
+    <section xml:id="dhcp6-std-options">
       <title>Standard DHCPv6 Options</title>
       <para>
         One of the major features of a DHCPv6 server is to provide configuration
@@ -952,13 +1044,11 @@ temporarily override a list of interface names and listen on all interfaces.
       information on all global options that the server is supposed to configure
       in all subnets.  The <command>name</command> line specifies the option name.
       (For a complete list
-      of currently supported names, see <xref
-      linkend="dhcp6-std-options-list"/>.)  The next line specifies the option code,
+      of currently supported names, see <xref linkend="dhcp6-std-options-list"/>.)  The next line specifies the option code,
       which must match one of the values from that list. The line beginning with
       <command>space</command> specifies the option space, which must always be set
       to "dhcp6" as these are standard DHCPv6 options.  For other name spaces,
-      including custom option spaces, see <xref
-      linkend="dhcp6-option-spaces"/>. The following line specifies the format in
+      including custom option spaces, see <xref linkend="dhcp6-option-spaces"/>. The following line specifies the format in
       which the data will be entered: use of CSV (comma separated values) is
       recommended. Finally, the <command>data</command> line gives the actual value to be sent to
       clients.  Data is specified as normal text, with values separated by
@@ -1168,7 +1258,7 @@ temporarily override a list of interface names and listen on all interfaces.
     required, because both the routine splitting CSV data into fields
     and JSON use the same escape character: a single escape (\,) would
     make the JSON invalid. For example, the string
-    &quot;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&quot; would be
+    "EST5EDT4,M3.2.0/02:00,M11.1.0/02:00" would be
     represented as:
 <screen>
 "Dhcp6": {
@@ -1217,15 +1307,14 @@ temporarily override a list of interface names and listen on all interfaces.
         no means to validate the format at the moment.
       </para>
 
-
     <para>
-      <table frame="all" id="dhcp6-std-options-list">
+      <table frame="all" xml:id="dhcp6-std-options-list">
         <title>List of Standard DHCPv6 Options</title>
-        <tgroup cols='4'>
-        <colspec colname='name'/>
-        <colspec colname='code' align='center'/>
-        <colspec colname='type' align='center'/>
-        <colspec colname='array' align='center'/>
+        <tgroup cols="4">
+        <colspec colname="name"/>
+        <colspec colname="code" align="center"/>
+        <colspec colname="type" align="center"/>
+        <colspec colname="array" align="center"/>
         <thead>
           <row><entry>Name</entry><entry>Code</entry><entry>Type</entry><entry>Array?</entry></row>
         </thead>
@@ -1257,7 +1346,7 @@ temporarily override a list of interface names and listen on all interfaces.
 <row><entry>interface-id</entry><entry>18</entry><entry>hex</entry><entry>false</entry></row>
 <row><entry>reconf-msg</entry><entry>19</entry><entry>uint8</entry><entry>false</entry></row>
 <row><entry>reconf-accept</entry><entry>20</entry><entry>empty</entry><entry>false</entry></row> -->
--->
+--&gt;
 <row><entry>sip-server-dns</entry><entry>21</entry><entry>fqdn</entry><entry>true</entry></row>
 <row><entry>sip-server-addr</entry><entry>22</entry><entry>ipv6-address</entry><entry>true</entry></row>
 <row><entry>dns-servers</entry><entry>23</entry><entry>ipv6-address</entry><entry>true</entry></row>
@@ -1305,6 +1394,14 @@ temporarily override a list of interface names and listen on all interfaces.
 <row><entry>inf-max-rt</entry><entry>83</entry><entry>uint32</entry><entry>false</entry></row>
 <!-- <row><entry>dhcpv4-message</entry><entry>87</entry><entry>hex</entry><entry>false</entry></row> -->
 <row><entry>dhcp4o6-server-addr</entry><entry>88</entry><entry>ipv6-address</entry><entry>true</entry></row>
+<row><entry>s46-rule</entry><entry>89</entry><entry>record (uint8, uint8, uint8, ipv4-address, ipv6-prefix)</entry><entry>false</entry></row>
+<row><entry>s46-br</entry><entry>90</entry><entry>ipv6-address</entry><entry>false</entry></row>
+<row><entry>s46-dmr</entry><entry>91</entry><entry>ipv6-prefix</entry><entry>false</entry></row>
+<row><entry>s46-v4v6bind</entry><entry>92</entry><entry>record (ipv4-address, ipv6-prefix)</entry><entry>false</entry></row>
+<row><entry>s46-portparams</entry><entry>93</entry><entry>record(uint8, psid)</entry><entry>false</entry></row>
+<row><entry>s46-cont-mape</entry><entry>94</entry><entry>empty</entry><entry>false</entry></row>
+<row><entry>s46-cont-mapt</entry><entry>95</entry><entry>empty</entry><entry>false</entry></row>
+<row><entry>s46-cont-lw</entry><entry>96</entry><entry>empty</entry><entry>false</entry></row>
 <row><entry>v6-captive-portal</entry><entry>103</entry><entry>string</entry><entry>false</entry></row>
 <row><entry>ipv6-address-andsf</entry><entry>143</entry><entry>ipv6-address</entry><entry>true</entry></row>
         </tbody>
@@ -1320,13 +1417,13 @@ temporarily override a list of interface names and listen on all interfaces.
     </para>
 
     <para>
-      <table frame="all" id="dhcp6-exp-options-list">
+      <table frame="all" xml:id="dhcp6-exp-options-list">
         <title>List of Experimental DHCPv6 Options</title>
-        <tgroup cols='4'>
-        <colspec colname='name'/>
-        <colspec colname='code' align='center'/>
-        <colspec colname='type' align='center'/>
-        <colspec colname='array' align='center'/>
+        <tgroup cols="4">
+        <colspec colname="name"/>
+        <colspec colname="code" align="center"/>
+        <colspec colname="type" align="center"/>
+        <colspec colname="array" align="center"/>
         <thead>
           <row><entry>Name</entry><entry>Code</entry><entry>Type</entry><entry>Array?</entry></row>
         </thead>
@@ -1341,7 +1438,188 @@ temporarily override a list of interface names and listen on all interfaces.
     </para>
     </section>
 
-    <section id="dhcp6-custom-options">
+    <section id="s46-options">
+      <title>Common Softwire46 Options</title>
+      <para>
+        Softwire46 options are involved in IPv4 over IPv6 provisioning by
+        means of tunneling or translation as specified in the
+        <ulink url="http://tools.ietf.org/html/rfc7598">RFC 7598</ulink>.
+        The following sections provide configuration examples of these
+        options.
+      </para>
+
+      <section id="s46-containers">
+      <title>Softwire46 Container Options</title>
+      <para>
+        S46 container options group rules and optional port parameters
+        for a specified domain. There are three container options specified
+        in the "dhcp6" (top level) option space: MAP-E Container option,
+        MAP-T Container option and S46 Lightweight 4over6 Container option.
+        These options only contain encapsulated options specified below.
+        They do not include any data fields.
+      </para>
+
+      <para>
+        In order to configure the server to send specific container option
+        along with all encapsulated options, the container option must be
+        included in the server configuration as shown below:
+<screen>
+"Dhcp6": {
+    ...
+    "option-data": [
+        {
+            "name": "s46-cont-mape"
+        } ],
+    ...
+}
+</screen>
+
+        This configuration will cause the server to include MAP-E Container
+        option to the client. Use "s46-cont-mapt" or "s46-cont-lw" for the
+        MAP-T Container and S46 Lightweight 4over6 Container options
+        respectively.
+      </para>
+
+      <para>
+        All remaining softwire options described below are included in one
+        of the container options. Thus, they have to be included in appropriate
+        option spaces by selecting a "space" name, which specifies in which
+        option they are supposed to be included.
+      </para>
+    </section>
+
+      <section>
+        <title>S46 Rule Option</title>
+        <para>
+          The S46 Rule option is used for conveying the Basic Mapping Rule (BMR)
+          and Forwarding Mapping Rule (FMR).
+<screen>
+{
+    "space": "s46-cont-mape-options",
+    "name": "s46-rule",
+    "data": "128, 0, 24, 192.0.2.0, 2001:db8:1::/64"
+}
+</screen>
+         Other possible "space" value is "s46-cont-mapt-options".
+        </para>
+
+        <para>
+          The S46 Rule option conveys a number of parameters:
+
+      <itemizedlist>
+        <listitem>
+          <simpara><command>flags</command>, an unsigned 8 bits integer, with
+          currently only the most significant bit specified. It denotes whether
+          the rule can be used for forwarding (128) or not (0).
+          </simpara>
+        </listitem>
+
+        <listitem>
+          <simpara><command>ea-len</command>, an 8 bits long Embedded Address length. Allowed values
+          range from 0 to 48.</simpara>
+        </listitem>
+
+        <listitem>
+          <simpara><command>IPv4 prefix length</command>, 8 bits long; expresses the prefix length of the
+          Rule IPv4 prefix specified in the ipv4-prefix field.  Allowed
+          values range from 0 to 32.</simpara>
+        </listitem>
+
+        <listitem>
+          <simpara><command>IPv4 prefix</command>, a fixed-length 32-bit field that specifies the IPv4
+          prefix for the S46 rule.  The bits in the prefix after prefix4-len
+          number of bits are reserved and MUST be initialized to zero by the
+          sender and ignored by the receiver.</simpara>
+        </listitem>
+
+        <listitem>
+          <simpara><command>IPv6 prefix</command> in prefix/length notation that specifies the IPv6 domain
+          prefix for the S46 rule.  The field is padded on the right with zero
+          bits up to the nearest octet boundary when prefix6-len is not evenly
+          divisible by 8.</simpara>
+        </listitem>
+
+      </itemizedlist>
+        </para>
+      </section>
+        <section>
+            <title>S46 BR Option</title>
+            <para>
+              The S46 BR option is used to convey the IPv6 address of the
+              Border Relay. This option is mandatory in the MAP-E
+              Container option and not permitted in the MAP-T and
+              S46 Lightweight 4over6 Container options.
+<screen>
+{
+    "space": "s46-cont-mape-options",
+    "name": "s46-br",
+    "data": "2001:db8:cafe::1",
+}
+</screen>
+           Other possible "space" value is "s46-cont-lw-options".
+          </para>
+        </section>
+
+        <section>
+            <title>S46 DMR Option</title>
+            <para>
+              The S46 DMR option is used to convey values for the Default
+              Mapping Rule (DMR). This option is mandatory in the MAP-T
+              container option and not permitted in the MAP-E and S46
+              Lightweight 4over6 Container options.
+<screen>
+{
+    "space": "s46-cont-mapt-options",
+    "name": "s46-dmr",
+    "data": "2001:db8:cafe::/64",
+}
+</screen>
+              This option must not be included in other containers.
+            </para>
+        </section>
+
+        <section>
+            <title>S46 IPv4/IPv6 Address Binding option.</title>
+            <para>
+              The S46 IPv4/IPv6 Address Binding option may be used to specify
+              the full or shared IPv4 address of the Customer Edge (CE).
+              The IPv6 prefix field is used by the CE to identify the
+              correct prefix to use for the tunnel source.
+<screen>
+{
+    "space": "s46-cont-lw",
+    "name": "s46-v4v6bind",
+    "data": "192.0.2.3, 2001:db8:1:cafe::/64"
+}
+</screen>
+            This option must not be included in other containers.
+          </para>
+        </section>
+        <section>
+            <title>S46 Port Parameters</title>
+            <para>
+              The S46 Port Parameters option specifies optional port set
+              information that MAY be provided to CEs
+<screen>
+{
+    "space": "s46-rule-options",
+    "name": "s46-portparams",
+    "data": "2, 3/4",
+}
+</screen>
+              Other possible "space" value is "s46-v4v6bind" to include
+              this option in the S46 IPv4/IPv6 Address Binding option.
+            </para>
+            <para>
+              Note that the second value in the example above specifies the
+              PSID and PSID length fields in the format of PSID/PSID length.
+              This is equivalent to the values of PSID-len=4 and
+              PSID=12288 conveyed in the S46 Port Parameters option.
+            </para>
+        </section>
+    </section>
+
+    <section xml:id="dhcp6-custom-options">
       <title>Custom DHCPv6 Options</title>
       <para>It is possible to define options in addition to the standard ones.
       Assume that we want to define a new DHCPv6 option called "foo" which will have
@@ -1490,7 +1768,7 @@ temporarily override a list of interface names and listen on all interfaces.
 
     </section>
 
-    <section id="dhcp6-vendor-opts">
+    <section xml:id="dhcp6-vendor-opts">
       <title>DHCPv6 Vendor-Specific Options</title>
       <para>
       Currently there are two option spaces defined for the DHCPv6
@@ -1561,7 +1839,7 @@ temporarily override a list of interface names and listen on all interfaces.
       </para>
     </section>
 
-    <section id="dhcp6-option-spaces">
+    <section xml:id="dhcp6-option-spaces">
       <title>Nested DHCPv6 Options (Custom Option Spaces)</title>
       <para>It is sometimes useful to define completely new option
       spaces.  This is useful if the user wants their new option to
@@ -1665,13 +1943,13 @@ should include options from the isc option space:
     required to carry an uint16 value as well as the sub-options, the "type"
     value would have to be set to "uint16" in the option definition. (Such an
     option would then have the following data structure: DHCP header, uint16
-    value, sub-options.) The value specified with the "data" parameter &mdash; which
-    should be a valid integer enclosed in quotes, e.g. "123" &mdash; would then be
+    value, sub-options.) The value specified with the "data" parameter — which
+    should be a valid integer enclosed in quotes, e.g. "123" — would then be
     assigned to the uint16 field in the "container" option.
     </para>
     </section>
 
-    <section id="dhcp6-option-data-defaults">
+    <section xml:id="dhcp6-option-data-defaults">
       <title>Unspecified Parameters for DHCPv6 Option Configuration</title>
       <para>In many cases it is not required to specify all parameters for
       an option configuration and the default values can be used. However, it is
@@ -1731,7 +2009,7 @@ should include options from the isc option space:
 
     </section>
 
-    <section id="dhcp6-config-subnets">
+    <section xml:id="dhcp6-config-subnets">
       <title>IPv6 Subnet Selection</title>
       <para>
         The DHCPv6 server may receive requests from local (connected to the
@@ -1769,10 +2047,10 @@ should include options from the isc option space:
         </para>
       </section>
 
-      <section id="dhcp6-rapid-commit">
+      <section xml:id="dhcp6-rapid-commit">
         <title>Rapid Commit</title>
         <para>The Rapid Commit option, described in
-        <ulink url="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink>, is supported
+        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3315">RFC 3315</link>, is supported
         by the Kea DHCPv6 server. However, support is disabled by default for
         all subnets. It can be enabled for a particular subnet using the
         <command>rapid-commit</command> parameter as shown below:
@@ -1803,7 +2081,7 @@ should include options from the isc option space:
         </para>
       </section>
 
-      <section id="dhcp6-relays">
+      <section xml:id="dhcp6-relays">
         <title>DHCPv6 Relays</title>
         <para>
           A DHCPv6 server with multiple subnets defined must select the
@@ -1872,9 +2150,9 @@ should include options from the isc option space:
         </para>
       </section>
 
-    <section id="dhcp6-rsoo">
+    <section xml:id="dhcp6-rsoo">
       <title>Relay-Supplied Options</title>
-      <para><ulink url="http://tools.ietf.org/html/rfc6422">RFC 6422</ulink>
+      <para><link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6422">RFC 6422</link>
       defines a mechanism called Relay-Supplied DHCP Options. In certain cases relay
       agents are the only entities that may have specific information. They can
       insert options when relaying messages from the client to the server. The
@@ -1885,7 +2163,7 @@ should include options from the isc option space:
       included. First, the server must not provide the option itself. In
       other words, if both relay and server provide an option, the server always
       takes precedence. Second, the option must be RSOO-enabled. IANA maintains a
-      list of RSOO-enabled options <ulink url="http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xhtml#options-relay-supplied">here</ulink>.
+      list of RSOO-enabled options <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xhtml#options-relay-supplied">here</link>.
       However, there may be cases when system administrators want to echo other
       options. Kea can be instructed to treat other options as RSOO-enabled.
       For example, to mark options 110, 120 and 130 as RSOO-enabled, the following
@@ -1902,14 +2180,14 @@ should include options from the isc option space:
       mark it. Also, when enabling standard options, it is possible to use their
       names, rather than option code, e.g. (e.g. use
       <command>dns-servers</command> instead of <command>23</command>). See
-      <xref linkend="dhcp6-std-options-list" /> for the names. In certain cases
+      <xref linkend="dhcp6-std-options-list"/> for the names. In certain cases
       it could also work for custom options, but due to the nature of the parser
       code this may be unreliable and should be avoided.
       </para>
 
     </section>
 
-    <section id="dhcp6-client-classifier">
+    <section xml:id="dhcp6-client-classifier">
       <title>Client Classification in DHCPv6</title>
 
       <para>
@@ -1917,15 +2195,21 @@ should include options from the isc option space:
       discussion of the classification process see <xref linkend="classify"/>.
       </para>
 
+      <para>In certain cases it is useful to configure the server to differentiate between
+      DHCP clients types and treat them accordingly. It is envisaged that client
+      classification will be used for modifying the behavior of almost any part of
+      the DHCP message processing. In the current release of Kea, there are three
+      mechanisms that take advantage of the client classification in DHCPv6: subnet
+      selection, address pool selection and DHCP options assignment.
+      </para>
+
       <para>
       In certain cases it is useful to differentiate between different types
       of clients and treat them accordingly. It is envisaged that client
       classification will be used for changing the behavior of almost any part of
-      the DHCP message processing, including the assignment of leases from different
-      pools, the assignment of different options (or different values of the same
-      options) etc. In the current release of the software however, there are
-      only two mechanisms that take advantage of client classification:
-      subnet selection and assignment of different options.
+      the DHCP message processing. In the current release of the software however,
+      there are only some mechanisms that take advantage of client classification:
+      subnet selection, pool selection, and assignment of different options.
       </para>
 
       <para>
@@ -1941,18 +2225,38 @@ should include options from the isc option space:
       </para>
 
       <para>
-      The process of doing classification is conducted in three steps. The first step
-      is to assess an incoming packet and assign it to zero or more classes.  The
-      second step is to choose a subnet, possibly based on the class information.
-      The third step is to assign options again possibly based on the class
-      information.
+      When subnets belong to a shared network the classification applies
+      to subnet selection but not to pools, e.g., a pool in a subnet
+      limited to a particular class can still be used by clients which do not
+      belong to the class if the pool they are expected to use is exhausted.
+      So the limit access based on class information is also available
+      at the address/prefix pool level, see <xref
+      linkend="classification-pools"/> within a subnet.
+      This is useful when to segregate clients belonging to the same subnet
+      into different address ranges.
       </para>
 
       <para>
-      There are two methods of doing classification. The first is automatic and relies
-      on examining the values in the vendor class options. Information from these
+      The process of doing classification is conducted in several steps. The first step
+      is to assess an incoming packet and assign it to zero or more classes.  The
+      second step is to choose a subnet, possibly based on the class information.
+      The third step is to assign classes from host reservations and
+      evaluate class expressions depending on the "KNOWN" class.
+      After the list of required classes is built and each class of the list
+      has its expression evaluated: when it returns true the packet is added
+      as a member of the class.
+      The last step is to assign options again possibly based on the class
+      information.
+      More complete and detailed description is available in
+      <xref linkend="classify"/>.
+      </para>
+
+      <para>
+      There are two main methods of doing classification. The first is automatic and relies
+      on examining the values in the vendor class options or existence of a
+      host reservation. Information from these
       options is extracted and a class name is constructed from it and added to
-      the class list for the packet. The second allows you to specify an expression
+      the class list for the packet. The second allows for specifying an expression
       that is evaluated for each packet. If the result is true the packet is
       a member of the class.
       </para>
@@ -1967,7 +2271,7 @@ should include options from the isc option space:
         <para>
         The following example shows how to configure a class using an expression
         and a subnet making use of that class. This configuration defines the
-        class named &quot;Client_enterprise&quot;. It is comprised
+        class named "Client_enterprise". It is comprised
         of all clients whose client identifiers start with the given hex string (which
         would indicate a DUID based on an enterprise id of 0xAABBCCDD).
         They will be given an address from 2001:db8:1::0 to 2001:db8:1::FFFF and
@@ -2027,9 +2331,84 @@ should include options from the isc option space:
 </screen>
         </para>
       </section>
+
+      <section id="dhcp6-required-class">
+        <title>Required classification</title>
+        <para>
+        In some cases it is useful to limit the scope of a class to
+        a shared-network, subnet or pool. There are two parameters
+        which are used to limit the scope of the class by instructing
+        the server to perform evaluation of test expressions when
+        required.
+        </para>
+
+        <para>
+        The first one is the per-class <command>only-if-required</command>
+        flag which is false by default. When it is set to
+        <command>true</command> the test expression of the class is not
+        evaluated at the reception of the incoming packet but later and
+        only if the class evaluation is required.
+        </para>
+
+        <para>
+        The second is the <command>require-client-classes</command> which
+        takes a list of class names and is valid in shared-network,
+        subnet and pool scope. Classes in these lists are marked as
+        required and evaluated after selection of this specific
+        shared-network/subnet/pool and before output option processing.
+        </para>
+
+        <para>
+        In this example, a class is assigned to the incoming packet
+        when the specified subnet is used.
+
+        <screen>
+"Dhcp6": {
+    "client-classes": [
+       {<userinput>
+           "name": "Client_foo",
+           "test": "member('ALL')",
+           "only-if-required": true</userinput>
+       },
+       ...
+    ],
+    "subnet6": [
+        {
+            "subnet": "2001:db8:1::/64"
+            "pools": [
+                 {
+                     "pool": "2001:db8:1::-2001:db8:1::ffff"
+                 }
+             ],
+            <userinput>"require-client-classes": [ "Client_foo" ],</userinput>
+            ...
+        },
+        ...
+    ],
+    ...
+}</screen>
+         </para>
+
+         <para>
+         Required evaluation can be used to express complex dependencies,
+         for example, subnet membership. It can also be used to reverse the
+         precedence: if you set an option-data in a subnet it takes
+         precedence over an option-data in a class. When you move the
+         option-data to a required class and require it in
+         the subnet, a class evaluated earlier may take precedence.
+         </para>
+
+         <para>
+         Required evaluation is also available at shared-network and
+         pool/pd-pool levels. The order in which required classes are
+         considered is: shared-network, subnet and (pd-)pool, i.e.
+         the opposite order option-data are processed.
+         </para>
+
+       </section>
     </section>
 
-    <section id="dhcp6-ddns-config">
+    <section xml:id="dhcp6-ddns-config">
       <title>DDNS for DHCPv6</title>
       <para>
       As mentioned earlier, kea-dhcp6 can be configured to generate requests to
@@ -2114,8 +2493,7 @@ should include options from the isc option space:
       </itemizedlist>
       </para>
 
-
-      <section id="dhcpv6-d2-io-config">
+      <section xml:id="dhcpv6-d2-io-config">
       <title>DHCP-DDNS Server Connectivity</title>
       <para>
       In order for NCRs to reach the D2 server, kea-dhcp6 must be able
@@ -2182,10 +2560,10 @@ should include options from the isc option space:
 </screen>
       </para>
       </section>
-      <section id="dhcpv6-d2-rules-config">
+      <section xml:id="dhcpv6-d2-rules-config">
       <title>When Does kea-dhcp6 Generate a DDNS Request?</title>
       <para>kea-dhcp6 follows the behavior prescribed for DHCP servers in
-      <ulink url="http://tools.ietf.org/html/rfc4704">RFC 4704</ulink>.
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4704">RFC 4704</link>.
       It is important to keep in mind that kea-dhcp6 provides the initial
       decision making of when and what to update and forwards that
       information to D2 in the form of NCRs. Carrying out the actual
@@ -2230,13 +2608,13 @@ should include options from the isc option space:
       By default kea-dhcp6 will respect the FQDN N and S flags specified by the client
       as shown in the following table:
       </para>
-        <table id="dhcp6-fqdn-flag-table">
+        <table xml:id="dhcp6-fqdn-flag-table">
           <title>Default FQDN Flag Behavior</title>
-          <tgroup cols='4' align='left'>
-          <colspec colname='cflags'/>
-          <colspec colname='meaning'/>
-          <colspec colname='response'/>
-          <colspec colname='sflags'/>
+          <tgroup cols="4" align="left">
+          <colspec colname="cflags"/>
+          <colspec colname="meaning"/>
+          <colspec colname="response"/>
+          <colspec colname="sflags"/>
           <thead>
               <row>
                 <entry>Client Flags:N-S</entry>
@@ -2283,7 +2661,7 @@ should include options from the isc option space:
       </para>
       <para>
       (Note that the flag combination N=1, S=1 is prohibited according to
-      <ulink url="http://tools.ietf.org/html/rfc4702">RFC 4702</ulink>. If such a
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4702">RFC 4702</link>. If such a
       combination is received from the client, the packet will be dropped by kea-dhcp6.)
       </para>
       <para>
@@ -2319,7 +2697,7 @@ should include options from the isc option space:
 }
 </screen>
       </section>
-      <section id="dhcpv6-fqdn-name-generation">
+      <section xml:id="dhcpv6-fqdn-name-generation">
       <title>kea-dhcp6 Name Generation for DDNS Update Requests</title>
       <para>Each NameChangeRequest must of course include the fully qualified
       domain name whose DNS entries are to be affected.  kea-dhcp6 can be
@@ -2453,11 +2831,11 @@ should include options from the isc option space:
       </para>
     </section>
 
-    <section id="dhcp6-dhcp4o6-config">
+    <section xml:id="dhcp6-dhcp4o6-config">
       <title>DHCPv4-over-DHCPv6: DHCPv6 Side</title>
       <para>
       The support of DHCPv4-over-DHCPv6 transport is described in
-      <ulink url="http://tools.ietf.org/html/rfc7341">RFC 7341</ulink>
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc7341">RFC 7341</link>
       and is implemented using cooperating DHCPv4 and DHCPv6 servers.
       This section is about the configuration of the DHCPv6 side
       (the DHCPv4 side is described in <xref linkend="dhcp4-dhcp4o6-config"/>).
@@ -2466,6 +2844,8 @@ should include options from the isc option space:
       DHCPv4-over-DHCPv6 support is experimental and the details of
       the inter-process communication can change: both the
       DHCPv4 and DHCPv6 sides should be running the same version of Kea.
+      For instance the support of port relay (RFC 8357) introduced such
+      such incompatible change.
       </note>
       <para>
       There is only one specific parameter for the DHCPv6 side:
@@ -2543,12 +2923,12 @@ should include options from the isc option space:
 
   <!-- Host reservation is a large topic. There will be many subsections,
    so it should be a section on its own. -->
-  <section id="host-reservation-v6">
+  <section xml:id="host-reservation-v6">
     <title>Host Reservation in DHCPv6</title>
 
     <para>There are many cases where it is useful to provide a configuration on
     a per host basis. The most obvious one is to reserve specific, static IPv6
-    address or/and prefix for exclusive use by a given client (host) &dash; returning
+    address or/and prefix for exclusive use by a given client (host) ‐ returning
     client will get the same address or/and prefix every time and other clients will
     never get that address. Note that there may be cases when the
     new reservation has been made for the client for the address or prefix being
@@ -2658,7 +3038,7 @@ should include options from the isc option space:
     could be used by someone else (i.e. if there is a reservation for it). That
     additional check incurs additional overhead.</para>
 
-    <section id="reservation6-types">
+    <section xml:id="reservation6-types">
       <title>Address/Prefix Reservation Types</title>
 
       <para>In a typical scenario there is an IPv6 subnet defined with a certain
@@ -2679,7 +3059,7 @@ should include options from the isc option space:
       possible.</para>
     </section>
 
-    <section id="reservation6-conflict">
+    <section xml:id="reservation6-conflict">
       <title>Conflicts in DHCPv6 Reservations</title>
       <para>As reservations and lease information are stored separately,
       conflicts may arise. Consider the following series of events. The server
@@ -2728,7 +3108,7 @@ should include options from the isc option space:
       </para>
     </section>
 
-    <section id="reservation6-hostname">
+    <section xml:id="reservation6-hostname">
       <title>Reserving a Hostname</title>
       <para>When the reservation for the client includes the <command>hostname</command>,
       the server will assign this hostname to the client and send
@@ -2789,14 +3169,12 @@ should include options from the isc option space:
     </para>
 </section>
 
-    <section id="reservation6-options">
+    <section xml:id="reservation6-options">
       <title>Including Specific DHCPv6 Options in Reservations</title>
       <para>Kea 1.1.0 introduced the ability to specify options on a
       per host basis. The options follow the same rules as any other
-      options. These can be standard options (see <xref
-      linkend="dhcp6-std-options" />), custom options (see <xref
-      linkend="dhcp6-custom-options"/>) or vendor specific options
-      (see <xref linkend="dhcp6-vendor-opts" />). The following
+      options. These can be standard options (see <xref linkend="dhcp6-std-options"/>), custom options (see <xref linkend="dhcp6-custom-options"/>) or vendor specific options
+      (see <xref linkend="dhcp6-vendor-opts"/>). The following
       example demonstrates how standard options can be defined.</para>
 
       <screen>
@@ -2844,7 +3222,7 @@ should include options from the isc option space:
 
     </section>
 
-    <section id="reservation6-client-classes">
+    <section xml:id="reservation6-client-classes">
       <title>Reserving Client Classes in DHCPv6</title>
       <para>The <xref linkend="classification-using-expressions"/> explains how
       to configure the server to assign classes to a client based on the content
@@ -2893,31 +3271,40 @@ should include options from the isc option space:
 
 </screen>
     <para>Static class assignments, as shown above, can be used in conjunction
-    with classification using expressions.</para>
+    with classification using expressions. The "KNOWN" builtin class is
+    added to the packet and any class depending on it directly or indirectly
+    and not only-if-required is evaluated.
+    </para>
+
+    <note>
+     <para>If you want to force the evaluation of a class expression after
+     the host reservation lookup, for instance because of a dependency on
+     "reserved-class1" from the previous example, you should add a
+     "member('KNOWN')" in the expression.</para>
+    </note>
+
     </section>
 
-    <section id="reservations6-mysql-pgsql">
-      <title>Storing Host Reservations in MySQL or PostgreSQL</title>
+    <section id="reservations6-mysql-pgsql-cql">
+      <title>Storing Host Reservations in MySQL, PostgreSQL or Cassandra</title>
 
       <para>
-        It is possible to store host reservations in MySQL or PostgreSQL. See <xref
-        linkend="hosts6-storage" /> for information on how to configure Kea to use
-        reservations stored in MySQL or PostgreSQL. Kea provides dedicated hook for
+        It is possible to store host reservations in MySQL, PostgreSQL or Cassandra. See
+        <xref linkend="hosts6-storage" /> for information on how to configure Kea to use
+        reservations stored in MySQL, PostgreSQL or Cassandra. Kea provides dedicated hook for
         managing reservations in a database, section <xref linkend="host-cmds" /> provide
-        detailed information.
+        detailed information. The Kea wiki <uri
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xlink:href="http://kea.isc.org/wiki/HostReservationsHowTo">http://kea.isc.org/wiki/HostReservationsHowTo</uri>
+        provides some examples how to conduct some common operations
+        on host reservations.
       </para>
 
       <note><simpara>In Kea maximum length of an option specified per host is
       arbitrarily set to 4096 bytes.</simpara></note>
     </section>
 
-    <section id="reservations6-cql">
-      <title>Storing Host Reservations in CQL (Cassandra)</title>
-      <para>Kea currently does not support storing reservations in
-      Cassandra (CQL).</para>
-    </section>
-
-    <section id="reservations6-tuning">
+    <section xml:id="reservations6-tuning">
       <title>Fine Tuning DHCPv6 Host Reservation</title>
 
       <para>The host reservation capability introduces additional restrictions for the
@@ -3109,7 +3496,7 @@ If not specified, the default value is:
             // Subnets from this shared network will be selected for clients
             // communicating via relay agent having the specified IP address.
             "relay": {
-                "ip-address": "2001:db8:2:34::1"
+                "ip-addresses": [ "2001:db8:2:34::1" ]
             },
 
             // This starts a list of subnets in this shared network.
@@ -3136,7 +3523,7 @@ If not specified, the default value is:
             "subnet": "2001:db9::/48",
             "pools": [ { "pool":  "2001:db9::/64" } ],
             "relay": {
-                "ip-address": "2001:db8:1:2::1"
+                "ip-addresses": [ "2001:db8:1:2::1" ]
             }
         }
     ]
@@ -3168,7 +3555,7 @@ If not specified, the default value is:
     {
         "name": "lab-network3",
         "relay": {
-             "ip-address": "2001:db8:2:34::1"
+             "ip-addresses": [ "2001:db8:2:34::1" ]
         },
 
         // This applies to all subnets in this shared network, unless
@@ -3281,16 +3668,16 @@ for each subnet. Here's an example:
 
 <screen>
 "shared-networks": [
-    {"
+    {
         "name": "kakapo",
         <userinput>"relay": {
-            "ip-address": "2001:db8::abcd"
+            "ip-addresses":  [ "2001:db8::abcd" ]
         }</userinput>,
         "subnet6": [
             {
                 "subnet": "2001:db8::/64",
                 <userinput>"relay": {
-                    "ip-address": "2001:db8::1234"
+                    "ip-addresses": [ "2001:db8::1234" ]
                 }</userinput>,
                 "pools": [ { "pool":  "2001:db8::1 - 2001:db8::ffff" } ]
             },
@@ -3298,7 +3685,7 @@ for each subnet. Here's an example:
                  "subnet": "3ffe:abcd::/64",
                  "pools": [ { "pool":  "3ffe:abcd::1 - 3ffe:abcd::ffff" } ],
                  <userinput>"relay": {
-                    "ip-address": "3ffe:abcd::cafe"
+                    "ip-addresses": [ "3ffe:abcd::cafe" ]
                  }</userinput>
             }
         ]
@@ -3343,7 +3730,7 @@ as long as it is valid IPv6 address.</para>
         {
             "name": "galah",
             "relay": {
-                "ip-address": "2001:db8:2:34::1"
+                "ip-address": [ "2001:db8:2:34::1" ]
             },
             "subnet6": [
                 {
@@ -3394,7 +3781,7 @@ as long as it is valid IPv6 address.</para>
         {
             "name": "galah",
             "relay": {
-                "ip-address": "2001:db8:2:34::1"
+                "ip-addresses":  [ "2001:db8:2:34::1" ]
             },
             "subnet6": [
                 {
@@ -3446,7 +3833,7 @@ desired outcome if one desires to service only clients of known properties
     {
         "name": "frog",
         "relay": {
-            "ip-address": "2001:db8:2:34::1"
+            "ip-addresses": [ "2001:db8:2:34::1" ]
         },
         "subnet6": [
             {
@@ -3499,14 +3886,14 @@ autogenerated IDs are not stable across configuration changes.
 
   <!-- end of shared networks -->
 
-    <section id="dhcp6-serverid">
+    <section xml:id="dhcp6-serverid">
       <title>Server Identifier in DHCPv6</title>
       <para>The DHCPv6 protocol uses a "server identifier" (also known
       as a DUID) for clients to be able to discriminate between several
       servers present on the same link.
-      <ulink url="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink>
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3315">RFC 3315</link>
       defines three DUID types: DUID-LLT, DUID-EN and DUID-LL.
-      <ulink url="http://tools.ietf.org/html/rfc6355">RFC 6355</ulink>
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6355">RFC 6355</link>
       also defines DUID-UUID. Future specifications may introduce new
       DUID types.</para>
 
@@ -3515,7 +3902,7 @@ autogenerated IDs are not stable across configuration changes.
       modified across restarts of the server and so is a stable identifier.</para>
 
       <para>Kea follows recommendation from
-      <ulink url="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink>
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3315">RFC 3315</link>
       to use DUID-LLT as the default server identifier. However, we have
       received reports that some deployments require different DUID
       types, and there is a need to administratively select both DUID
@@ -3733,7 +4120,7 @@ autogenerated IDs are not stable across configuration changes.
       identifier is explicitly specified in the configuration.</para>
     </section>
 
-    <section id="stateless-dhcp6">
+    <section xml:id="stateless-dhcp6">
       <title>Stateless DHCPv6 (Information-Request Message)</title>
       <para>Typically DHCPv6 is used to assign both addresses and options. These
       assignments (leases) have state that changes over time, hence
@@ -3778,9 +4165,9 @@ autogenerated IDs are not stable across configuration changes.
       even if it is not used.</para>
     </section>
 
-    <section id="dhcp6-rfc7550">
+    <section xml:id="dhcp6-rfc7550">
       <title>Support for RFC 7550</title>
-      <para>The <ulink url="http://tools.ietf.org/html/rfc7550">RFC 7550</ulink>
+      <para>The <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc7550">RFC 7550</link>
       introduced some changes to the DHCPv6 protocol to resolve a few issues
       with the coexistence of multiple stateful options in the messages sent
       between the clients and servers.</para>
@@ -3801,17 +4188,17 @@ autogenerated IDs are not stable across configuration changes.
       NoPrefixAvail status code. However, if the server can now allocate
       the prefixes it will do so, and send them in the IA_PD(s) to the client.
       Allocation of leases during the Renew/Rebind was not supported in the
-      <ulink url="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink>
-      and <ulink url="http://tools.ietf.org/html/rfc3633">RFC 3633</ulink>,
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3315">RFC 3315</link>
+      and <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3633">RFC 3633</link>,
       and has been introduced in
-      <ulink url="http://tools.ietf.org/html/rfc7550">RFC 7550</ulink>.
+      <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc7550">RFC 7550</link>.
       Kea supports this new behavior and it doesn't provide any configuration
       mechanisms to disable it.
       </para>
 
       <para>
         The following are the other behaviors specified in the
-        <ulink url="http://tools.ietf.org/html/rfc7550">RFC 7550</ulink>
+        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc7550">RFC 7550</link>
         supported by the Kea DHCPv6 server:
         <itemizedlist>
           <listitem><simpara>Set T1/T2 timers to the same value for all
@@ -3825,7 +4212,7 @@ autogenerated IDs are not stable across configuration changes.
       </para>
     </section>
 
-    <section id="dhcp6-relay-override">
+    <section xml:id="dhcp6-relay-override">
       <title>Using Specific Relay Agent for a Subnet</title>
       <para>
         The relay has to have an interface connected to the link on which
@@ -3865,7 +4252,7 @@ autogenerated IDs are not stable across configuration changes.
                  }
              ],
              <userinput>"relay": {
-                 "ip-address": "3000::1"
+                 "ip-addresses": [ "3000::1" ]
              }</userinput>
         }
     ]
@@ -3873,12 +4260,21 @@ autogenerated IDs are not stable across configuration changes.
 </screen>
       </para>
 
-      <para>If "relay" is specified, the "ip-address" parameter within
+      <para>If "relay" is specified, the "ip-addresses" parameter within
       it is mandatory.</para>
+
+      <note>
+      <para>
+      As of Kea 1.4, the "ip-address" parameter in "relay" has been deprecated
+      in favor of "ip-addresses" which supports specifying a list of addresses.
+      Configuration parsing, will honor the singular form for now but users are
+      encouraged to migrate.
+      </para>
+      </note>
 
     </section>
 
-      <section id="dhcp6-client-class-relay">
+      <section xml:id="dhcp6-client-class-relay">
         <title>Segregating IPv6 Clients in a Cable Network</title>
         <para>
           In certain cases, it is useful to mix relay address information,
@@ -3906,7 +4302,7 @@ autogenerated IDs are not stable across configuration changes.
             ],
             <userinput>"client-class": "VENDOR_CLASS_docsis3.0",
             "relay": {
-                "ip-address": "3000::1"
+                "ip-addresses": [ "3000::1" ]
             }</userinput>
         },
 
@@ -3918,7 +4314,7 @@ autogenerated IDs are not stable across configuration changes.
                  }
              ],
              <userinput>"relay": {
-                 "ip-address": "3000::1"
+                 "ip-addresses": [ "3000::1" ]
              }</userinput>
         }
     ]
@@ -3927,7 +4323,7 @@ autogenerated IDs are not stable across configuration changes.
       </para>
       </section>
 
-    <section id="mac-in-dhcpv6">
+    <section xml:id="mac-in-dhcpv6">
       <title>MAC/Hardware Addresses in DHCPv6</title>
       <para>MAC/hardware addresses are available in DHCPv4 messages
       from the clients and administrators
@@ -3988,7 +4384,7 @@ autogenerated IDs are not stable across configuration changes.
         <simpara><command>duid</command> - DHCPv6 uses DUID identifiers instead of
         MAC addresses. There are currently four DUID types defined, with two of them
         (DUID-LLT, which is the default one and DUID-LL) convey MAC address information.
-        Although <ulink utl="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink> forbids
+        Although <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="" utl="http://tools.ietf.org/html/rfc3315">RFC 3315</link> forbids
         it, it is possible to parse those DUIDs and extract
         necessary information from them. This method is not completely reliable, as
         clients may use other DUID types, namely DUID-EN or DUID-UUID.
@@ -4001,18 +4397,18 @@ autogenerated IDs are not stable across configuration changes.
         that those addresses are based on EUI-64, which contains MAC address. This
         method is not completely reliable, as clients may use other link-local address
         types.  In particular, privacy extensions, defined in
-        <ulink url="http://tools.ietf.org/html/rfc4941">RFC 4941</ulink>, do not use
+        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4941">RFC 4941</link>, do not use
         MAC addresses.  Also note that successful extraction requires that the
         address's u-bit must be set to 1 and its g-bit set to 0, indicating that it
         is an interface identifier as per
-        <ulink url="http://tools.ietf.org/html/rfc2373#section-2.5.1">
-        RFC 2373, section 2.5.1</ulink>.
+        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc2373#section-2.5.1">
+        RFC 2373, section 2.5.1</link>.
         </simpara>
       </listitem>
       <listitem>
         <simpara><command>client-link-addr-option</command> - One extension defined
         to alleviate missing MAC issues is client link-layer address option, defined
-        in <ulink url="http://tools.ietf.org/html/rfc6939">RFC 6939</ulink>. This is
+        in <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6939">RFC 6939</link>. This is
         an option that is inserted by a relay and contains information about client's
         MAC address. This method requires a relay agent that supports the option and
         is configured to insert it. This method is useless for directly connected
@@ -4022,7 +4418,7 @@ autogenerated IDs are not stable across configuration changes.
       </listitem>
       <listitem>
         <simpara><command>remote-id</command> -
-        <ulink url="http://tools.ietf.org/html/rfc4649">RFC 4649</ulink>
+        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4649">RFC 4649</link>
         defines a remote-id option that is inserted by a relay agent. Depending
         on the relay agent configuration, the inserted option may convey the client's
         MAC address information. This parameter can also be specified as
@@ -4032,8 +4428,8 @@ autogenerated IDs are not stable across configuration changes.
       <listitem>
         <simpara><command>subscriber-id</command> - Another option
         that is somewhat similar to the previous one is subscriber-id,
-        defined in <ulink url="http://tools.ietf.org/html/rfc4580">RFC
-        4580</ulink>. It is, too, inserted by a relay agent that is
+        defined in <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4580">RFC
+        4580</link>. It is, too, inserted by a relay agent that is
         configured to insert it. This parameter can also be specified
         as <command>rfc4580</command>, which is an alias for
         <command>subscriber-id</command>. This method is currently not
@@ -4065,7 +4461,7 @@ autogenerated IDs are not stable across configuration changes.
   which is the default.</para>
   </section>
 
-    <section id="dhcp6-decline">
+    <section xml:id="dhcp6-decline">
       <title>Duplicate Addresses (DECLINE Support)</title>
 
       <para>The DHCPv6 server is configured with a certain pool of
@@ -4137,22 +4533,22 @@ autogenerated IDs are not stable across configuration changes.
       the available pool.</para>
     </section>
 
-    <section id="dhcp6-stats">
+    <section xml:id="dhcp6-stats">
       <title>Statistics in the DHCPv6 Server</title>
       <note>
         <para>This section describes DHCPv6-specific statistics. For a general
-        overview and usage of statistics, see <xref linkend="stats" />.</para>
+        overview and usage of statistics, see <xref linkend="stats"/>.</para>
       </note>
 
       <para>
         The DHCPv6 server supports the following statistics:
       </para>
-        <table frame="all" id="dhcp6-statistics">
+        <table frame="all" xml:id="dhcp6-statistics">
           <title>DHCPv6 Statistics</title>
-          <tgroup cols='3'>
-          <colspec colname='statistic' align='center'/>
-          <colspec colname='type' align='center'/>
-          <colspec colname='description' align='left'/>
+          <tgroup cols="3">
+          <colspec colname="statistic" align="center"/>
+          <colspec colname="type" align="center"/>
+          <colspec colname="description" align="left"/>
           <thead>
             <row>
               <entry>Statistic</entry>
@@ -4512,12 +4908,12 @@ autogenerated IDs are not stable across configuration changes.
         </table>
     </section>
 
-    <section id="dhcp6-ctrl-channel">
+    <section xml:id="dhcp6-ctrl-channel">
       <title>Management API for the DHCPv6 Server</title>
       <para>
         The management API allows the issuing of specific
         management commands, such as statistics retrieval, reconfiguration or shutdown.
-        For more details, see <xref linkend="ctrl-channel" />. Currently the only
+        For more details, see <xref linkend="ctrl-channel"/>. Currently the only
         supported communication channel type is UNIX stream socket. By default there
         are no sockets open. To instruct Kea to open a socket, the following entry
         in the configuration file can be used:
@@ -4558,6 +4954,8 @@ autogenerated IDs are not stable across configuration changes.
             <listitem>config-set</listitem>
             <listitem>config-test</listitem>
             <listitem>config-write</listitem>
+            <listitem>dhcp-disable</listitem>
+            <listitem>dhcp-enable</listitem>
             <listitem>leases-reclaim</listitem>
             <listitem>list-commands</listitem>
             <listitem>shutdown</listitem>
@@ -4578,7 +4976,7 @@ autogenerated IDs are not stable across configuration changes.
 
     </section>
 
-      <section>
+      <section id="dhcp6-user-contexts">
         <title>User contexts in IPv6</title>
         <para>
           Kea allows loading hook libraries that sometimes could benefit from
@@ -4597,23 +4995,27 @@ autogenerated IDs are not stable across configuration changes.
         </para>
 
         <para>
-          User contexts can be specified on either subnet or pool level. One
-          other useful usage is the ability to store comments or descriptions.
+          User contexts can be specified on either global scope,
+          shared network, subnet, pool, client class, option data or
+          definition level, and host reservation. One other useful
+          usage is the ability to store comments or descriptions.
         </para>
 
         <para>
-          Let's consider an example where certain parameters are supposed
-          to be delivered to clients in form of additional options,
-          and the values of those options are correlated to delegated
-          prefixes. It seems reasonable to keep those parameters with
-          the the definition of the PD pool. On the other hand, this
-          functionality is is not part of the base Kea code so Kea will
-          not understand any hook-specific keywords in that definition.
-          The solution to this problem is to use user context. For
-          each PD pool that is expected to be used with this feature,
-          a "user context" is defined.  This is a structure that holds the
-          parameters used by the hook library when it is loaded.
-          An example configuration could look as follows:
+          Let's consider a lightweight 4over6 deployment as an example. It is an
+          IPv6 transition technology that allows mapping IPv6 prefix into full
+          or parts of IPv4 addresses. In DHCP context, these are certain
+          parameters that are supposed to be delivered to clients in form of
+          additional options. Values of those options are correlated to
+          delegated prefixes, so it is reasonable to keep those parameters
+          together with the PD pool. On the other hand, lightweight 4over6 is
+          not a commonly used feature, so it is not a part of the base Kea
+          code. The solution to this problem is to use user context. For each PD
+          pool that is expected to be used for lightweight 4over6, user context
+          with extra parameters is defined. Those extra parameters will be used
+          by hook library that would be loaded only when dynamic calculation of
+          the lightweight 4over6 option is actually needed. An example
+          configuration looks as follows:
           <screen>
 "Dhcp6": {
     "subnet6": [ {
@@ -4627,7 +5029,11 @@ autogenerated IDs are not stable across configuration changes.
             <userinput>"user-context": {
                 "threshold-percent": 85,
                 "v4-network": "192.168.0.0/16",
-                "v4-overflow": "10.0.0.0/16"
+                "v4-overflow": "10.0.0.0/16",
+                "lw4over6-sharing-ratio": 64,
+                "lw4over6-v4-pool": "192.0.2.0/24",
+                "lw4over6-sysports-exclude": true,
+                "lw4over6-bind-prefix-len": 56
             }</userinput>
         } ],
         "subnet": "2001:db8::/32",
@@ -4650,20 +5056,23 @@ autogenerated IDs are not stable across configuration changes.
           it just stores it, making it available to the hook
           libraries. It is up to each hook library to extract the information
           and make use of it.
+          The parser translates a "comment" entry into a user-context
+          with the entry, this allows to attach a comment inside the
+          configuration itself.
         </para>
         <para>
           For more background information, see <xref linkend="user-context"/>.
         </para>
     </section>
 
-    <section id="dhcp6-std">
+    <section xml:id="dhcp6-std">
       <title>Supported DHCPv6 Standards</title>
       <para>The following standards are currently
       supported:</para>
       <itemizedlist>
           <listitem>
             <simpara><emphasis>Dynamic Host Configuration Protocol for IPv6</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3315">RFC 3315</link>:
             Supported messages are SOLICIT,
             ADVERTISE, REQUEST, RELEASE, RENEW, REBIND, INFORMATION-REQUEST,
             CONFIRM and REPLY.</simpara>
@@ -4671,37 +5080,37 @@ autogenerated IDs are not stable across configuration changes.
           <listitem>
             <simpara><emphasis>IPv6 Prefix Options for
             Dynamic Host Configuration Protocol (DHCP) version 6</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc3633">RFC 3633</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3633">RFC 3633</link>:
             Supported options are IA_PD and
             IA_PREFIX. Also supported is the status code NoPrefixAvail.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>DNS Configuration options for Dynamic Host
             Configuration Protocol for IPv6 (DHCPv6)</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc3646">RFC 3646</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3646">RFC 3646</link>:
             Supported option is DNS_SERVERS.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>The Dynamic Host Configuration Protocol for IPv6 (DHCPv6)
             Relay Agent Remote-ID Option</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc4649">RFC 4649</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4649">RFC 4649</link>:
             REMOTE-ID option is supported.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>The Dynamic Host Configuration Protocol for IPv6 (DHCPv6) Client
             Fully Qualified Domain Name (FQDN) Option</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc4704">RFC 4704</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc4704">RFC 4704</link>:
             Supported option is CLIENT_FQDN.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>Dynamic Host Configuration Protocol for IPv6 (DHCPv6)
             Option for Dual-Stack Lite</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc6334">RFC 6334</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6334">RFC 6334</link>:
             the AFTR-Name DHCPv6 Option is supported.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>Relay-Supplied DHCP Options</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc6422">RFC 6422</ulink>:
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6422">RFC 6422</link>:
             Full functionality is supported: OPTION_RSOO, ability of the server
             to echo back the options, checks whether an option is RSOO-enabled,
             ability to mark additional options as RSOO-enabled.</simpara>
@@ -4709,27 +5118,34 @@ autogenerated IDs are not stable across configuration changes.
           <listitem>
             <simpara><emphasis>Prefix Exclude Option for DHCPv6-based Prefix
             Delegation</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc6603">RFC
-            6603</ulink>: Prefix Exclude option is supported.</simpara>
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6603">RFC
+            6603</link>: Prefix Exclude option is supported.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>Client Link-Layer Address Option in
             DHCPv6</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc6939">RFC
-            6939</ulink>: Supported option is client link-layer
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc6939">RFC
+            6939</link>: Supported option is client link-layer
             address option.</simpara>
           </listitem>
           <listitem>
             <simpara><emphasis>Issues and Recommendations with Multiple
             Stateful DHCPv6 Options</emphasis>,
-            <ulink url="http://tools.ietf.org/html/rfc7550">RFC
-            7550</ulink>: All recommendations related to the DHCPv6 server
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc7550">RFC
+            7550</link>: All recommendations related to the DHCPv6 server
             operation are supported.</simpara>
+          </listitem>
+          <listitem>
+            <simpara><emphasis>DHCPv6 Options for Configuration of Softwire
+            Address and Port-Mapped Clients</emphasis>,
+            <ulink url="http://tools.ietf.org/html/rfc7598">RFC
+            7598</ulink>: All options specified in this specification are
+            supported by the DHCPv6 server.</simpara>
           </listitem>
       </itemizedlist>
     </section>
 
-    <section id="dhcp6-limit">
+    <section xml:id="dhcp6-limit">
       <title>DHCPv6 Server Limitations</title>
       <para> These are the current limitations of the DHCPv6 server
       software. Most of them are reflections of the early stage of
@@ -4740,8 +5156,8 @@ autogenerated IDs are not stable across configuration changes.
           <simpara>
             The server will allocate, renew or rebind a maximum of one lease
             for a particular IA option (IA_NA or IA_PD) sent by a client.
-            <ulink url="http://tools.ietf.org/html/rfc3315">RFC 3315</ulink> and
-            <ulink url="http://tools.ietf.org/html/rfc3633">RFC 3633</ulink> allow
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3315">RFC 3315</link> and
+            <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tools.ietf.org/html/rfc3633">RFC 3633</link> allow
             for multiple addresses or prefixes to be allocated for a single IA.
           </simpara>
         </listitem>

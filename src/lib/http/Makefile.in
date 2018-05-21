@@ -138,14 +138,17 @@ libkea_http_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libkea_http_la_OBJECTS = libkea_http_la-connection.lo \
-	libkea_http_la-connection_pool.lo libkea_http_la-date_time.lo \
-	libkea_http_la-http_log.lo libkea_http_la-listener.lo \
-	libkea_http_la-post_request.lo \
+am_libkea_http_la_OBJECTS = libkea_http_la-client.lo \
+	libkea_http_la-connection.lo libkea_http_la-connection_pool.lo \
+	libkea_http_la-date_time.lo libkea_http_la-http_log.lo \
+	libkea_http_la-http_header.lo libkea_http_la-http_message.lo \
+	libkea_http_la-http_message_parser_base.lo \
+	libkea_http_la-listener.lo libkea_http_la-post_request.lo \
 	libkea_http_la-post_request_json.lo libkea_http_la-request.lo \
 	libkea_http_la-request_parser.lo libkea_http_la-response.lo \
+	libkea_http_la-response_parser.lo \
 	libkea_http_la-response_creator.lo \
-	libkea_http_la-response_json.lo
+	libkea_http_la-response_json.lo libkea_http_la-url.lo
 nodist_libkea_http_la_OBJECTS = libkea_http_la-http_messages.lo
 libkea_http_la_OBJECTS = $(am_libkea_http_la_OBJECTS) \
 	$(nodist_libkea_http_la_OBJECTS)
@@ -288,12 +291,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -312,11 +321,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -450,7 +462,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -471,19 +482,23 @@ EXTRA_DIST = http_messages.mes
 # Get rid of generated message files on a clean
 CLEANFILES = *.gcno *.gcda http_messages.h http_messages.cc s-messages
 lib_LTLIBRARIES = libkea-http.la
-libkea_http_la_SOURCES = connection.cc connection.h connection_pool.cc \
-	connection_pool.h date_time.cc date_time.h http_log.cc \
-	http_log.h header_context.h http_acceptor.h http_types.h \
-	listener.cc listener.h post_request.cc post_request.h \
-	post_request_json.cc post_request_json.h request.cc request.h \
-	request_context.h request_parser.cc request_parser.h \
-	response.cc response.h response_creator.cc response_creator.h \
-	response_creator_factory.h response_json.cc response_json.h
+libkea_http_la_SOURCES = client.cc client.h connection.cc connection.h \
+	connection_pool.cc connection_pool.h date_time.cc date_time.h \
+	http_log.cc http_log.h header_context.h http_acceptor.h \
+	http_header.cc http_header.h http_message.cc http_message.h \
+	http_message_parser_base.cc http_message_parser_base.h \
+	http_types.h listener.cc listener.h post_request.cc \
+	post_request.h post_request_json.cc post_request_json.h \
+	request.cc request.h request_context.h request_parser.cc \
+	request_parser.h response.cc response.h response_parser.cc \
+	response_parser.h response_context.h response_creator.cc \
+	response_creator.h response_creator_factory.h response_json.cc \
+	response_json.h url.cc url.h
 nodist_libkea_http_la_SOURCES = http_messages.cc http_messages.h
 libkea_http_la_CXXFLAGS = $(AM_CXXFLAGS)
 libkea_http_la_CPPFLAGS = $(AM_CPPFLAGS)
 libkea_http_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -version-info \
-	0:1:0
+	1:0:0
 libkea_http_la_LIBADD =  \
 	$(top_builddir)/src/lib/asiolink/libkea-asiolink.la \
 	$(top_builddir)/src/lib/cc/libkea-cc.la \
@@ -496,12 +511,16 @@ libkea_http_la_LIBADD =  \
 # Specify the headers for copying into the installation directory tree.
 libkea_http_includedir = $(pkgincludedir)/http
 libkea_http_include_HEADERS = \
+	client.h \
 	connection.h \
 	connection_pool.h \
 	date_time.h \
 	header_context.h \
 	http_acceptor.h \
+	http_header.h \
 	http_log.h \
+	http_message.h \
+	http_message_parser_base.h \
 	http_types.h \
 	listener.h \
 	post_request.h \
@@ -510,9 +529,12 @@ libkea_http_include_HEADERS = \
 	request_context.h \
 	request_parser.h \
 	response.h \
+	response_context.h \
 	response_creator.h \
 	response_creator_factory.h \
-	response_json.h
+	response_json.h \
+	response_parser.h \
+	url.h
 
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -594,10 +616,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-client.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-connection_pool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-date_time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-http_header.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-http_log.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-http_message.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-http_message_parser_base.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-http_messages.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-listener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-post_request.Plo@am__quote@
@@ -607,6 +633,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-response.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-response_creator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-response_json.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-response_parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkea_http_la-url.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -628,6 +656,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+libkea_http_la-client.lo: client.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-client.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-client.Tpo -c -o libkea_http_la-client.lo `test -f 'client.cc' || echo '$(srcdir)/'`client.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-client.Tpo $(DEPDIR)/libkea_http_la-client.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='client.cc' object='libkea_http_la-client.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-client.lo `test -f 'client.cc' || echo '$(srcdir)/'`client.cc
 
 libkea_http_la-connection.lo: connection.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-connection.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-connection.Tpo -c -o libkea_http_la-connection.lo `test -f 'connection.cc' || echo '$(srcdir)/'`connection.cc
@@ -656,6 +691,27 @@ libkea_http_la-http_log.lo: http_log.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='http_log.cc' object='libkea_http_la-http_log.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-http_log.lo `test -f 'http_log.cc' || echo '$(srcdir)/'`http_log.cc
+
+libkea_http_la-http_header.lo: http_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-http_header.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-http_header.Tpo -c -o libkea_http_la-http_header.lo `test -f 'http_header.cc' || echo '$(srcdir)/'`http_header.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-http_header.Tpo $(DEPDIR)/libkea_http_la-http_header.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='http_header.cc' object='libkea_http_la-http_header.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-http_header.lo `test -f 'http_header.cc' || echo '$(srcdir)/'`http_header.cc
+
+libkea_http_la-http_message.lo: http_message.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-http_message.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-http_message.Tpo -c -o libkea_http_la-http_message.lo `test -f 'http_message.cc' || echo '$(srcdir)/'`http_message.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-http_message.Tpo $(DEPDIR)/libkea_http_la-http_message.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='http_message.cc' object='libkea_http_la-http_message.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-http_message.lo `test -f 'http_message.cc' || echo '$(srcdir)/'`http_message.cc
+
+libkea_http_la-http_message_parser_base.lo: http_message_parser_base.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-http_message_parser_base.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-http_message_parser_base.Tpo -c -o libkea_http_la-http_message_parser_base.lo `test -f 'http_message_parser_base.cc' || echo '$(srcdir)/'`http_message_parser_base.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-http_message_parser_base.Tpo $(DEPDIR)/libkea_http_la-http_message_parser_base.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='http_message_parser_base.cc' object='libkea_http_la-http_message_parser_base.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-http_message_parser_base.lo `test -f 'http_message_parser_base.cc' || echo '$(srcdir)/'`http_message_parser_base.cc
 
 libkea_http_la-listener.lo: listener.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-listener.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-listener.Tpo -c -o libkea_http_la-listener.lo `test -f 'listener.cc' || echo '$(srcdir)/'`listener.cc
@@ -699,6 +755,13 @@ libkea_http_la-response.lo: response.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-response.lo `test -f 'response.cc' || echo '$(srcdir)/'`response.cc
 
+libkea_http_la-response_parser.lo: response_parser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-response_parser.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-response_parser.Tpo -c -o libkea_http_la-response_parser.lo `test -f 'response_parser.cc' || echo '$(srcdir)/'`response_parser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-response_parser.Tpo $(DEPDIR)/libkea_http_la-response_parser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='response_parser.cc' object='libkea_http_la-response_parser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-response_parser.lo `test -f 'response_parser.cc' || echo '$(srcdir)/'`response_parser.cc
+
 libkea_http_la-response_creator.lo: response_creator.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-response_creator.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-response_creator.Tpo -c -o libkea_http_la-response_creator.lo `test -f 'response_creator.cc' || echo '$(srcdir)/'`response_creator.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-response_creator.Tpo $(DEPDIR)/libkea_http_la-response_creator.Plo
@@ -712,6 +775,13 @@ libkea_http_la-response_json.lo: response_json.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='response_json.cc' object='libkea_http_la-response_json.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-response_json.lo `test -f 'response_json.cc' || echo '$(srcdir)/'`response_json.cc
+
+libkea_http_la-url.lo: url.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-url.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-url.Tpo -c -o libkea_http_la-url.lo `test -f 'url.cc' || echo '$(srcdir)/'`url.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkea_http_la-url.Tpo $(DEPDIR)/libkea_http_la-url.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='url.cc' object='libkea_http_la-url.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -c -o libkea_http_la-url.lo `test -f 'url.cc' || echo '$(srcdir)/'`url.cc
 
 libkea_http_la-http_messages.lo: http_messages.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkea_http_la_CPPFLAGS) $(CPPFLAGS) $(libkea_http_la_CXXFLAGS) $(CXXFLAGS) -MT libkea_http_la-http_messages.lo -MD -MP -MF $(DEPDIR)/libkea_http_la-http_messages.Tpo -c -o libkea_http_la-http_messages.lo `test -f 'http_messages.cc' || echo '$(srcdir)/'`http_messages.cc

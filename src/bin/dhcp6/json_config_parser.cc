@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,9 +13,11 @@
 #include <dhcp/libdhcp++.h>
 #include <dhcp6/json_config_parser.h>
 #include <dhcp6/dhcp6_log.h>
+#include <dhcp6/dhcp6_srv.h>
 #include <dhcp/iface_mgr.h>
 #include <dhcpsrv/cfg_option.h>
 #include <dhcpsrv/cfgmgr.h>
+#include <dhcpsrv/db_type.h>
 #include <dhcpsrv/pool.h>
 #include <dhcpsrv/subnet.h>
 #include <dhcpsrv/timer_mgr.h>
@@ -31,6 +33,7 @@
 #include <dhcpsrv/parsers/option_data_parser.h>
 #include <dhcpsrv/parsers/simple_parser6.h>
 #include <dhcpsrv/parsers/shared_networks_list_parser.h>
+#include <dhcpsrv/host_data_source_factory.h>
 #include <hooks/hooks_parser.h>
 #include <log/logger_support.h>
 #include <util/encode/hex.h>
@@ -144,6 +147,7 @@ public:
     ///
     /// - decline-probation-period
     /// - dhcp4o6-port
+    /// - user-context
     ///
     /// @throw DhcpConfigError if parameters are missing or
     /// or having incorrect values.
@@ -157,6 +161,12 @@ public:
         // Set the DHCPv4-over-DHCPv6 interserver port.
         uint16_t dhcp4o6_port = getUint16(global, "dhcp4o6-port");
         srv_config->setDhcp4o6Port(dhcp4o6_port);
+
+        // Set the global user context.
+        ConstElementPtr user_context = global->get("user-context");
+        if (user_context) {
+            srv_config->setContext(user_context);
+        }
     }
 
     /// @brief Copies subnets from shared networks to regular subnets container
@@ -343,7 +353,7 @@ void configureCommandChannel() {
     // If the previous or new socket configuration doesn't exist or
     // the new configuration differs from the old configuration we
     // close the existing socket and open a new socket as appropriate.
-    // Note that closing an existing socket means the clien will not
+    // Note that closing an existing socket means the client will not
     // receive the configuration result.
     if (!sock_cfg || !current_sock_cfg || sock_changed) {
         // Close the existing socket (if any).
@@ -360,7 +370,7 @@ void configureCommandChannel() {
 }
 
 isc::data::ConstElementPtr
-configureDhcp6Server(Dhcpv6Srv&, isc::data::ConstElementPtr config_set,
+configureDhcp6Server(Dhcpv6Srv& server, isc::data::ConstElementPtr config_set,
                      bool check_only) {
 
     if (!config_set) {
@@ -379,6 +389,7 @@ configureDhcp6Server(Dhcpv6Srv&, isc::data::ConstElementPtr config_set,
     // Remove any existing timers.
     if (!check_only) {
         TimerMgr::instance()->unregisterTimers();
+        server.discardPackets();
     }
 
     // Revert any runtime option definitions configured so far and not committed.
@@ -386,6 +397,9 @@ configureDhcp6Server(Dhcpv6Srv&, isc::data::ConstElementPtr config_set,
     // Let's set empty container in case a user hasn't specified any configuration
     // for option definitions. This is equivalent to committing empty container.
     LibDHCP::setRuntimeOptionDefs(OptionDefSpaceContainer());
+
+    // Print the list of known backends.
+    HostDataSourceFactory::printRegistered();
 
     // This is a way to convert ConstElementPtr to ElementPtr.
     // We need a config that can be edited, because we will insert
@@ -518,16 +532,26 @@ configureDhcp6Server(Dhcpv6Srv&, isc::data::ConstElementPtr config_set,
 
             // Please move at the end when migration will be finished.
             if (config_pair.first == "lease-database") {
-                DbAccessParser parser(DbAccessParser::LEASE_DB);
+                DbAccessParser parser(DBType::LEASE_DB);
                 CfgDbAccessPtr cfg_db_access = srv_config->getCfgDbAccess();
                 parser.parse(cfg_db_access, config_pair.second);
                 continue;
             }
 
             if (config_pair.first == "hosts-database") {
-                DbAccessParser parser(DbAccessParser::HOSTS_DB);
+                DbAccessParser parser(DBType::HOSTS_DB);
                 CfgDbAccessPtr cfg_db_access = srv_config->getCfgDbAccess();
                 parser.parse(cfg_db_access, config_pair.second);
+                continue;
+            }
+
+            if (config_pair.first == "hosts-databases") {
+                CfgDbAccessPtr cfg_db_access = srv_config->getCfgDbAccess();
+                DbAccessParser parser(DBType::HOSTS_DB);
+                auto list = config_pair.second->listValue();
+                for (auto it : list) {
+                    parser.parse(cfg_db_access, it);
+                }
                 continue;
             }
 
@@ -557,14 +581,16 @@ configureDhcp6Server(Dhcpv6Srv&, isc::data::ConstElementPtr config_set,
 
             // Timers are not used in the global scope. Their values are derived
             // to specific subnets (see SimpleParser6::deriveParameters).
-            // decline-probation-period and dhcp4o6-port are handled in the
-            // global_parser.parse() which sets global parameters.
+            // decline-probation-period, dhcp4o6-port and user-context
+            // are handled in the global_parser.parse() which sets
+            // global parameters.
             if ( (config_pair.first == "renew-timer") ||
                  (config_pair.first == "rebind-timer") ||
                  (config_pair.first == "preferred-lifetime") ||
                  (config_pair.first == "valid-lifetime") ||
                  (config_pair.first == "decline-probation-period") ||
-                 (config_pair.first == "dhcp4o6-port")) {
+                 (config_pair.first == "dhcp4o6-port") ||
+                 (config_pair.first == "user-context")) {
                 continue;
             }
 

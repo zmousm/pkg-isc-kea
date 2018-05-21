@@ -78,7 +78,7 @@ public:
     /// @param timeout_ms Amount of time after which the method returns.
     void runTimersWithTimeout(const IOServicePtr& io_service, const long timeout_ms) {
         IntervalTimer timer(*io_service);
-        timer.setup([this, &io_service]() {
+        timer.setup([&io_service]() {
             io_service->stop();
         }, timeout_ms, IntervalTimer::ONE_SHOT);
         io_service->run();
@@ -628,7 +628,7 @@ TEST_F(JSONFileBackendTest, defaultLeaseDbBackend) {
 
 // Starting tests which require MySQL backend availability. Those tests
 // will not be executed if Kea has been compiled without the
-// --with-dhcp-mysql.
+// --with-mysql.
 #ifdef HAVE_MYSQL
 
 /// @brief Test fixture class for the tests utilizing MySQL database

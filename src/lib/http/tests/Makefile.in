@@ -105,23 +105,27 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_2 = $(am__EXEEXT_1)
 PROGRAMS = $(noinst_PROGRAMS)
 am__libhttp_unittests_SOURCES_DIST = connection_pool_unittests.cc \
-	date_time_unittests.cc listener_unittests.cc \
+	date_time_unittests.cc http_header_unittests.cc \
 	post_request_unittests.cc post_request_json_unittests.cc \
 	request_parser_unittests.cc request_test.h \
-	response_creator_unittests.cc response_test.h \
-	request_unittests.cc response_unittests.cc \
-	response_json_unittests.cc run_unittests.cc
+	response_creator_unittests.cc response_parser_unittests.cc \
+	response_test.h request_unittests.cc response_unittests.cc \
+	response_json_unittests.cc run_unittests.cc \
+	server_client_unittests.cc url_unittests.cc
 @HAVE_GTEST_TRUE@am_libhttp_unittests_OBJECTS = libhttp_unittests-connection_pool_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-date_time_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	libhttp_unittests-listener_unittests.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libhttp_unittests-http_header_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-post_request_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-post_request_json_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-request_parser_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-response_creator_unittests.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libhttp_unittests-response_parser_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-request_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-response_unittests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	libhttp_unittests-response_json_unittests.$(OBJEXT) \
-@HAVE_GTEST_TRUE@	libhttp_unittests-run_unittests.$(OBJEXT)
+@HAVE_GTEST_TRUE@	libhttp_unittests-run_unittests.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libhttp_unittests-server_client_unittests.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	libhttp_unittests-url_unittests.$(OBJEXT)
 libhttp_unittests_OBJECTS = $(am_libhttp_unittests_OBJECTS)
 am__DEPENDENCIES_1 =
 @HAVE_GTEST_TRUE@libhttp_unittests_DEPENDENCIES =  \
@@ -294,12 +298,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -318,11 +328,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -456,7 +469,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -475,13 +487,16 @@ TESTS_ENVIRONMENT = \
 
 @HAVE_GTEST_TRUE@libhttp_unittests_SOURCES =  \
 @HAVE_GTEST_TRUE@	connection_pool_unittests.cc \
-@HAVE_GTEST_TRUE@	date_time_unittests.cc listener_unittests.cc \
+@HAVE_GTEST_TRUE@	date_time_unittests.cc \
+@HAVE_GTEST_TRUE@	http_header_unittests.cc \
 @HAVE_GTEST_TRUE@	post_request_unittests.cc \
 @HAVE_GTEST_TRUE@	post_request_json_unittests.cc \
 @HAVE_GTEST_TRUE@	request_parser_unittests.cc request_test.h \
-@HAVE_GTEST_TRUE@	response_creator_unittests.cc response_test.h \
+@HAVE_GTEST_TRUE@	response_creator_unittests.cc \
+@HAVE_GTEST_TRUE@	response_parser_unittests.cc response_test.h \
 @HAVE_GTEST_TRUE@	request_unittests.cc response_unittests.cc \
-@HAVE_GTEST_TRUE@	response_json_unittests.cc run_unittests.cc
+@HAVE_GTEST_TRUE@	response_json_unittests.cc run_unittests.cc \
+@HAVE_GTEST_TRUE@	server_client_unittests.cc url_unittests.cc
 @HAVE_GTEST_TRUE@libhttp_unittests_CPPFLAGS = $(AM_CPPFLAGS) $(GTEST_INCLUDES)
 @HAVE_GTEST_TRUE@libhttp_unittests_CXXFLAGS = $(AM_CXXFLAGS)
 @HAVE_GTEST_TRUE@libhttp_unittests_LDFLAGS = $(AM_LDFLAGS) $(GTEST_LDFLAGS)
@@ -551,15 +566,18 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-connection_pool_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-date_time_unittests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-listener_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-http_header_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-post_request_json_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-post_request_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-request_parser_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-request_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-response_creator_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-response_json_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-response_parser_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-response_unittests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-run_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-server_client_unittests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libhttp_unittests-url_unittests.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -610,19 +628,19 @@ libhttp_unittests-date_time_unittests.obj: date_time_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-date_time_unittests.obj `if test -f 'date_time_unittests.cc'; then $(CYGPATH_W) 'date_time_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/date_time_unittests.cc'; fi`
 
-libhttp_unittests-listener_unittests.o: listener_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-listener_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-listener_unittests.Tpo -c -o libhttp_unittests-listener_unittests.o `test -f 'listener_unittests.cc' || echo '$(srcdir)/'`listener_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-listener_unittests.Tpo $(DEPDIR)/libhttp_unittests-listener_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='listener_unittests.cc' object='libhttp_unittests-listener_unittests.o' libtool=no @AMDEPBACKSLASH@
+libhttp_unittests-http_header_unittests.o: http_header_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-http_header_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-http_header_unittests.Tpo -c -o libhttp_unittests-http_header_unittests.o `test -f 'http_header_unittests.cc' || echo '$(srcdir)/'`http_header_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-http_header_unittests.Tpo $(DEPDIR)/libhttp_unittests-http_header_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='http_header_unittests.cc' object='libhttp_unittests-http_header_unittests.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-listener_unittests.o `test -f 'listener_unittests.cc' || echo '$(srcdir)/'`listener_unittests.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-http_header_unittests.o `test -f 'http_header_unittests.cc' || echo '$(srcdir)/'`http_header_unittests.cc
 
-libhttp_unittests-listener_unittests.obj: listener_unittests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-listener_unittests.obj -MD -MP -MF $(DEPDIR)/libhttp_unittests-listener_unittests.Tpo -c -o libhttp_unittests-listener_unittests.obj `if test -f 'listener_unittests.cc'; then $(CYGPATH_W) 'listener_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/listener_unittests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-listener_unittests.Tpo $(DEPDIR)/libhttp_unittests-listener_unittests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='listener_unittests.cc' object='libhttp_unittests-listener_unittests.obj' libtool=no @AMDEPBACKSLASH@
+libhttp_unittests-http_header_unittests.obj: http_header_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-http_header_unittests.obj -MD -MP -MF $(DEPDIR)/libhttp_unittests-http_header_unittests.Tpo -c -o libhttp_unittests-http_header_unittests.obj `if test -f 'http_header_unittests.cc'; then $(CYGPATH_W) 'http_header_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/http_header_unittests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-http_header_unittests.Tpo $(DEPDIR)/libhttp_unittests-http_header_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='http_header_unittests.cc' object='libhttp_unittests-http_header_unittests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-listener_unittests.obj `if test -f 'listener_unittests.cc'; then $(CYGPATH_W) 'listener_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/listener_unittests.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-http_header_unittests.obj `if test -f 'http_header_unittests.cc'; then $(CYGPATH_W) 'http_header_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/http_header_unittests.cc'; fi`
 
 libhttp_unittests-post_request_unittests.o: post_request_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-post_request_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-post_request_unittests.Tpo -c -o libhttp_unittests-post_request_unittests.o `test -f 'post_request_unittests.cc' || echo '$(srcdir)/'`post_request_unittests.cc
@@ -680,6 +698,20 @@ libhttp_unittests-response_creator_unittests.obj: response_creator_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-response_creator_unittests.obj `if test -f 'response_creator_unittests.cc'; then $(CYGPATH_W) 'response_creator_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/response_creator_unittests.cc'; fi`
 
+libhttp_unittests-response_parser_unittests.o: response_parser_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-response_parser_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-response_parser_unittests.Tpo -c -o libhttp_unittests-response_parser_unittests.o `test -f 'response_parser_unittests.cc' || echo '$(srcdir)/'`response_parser_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-response_parser_unittests.Tpo $(DEPDIR)/libhttp_unittests-response_parser_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='response_parser_unittests.cc' object='libhttp_unittests-response_parser_unittests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-response_parser_unittests.o `test -f 'response_parser_unittests.cc' || echo '$(srcdir)/'`response_parser_unittests.cc
+
+libhttp_unittests-response_parser_unittests.obj: response_parser_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-response_parser_unittests.obj -MD -MP -MF $(DEPDIR)/libhttp_unittests-response_parser_unittests.Tpo -c -o libhttp_unittests-response_parser_unittests.obj `if test -f 'response_parser_unittests.cc'; then $(CYGPATH_W) 'response_parser_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/response_parser_unittests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-response_parser_unittests.Tpo $(DEPDIR)/libhttp_unittests-response_parser_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='response_parser_unittests.cc' object='libhttp_unittests-response_parser_unittests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-response_parser_unittests.obj `if test -f 'response_parser_unittests.cc'; then $(CYGPATH_W) 'response_parser_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/response_parser_unittests.cc'; fi`
+
 libhttp_unittests-request_unittests.o: request_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-request_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-request_unittests.Tpo -c -o libhttp_unittests-request_unittests.o `test -f 'request_unittests.cc' || echo '$(srcdir)/'`request_unittests.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-request_unittests.Tpo $(DEPDIR)/libhttp_unittests-request_unittests.Po
@@ -735,6 +767,34 @@ libhttp_unittests-run_unittests.obj: run_unittests.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='run_unittests.cc' object='libhttp_unittests-run_unittests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-run_unittests.obj `if test -f 'run_unittests.cc'; then $(CYGPATH_W) 'run_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/run_unittests.cc'; fi`
+
+libhttp_unittests-server_client_unittests.o: server_client_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-server_client_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-server_client_unittests.Tpo -c -o libhttp_unittests-server_client_unittests.o `test -f 'server_client_unittests.cc' || echo '$(srcdir)/'`server_client_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-server_client_unittests.Tpo $(DEPDIR)/libhttp_unittests-server_client_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='server_client_unittests.cc' object='libhttp_unittests-server_client_unittests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-server_client_unittests.o `test -f 'server_client_unittests.cc' || echo '$(srcdir)/'`server_client_unittests.cc
+
+libhttp_unittests-server_client_unittests.obj: server_client_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-server_client_unittests.obj -MD -MP -MF $(DEPDIR)/libhttp_unittests-server_client_unittests.Tpo -c -o libhttp_unittests-server_client_unittests.obj `if test -f 'server_client_unittests.cc'; then $(CYGPATH_W) 'server_client_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/server_client_unittests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-server_client_unittests.Tpo $(DEPDIR)/libhttp_unittests-server_client_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='server_client_unittests.cc' object='libhttp_unittests-server_client_unittests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-server_client_unittests.obj `if test -f 'server_client_unittests.cc'; then $(CYGPATH_W) 'server_client_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/server_client_unittests.cc'; fi`
+
+libhttp_unittests-url_unittests.o: url_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-url_unittests.o -MD -MP -MF $(DEPDIR)/libhttp_unittests-url_unittests.Tpo -c -o libhttp_unittests-url_unittests.o `test -f 'url_unittests.cc' || echo '$(srcdir)/'`url_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-url_unittests.Tpo $(DEPDIR)/libhttp_unittests-url_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='url_unittests.cc' object='libhttp_unittests-url_unittests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-url_unittests.o `test -f 'url_unittests.cc' || echo '$(srcdir)/'`url_unittests.cc
+
+libhttp_unittests-url_unittests.obj: url_unittests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -MT libhttp_unittests-url_unittests.obj -MD -MP -MF $(DEPDIR)/libhttp_unittests-url_unittests.Tpo -c -o libhttp_unittests-url_unittests.obj `if test -f 'url_unittests.cc'; then $(CYGPATH_W) 'url_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/url_unittests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libhttp_unittests-url_unittests.Tpo $(DEPDIR)/libhttp_unittests-url_unittests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='url_unittests.cc' object='libhttp_unittests-url_unittests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libhttp_unittests_CPPFLAGS) $(CPPFLAGS) $(libhttp_unittests_CXXFLAGS) $(CXXFLAGS) -c -o libhttp_unittests-url_unittests.obj `if test -f 'url_unittests.cc'; then $(CYGPATH_W) 'url_unittests.cc'; else $(CYGPATH_W) '$(srcdir)/url_unittests.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

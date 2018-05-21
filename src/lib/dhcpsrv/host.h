@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2014-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 
 #include <asiolink/io_address.h>
 #include <cc/data.h>
+#include <cc/user_context.h>
 #include <dhcp/classify.h>
 #include <dhcp/duid.h>
 #include <dhcp/hwaddr.h>
@@ -23,7 +24,7 @@
 namespace isc {
 namespace dhcp {
 
-/// @brief HostID (used only when storing in MySQL or Postgres)
+/// @brief HostID (used only when storing in MySQL, PostgreSQL or Cassandra)
 typedef uint64_t HostID;
 
 /// @brief IPv6 reservation for a host.
@@ -171,7 +172,7 @@ typedef std::pair<IPv6ResrvIterator, IPv6ResrvIterator> IPv6ResrvRange;
 /// - disable IPv4 reservation without a need to set it to the 0.0.0.0 address
 /// Note that the last three operations are mainly required for managing
 /// host reservations which will be implemented later.
-class Host {
+class Host : public UserContext {
 public:
 
     /// @brief Type of the host identifier.
@@ -533,16 +534,31 @@ public:
     /// @brief Returns information about the host in the textual format.
     std::string toText() const;
 
-    /// @brief Sets Host ID (primary key in MySQL and Postgres backends)
+    /// @brief Sets Host ID (primary key in MySQL, PostgreSQL and Cassandra backends)
     /// @param id HostId value
     void setHostId(HostID id) {
         host_id_ = id;
     }
 
-    /// @brief Returns Host ID (primary key in MySQL and Postgres backends)
+    /// @brief Returns Host ID (primary key in MySQL, PostgreSQL and Cassandra backends)
     /// @return id HostId value (or 0 if not set)
     HostID getHostId() const {
         return (host_id_);
+    }
+
+    /// @brief Sets the negative cached flag.
+    ///
+    /// @param negative sets whether this is a negative cached host,
+    /// i.e. a fake host in the cache which indicates non-existence
+    /// and avoids to lookup in a slow backend.
+    void setNegative(bool negative) {
+        negative_ = negative;
+    }
+
+    /// @brief Return the negative cache flag value.
+    /// When true standard lookup methods return null host pointer instead.
+    bool getNegative() const {
+        return (negative_);
     }
 
     /// @brief Unparses (converts to Element representation) IPv4 host
@@ -596,13 +612,20 @@ private:
     std::string boot_file_name_;
 
     /// @brief HostID (a unique identifier assigned when the host is stored in
-    ///                MySQL or Pgsql)
+    ///     MySQL, PostgreSQL or Cassandra)
     uint64_t host_id_;
 
     /// @brief Pointer to the DHCPv4 option data configuration for this host.
     CfgOptionPtr cfg_option4_;
     /// @brief Pointer to the DHCPv6 option data configuration for this host.
     CfgOptionPtr cfg_option6_;
+
+    /// @brief Negative cached flag.
+    ///
+    /// This flag determines whether this object is a negative cache, i.e.
+    /// we queried other backends for specific host and there was no
+    /// entry for it.
+    bool negative_;
 };
 
 /// @brief Pointer to the @c Host object.

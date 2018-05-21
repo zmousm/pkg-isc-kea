@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2012-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -83,6 +83,7 @@ public:
 
     /// Expose internal methods for the sake of testing
     using Dhcpv6Srv::receivePacket;
+    using Dhcpv6Srv::network_state_;
 };
 
 /// @brief Default control connection timeout.
@@ -379,13 +380,10 @@ public:
     /// can catch out of order delivery.
     static ConstElementPtr longResponseHandler(const std::string&,
                                                const ConstElementPtr&) {
-        // By seeding the generator with the constant value we will always
-        // get the same sequence of generated strings.
-        std::srand(1);
         ElementPtr arguments = Element::createList();
-        for (unsigned i = 0; i < 40000; ++i) {
+        for (unsigned i = 0; i < 80000; ++i) {
             std::ostringstream s;
-            s << std::setw(10) << std::rand();
+            s << std::setw(5) << i;
             arguments->add(Element::create(s.str()));
         }
         return (createAnswer(0, arguments));
@@ -1173,6 +1171,74 @@ TEST_F(CtrlChannelDhcpv6SrvTest, configReloadValid) {
     EXPECT_EQ(2, subnets->size());
 
     ::remove("test8.json");
+}
+
+// This test verifies if it is possible to disable DHCP service via command.
+TEST_F(CtrlChannelDhcpv6SrvTest, dhcpDisable) {
+    createUnixChannelServer();
+    std::string response;
+
+    sendUnixCommand("{ \"command\": \"dhcp-disable\" }", response);
+    ConstElementPtr rsp;
+
+    // The response should be a valid JSON.
+    EXPECT_NO_THROW(rsp = Element::fromJSON(response));
+    ASSERT_TRUE(rsp);
+
+    int status;
+    ConstElementPtr cfg = parseAnswer(status, rsp);
+    EXPECT_EQ(CONTROL_RESULT_SUCCESS, status);
+
+    EXPECT_FALSE(server_->network_state_->isServiceEnabled());
+}
+
+// This test verifies that it is possible to disable DHCP service for a short
+// period of time, after which the service is automatically enabled.
+TEST_F(CtrlChannelDhcpv6SrvTest, dhcpDisableTemporarily) {
+    createUnixChannelServer();
+    std::string response;
+
+    // Send a command to disable DHCP service for 3 seconds.
+    sendUnixCommand("{"
+                    "    \"command\": \"dhcp-disable\","
+                    "    \"arguments\": {"
+                    "        \"max-period\": 3"
+                    "    }"
+                    "}", response);
+    ConstElementPtr rsp;
+
+    // The response should be a valid JSON.
+    EXPECT_NO_THROW(rsp = Element::fromJSON(response));
+    ASSERT_TRUE(rsp);
+
+    int status;
+    ConstElementPtr cfg = parseAnswer(status, rsp);
+    EXPECT_EQ(CONTROL_RESULT_SUCCESS, status);
+
+    // The service should be disabled.
+    EXPECT_FALSE(server_->network_state_->isServiceEnabled());
+    // And the timer should be scheduled which counts the time to automatic
+    // enabling of the service.
+    EXPECT_TRUE(server_->network_state_->isDelayedEnableAll());
+}
+
+// This test verifies if it is possible to enable DHCP service via command.
+TEST_F(CtrlChannelDhcpv6SrvTest, dhcpEnable) {
+    createUnixChannelServer();
+    std::string response;
+
+    sendUnixCommand("{ \"command\": \"dhcp-enable\" }", response);
+    ConstElementPtr rsp;
+
+    // The response should be a valid JSON.
+    EXPECT_NO_THROW(rsp = Element::fromJSON(response));
+    ASSERT_TRUE(rsp);
+
+    int status;
+    ConstElementPtr cfg = parseAnswer(status, rsp);
+    EXPECT_EQ(CONTROL_RESULT_SUCCESS, status);
+
+    EXPECT_TRUE(server_->network_state_->isServiceEnabled());
 }
 
 /// Verify that concurrent connections over the control channel can be

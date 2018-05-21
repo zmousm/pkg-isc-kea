@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2017 Internet Systems Consortium, Inc. ("ISC")
+// Copyright (C) 2013-2018 Internet Systems Consortium, Inc. ("ISC")
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -66,7 +66,6 @@ public:
     /// @brief Adds an IPv4 lease
     ///
     /// @param lease lease to be added
-    ///
     /// @result true if the lease was added, false if not (because a lease
     ///         with the same address was already there).
     ///
@@ -161,7 +160,6 @@ public:
     virtual Lease4Ptr getLease4(const ClientId& client_id, const HWAddr& hwaddr,
                                 SubnetID subnet_id) const;
 
-
     /// @brief Returns existing IPv4 lease for specified client-id
     ///
     /// There can be at most one lease for a given HW address in a single
@@ -176,6 +174,18 @@ public:
     ///        failed.
     virtual Lease4Ptr getLease4(const ClientId& clientid,
                                 SubnetID subnet_id) const;
+
+    /// @brief Returns all IPv4 leases for the particular subnet identifier.
+    ///
+    /// @param subnet_id subnet identifier.
+    ///
+    /// @return Lease collection (may be empty if no IPv4 lease found).
+    virtual Lease4Collection getLeases4(SubnetID subnet_id) const;
+
+    /// @brief Returns all IPv4 leases.
+    ///
+    /// @return Lease collection (may be empty if no IPv4 lease found).
+    virtual Lease4Collection getLeases4() const;
 
     /// @brief Returns existing IPv6 lease for a given IPv6 address.
     ///
@@ -231,19 +241,17 @@ public:
     virtual Lease6Collection getLeases6(Lease::Type type, const DUID& duid,
                                         uint32_t iaid, SubnetID subnet_id) const;
 
-    /// @brief Returns a collection of expired DHCPv6 leases.
+    /// @brief Returns all IPv6 leases for the particular subnet identifier.
     ///
-    /// This method returns at most @c max_leases expired leases. The leases
-    /// returned haven't been reclaimed, i.e. the database query must exclude
-    /// reclaimed leases from the results returned.
+    /// @param subnet_id subnet identifier.
     ///
-    /// @param [out] expired_leases A container to which expired leases returned
-    /// by the database backend are added.
-    /// @param max_leases A maximum number of leases to be returned. If this
-    /// value is set to 0, all expired (but not reclaimed) leases are returned.
-    virtual void getExpiredLeases6(Lease6Collection& expired_leases,
-                                   const size_t max_leases) const;
+    /// @return Lease collection (may be empty if no IPv6 lease found).
+    virtual Lease6Collection getLeases6(SubnetID subnet_id) const;
 
+    /// @brief Returns all IPv6 leases.
+    ///
+    /// @return Lease collection (may be empty if no IPv6 lease found).
+    virtual Lease6Collection getLeases6() const;
 
     /// @brief Returns a collection of expired DHCPv4 leases.
     ///
@@ -256,6 +264,19 @@ public:
     /// @param max_leases A maximum number of leases to be returned. If this
     /// value is set to 0, all expired (but not reclaimed) leases are returned.
     virtual void getExpiredLeases4(Lease4Collection& expired_leases,
+                                   const size_t max_leases) const;
+
+    /// @brief Returns a collection of expired DHCPv6 leases.
+    ///
+    /// This method returns at most @c max_leases expired leases. The leases
+    /// returned haven't been reclaimed, i.e. the database query must exclude
+    /// reclaimed leases from the results returned.
+    ///
+    /// @param [out] expired_leases A container to which expired leases returned
+    /// by the database backend are added.
+    /// @param max_leases A maximum number of leases to be returned. If this
+    /// value is set to 0, all expired (but not reclaimed) leases are returned.
+    virtual void getExpiredLeases6(Lease6Collection& expired_leases,
                                    const size_t max_leases) const;
 
     /// @brief Updates IPv4 lease.
@@ -317,22 +338,65 @@ public:
     ///
     /// It creates an instance of a PgSqlLeaseStatsQuery4 and then
     /// invokes its start method, which fetches its statistical data
-    /// result set by executing the RECOUNT_LEASE_STATS4 query.
+    /// result set by executing the ALL_LEASE_STATS4 query.
     /// The query object is then returned.
     ///
     /// @return The populated query as a pointer to an LeaseStatsQuery
     virtual LeaseStatsQueryPtr startLeaseStatsQuery4();
 
+    /// @brief Creates and runs the IPv4 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a PgSqlLeaseStatsQuery4 for a single subnet
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param subnet_id id of the subnet for which stats are desired
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetLeaseStatsQuery4(const SubnetID& subnet_id);
+
+
+    /// @brief Creates and runs the IPv4 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a PgSqlLeaseStatsQuery4 for a subnet range
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param first_subnet_id first subnet in the range of subnets
+    /// @param last_subnet_id last subnet in the range of subnets
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetRangeLeaseStatsQuery4(const SubnetID& first_subnet_id,
+                                                                const SubnetID& last_subnet_id);
     /// @brief Creates and runs the IPv6 lease stats query
     ///
     /// It creates an instance of a PgSqlLeaseStatsQuery and then
     /// invokes its start method, which fetches its statistical data
-    /// result set by executing the RECOUNT_LEASE_STATS6 query.
+    /// result set by executing the ALL_LEASE_STATS6 query.
     /// The query object is then returned.
     ///
     /// @return The populated query as a pointer to an LeaseStatsQuery
     virtual LeaseStatsQueryPtr startLeaseStatsQuery6();
 
+    /// @brief Creates and runs the IPv6 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a PgSqlLeaseStatsQuery6 for a single subnet
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param subnet_id id of the subnet for which stats are desired
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetLeaseStatsQuery6(const SubnetID& subnet_id);
+
+    /// @brief Creates and runs the IPv6 lease stats query for a single subnet
+    ///
+    /// It creates an instance of a PgSqlLeaseStatsQuery6 for a subnet range
+    /// query and then invokes its start method in which the query constructs its
+    /// statistical data result set.  The query object is then returned.
+    ///
+    /// @param first_subnet_id first subnet in the range of subnets
+    /// @param last_subnet_id last subnet in the range of subnets
+    /// @return A populated LeaseStatsQuery
+    virtual LeaseStatsQueryPtr startSubnetRangeLeaseStatsQuery6(const SubnetID& first_subnet_id,
+                                                                const SubnetID& last_subnet_id);
     /// @brief Removes specified IPv4 leases.
     ///
     /// This rather dangerous method is able to remove all leases from specified
@@ -408,23 +472,31 @@ public:
         DELETE_LEASE4_STATE_EXPIRED,// Delete expired lease4s in certain state.
         DELETE_LEASE6,              // Delete from lease6 by address
         DELETE_LEASE6_STATE_EXPIRED,// Delete expired lease6s in certain state.
+        GET_LEASE4,                 // Get all IPv4 leases
         GET_LEASE4_ADDR,            // Get lease4 by address
         GET_LEASE4_CLIENTID,        // Get lease4 by client ID
         GET_LEASE4_CLIENTID_SUBID,  // Get lease4 by client ID & subnet ID
         GET_LEASE4_HWADDR,          // Get lease4 by HW address
         GET_LEASE4_HWADDR_SUBID,    // Get lease4 by HW address & subnet ID
+        GET_LEASE4_SUBID,           // Get IPv4 leases by subnet ID
         GET_LEASE4_EXPIRE,          // Get expired lease4
+        GET_LEASE6,                 // Get all IPv6 leases
         GET_LEASE6_ADDR,            // Get lease6 by address
         GET_LEASE6_DUID_IAID,       // Get lease6 by DUID and IAID
         GET_LEASE6_DUID_IAID_SUBID, // Get lease6 by DUID, IAID and subnet ID
+        GET_LEASE6_SUBID,           // Get IPv6 leases by subnet ID
         GET_LEASE6_EXPIRE,          // Get expired lease6
         GET_VERSION,                // Obtain version number
         INSERT_LEASE4,              // Add entry to lease4 table
         INSERT_LEASE6,              // Add entry to lease6 table
         UPDATE_LEASE4,              // Update a Lease4 entry
         UPDATE_LEASE6,              // Update a Lease6 entry
-        RECOUNT_LEASE4_STATS,       // Fetch IPv4 lease statistical data
-        RECOUNT_LEASE6_STATS,       // Fetch IPv4 lease statistical data
+        ALL_LEASE4_STATS,           // Fetches IPv4 lease statistics
+        SUBNET_LEASE4_STATS,        // Fetched IPv4 lease stats for a single subnet.
+        SUBNET_RANGE_LEASE4_STATS,  // Fetched IPv4 lease stats for a subnet range.
+        ALL_LEASE6_STATS,           // Fetches IPv6 lease statistics
+        SUBNET_LEASE6_STATS,        // Fetched IPv6 lease stats for a single subnet.
+        SUBNET_RANGE_LEASE6_STATS,  // Fetched IPv6 lease stats for a subnet range.
         NUM_STATEMENTS              // Number of statements
     };
 
@@ -615,7 +687,7 @@ private:
     PgSqlConnection conn_;
 };
 
-}; // end of isc::dhcp namespace
-}; // end of isc namespace
+}  // namespace dhcp
+}  // namespace isc
 
 #endif // PGSQL_LEASE_MGR_H

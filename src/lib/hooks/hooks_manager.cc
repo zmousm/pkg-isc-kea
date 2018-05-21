@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <config.h>
+
 #include <hooks/callout_handle.h>
 #include <hooks/callout_manager.h>
 #include <hooks/callout_manager.h>
@@ -128,6 +130,7 @@ HooksManager::unloadLibrariesInternal() {
     // ease debugging.
     lm_collection_.reset();
     callout_manager_.reset();
+    ServerHooks::getServerHooks().getParkingLotsPtr()->clear();
 }
 
 void HooksManager::unloadLibraries() {

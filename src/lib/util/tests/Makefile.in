@@ -109,8 +109,9 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 	base32hex_unittest.cc base64_unittest.cc \
 	boost_time_utils_unittest.cc buffer_unittest.cc \
 	csv_file_unittest.cc fd_share_tests.cc fd_tests.cc \
-	filename_unittest.cc hex_unittest.cc io_utilities_unittest.cc \
-	labeled_value_unittest.cc memory_segment_local_unittest.cc \
+	filename_unittest.cc hash_unittest.cc hex_unittest.cc \
+	io_utilities_unittest.cc labeled_value_unittest.cc \
+	memory_segment_local_unittest.cc \
 	memory_segment_common_unittest.h \
 	memory_segment_common_unittest.cc optional_value_unittest.cc \
 	pid_file_unittest.cc process_spawn_unittest.cc \
@@ -130,6 +131,7 @@ am__run_unittests_SOURCES_DIST = run_unittests.cc \
 @HAVE_GTEST_TRUE@	run_unittests-fd_share_tests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-fd_tests.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-filename_unittest.$(OBJEXT) \
+@HAVE_GTEST_TRUE@	run_unittests-hash_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-hex_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-io_utilities_unittest.$(OBJEXT) \
 @HAVE_GTEST_TRUE@	run_unittests-labeled_value_unittest.$(OBJEXT) \
@@ -318,12 +320,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -342,11 +350,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -480,7 +491,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -507,8 +517,8 @@ TESTS_ENVIRONMENT = \
 @HAVE_GTEST_TRUE@	boost_time_utils_unittest.cc \
 @HAVE_GTEST_TRUE@	buffer_unittest.cc csv_file_unittest.cc \
 @HAVE_GTEST_TRUE@	fd_share_tests.cc fd_tests.cc \
-@HAVE_GTEST_TRUE@	filename_unittest.cc hex_unittest.cc \
-@HAVE_GTEST_TRUE@	io_utilities_unittest.cc \
+@HAVE_GTEST_TRUE@	filename_unittest.cc hash_unittest.cc \
+@HAVE_GTEST_TRUE@	hex_unittest.cc io_utilities_unittest.cc \
 @HAVE_GTEST_TRUE@	labeled_value_unittest.cc \
 @HAVE_GTEST_TRUE@	memory_segment_local_unittest.cc \
 @HAVE_GTEST_TRUE@	memory_segment_common_unittest.h \
@@ -596,6 +606,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-fd_share_tests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-fd_tests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-filename_unittest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-hash_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-hex_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-io_utilities_unittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_unittests-labeled_value_unittest.Po@am__quote@
@@ -764,6 +775,20 @@ run_unittests-filename_unittest.obj: filename_unittest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='filename_unittest.cc' object='run_unittests-filename_unittest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-filename_unittest.obj `if test -f 'filename_unittest.cc'; then $(CYGPATH_W) 'filename_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/filename_unittest.cc'; fi`
+
+run_unittests-hash_unittest.o: hash_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-hash_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-hash_unittest.Tpo -c -o run_unittests-hash_unittest.o `test -f 'hash_unittest.cc' || echo '$(srcdir)/'`hash_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-hash_unittest.Tpo $(DEPDIR)/run_unittests-hash_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='hash_unittest.cc' object='run_unittests-hash_unittest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-hash_unittest.o `test -f 'hash_unittest.cc' || echo '$(srcdir)/'`hash_unittest.cc
+
+run_unittests-hash_unittest.obj: hash_unittest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-hash_unittest.obj -MD -MP -MF $(DEPDIR)/run_unittests-hash_unittest.Tpo -c -o run_unittests-hash_unittest.obj `if test -f 'hash_unittest.cc'; then $(CYGPATH_W) 'hash_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/hash_unittest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/run_unittests-hash_unittest.Tpo $(DEPDIR)/run_unittests-hash_unittest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='hash_unittest.cc' object='run_unittests-hash_unittest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_unittests-hash_unittest.obj `if test -f 'hash_unittest.cc'; then $(CYGPATH_W) 'hash_unittest.cc'; else $(CYGPATH_W) '$(srcdir)/hash_unittest.cc'; fi`
 
 run_unittests-hex_unittest.o: hex_unittest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_unittests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_unittests-hex_unittest.o -MD -MP -MF $(DEPDIR)/run_unittests-hex_unittest.Tpo -c -o run_unittests-hex_unittest.o `test -f 'hex_unittest.cc' || echo '$(srcdir)/'`hex_unittest.cc

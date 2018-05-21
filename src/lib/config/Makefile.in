@@ -143,9 +143,9 @@ libkea_cfgclient_la_DEPENDENCIES =  \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_libkea_cfgclient_la_OBJECTS = config_data.lo module_spec.lo \
-	base_command_mgr.lo client_connection.lo command_mgr.lo \
-	config_log.lo hooked_command_mgr.lo
+am_libkea_cfgclient_la_OBJECTS = base_command_mgr.lo \
+	client_connection.lo command_mgr.lo config_log.lo \
+	hooked_command_mgr.lo
 nodist_libkea_cfgclient_la_OBJECTS = config_messages.lo
 libkea_cfgclient_la_OBJECTS = $(am_libkea_cfgclient_la_OBJECTS) \
 	$(nodist_libkea_cfgclient_la_OBJECTS)
@@ -289,12 +289,18 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BENCHMARK_CPPFLAGS = @BENCHMARK_CPPFLAGS@
+BENCHMARK_INCLUDES = @BENCHMARK_INCLUDES@
+BENCHMARK_LDADD = @BENCHMARK_LDADD@
+BENCHMARK_LDFLAGS = @BENCHMARK_LDFLAGS@
+BENCHMARK_SOURCE = @BENCHMARK_SOURCE@
 BOOST_INCLUDES = @BOOST_INCLUDES@
 BOOST_LIBS = @BOOST_LIBS@
 BOTAN_TOOL = @BOTAN_TOOL@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONTRIB_DIR = @CONTRIB_DIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CQL_CPPFLAGS = @CQL_CPPFLAGS@
@@ -313,11 +319,14 @@ CYGPATH_W = @CYGPATH_W@
 DBLATEX = @DBLATEX@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_BENCHMARK_CONFIGURE_FLAG = @DISTCHECK_BENCHMARK_CONFIGURE_FLAG@
 DISTCHECK_BOOST_CONFIGURE_FLAG = @DISTCHECK_BOOST_CONFIGURE_FLAG@
+DISTCHECK_CONTRIB_CONFIGURE_FLAG = @DISTCHECK_CONTRIB_CONFIGURE_FLAG@
 DISTCHECK_CRYPTO_CONFIGURE_FLAG = @DISTCHECK_CRYPTO_CONFIGURE_FLAG@
 DISTCHECK_GTEST_CONFIGURE_FLAG = @DISTCHECK_GTEST_CONFIGURE_FLAG@
 DISTCHECK_KEA_SHELL_CONFIGURE_FLAG = @DISTCHECK_KEA_SHELL_CONFIGURE_FLAG@
 DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG = @DISTCHECK_LOG4CPLUS_CONFIGURE_FLAG@
+DISTCHECK_PREMIUM_CONFIGURE_FLAG = @DISTCHECK_PREMIUM_CONFIGURE_FLAG@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -451,7 +460,6 @@ pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -460,10 +468,10 @@ top_srcdir = @top_srcdir@
 SUBDIRS = . tests
 AM_CPPFLAGS = -I$(top_srcdir)/src/lib -I$(top_builddir)/src/lib \
 	$(BOOST_INCLUDES)
+AM_CXXFLAGS = $(KEA_CXXFLAGS)
 BUILT_SOURCES = config_messages.h config_messages.cc
 lib_LTLIBRARIES = libkea-cfgclient.la
-libkea_cfgclient_la_SOURCES = config_data.h config_data.cc cmds_impl.h \
-	module_spec.h module_spec.cc base_command_mgr.cc \
+libkea_cfgclient_la_SOURCES = cmds_impl.h base_command_mgr.cc \
 	base_command_mgr.h client_connection.cc client_connection.h \
 	command_mgr.cc command_mgr.h config_log.h config_log.cc \
 	hooked_command_mgr.cc hooked_command_mgr.h
@@ -479,7 +487,7 @@ libkea_cfgclient_la_LIBADD =  \
 	$(top_builddir)/src/lib/util/libkea-util.la \
 	$(top_builddir)/src/lib/exceptions/libkea-exceptions.la \
 	$(LOG4CPLUS_LIBS) $(CRYPTO_LIBS) $(BOOST_LIBS)
-libkea_cfgclient_la_LDFLAGS = -no-undefined -version-info 4:0:0 \
+libkea_cfgclient_la_LDFLAGS = -no-undefined -version-info 5:0:0 \
 	$(CRYPTO_LDFLAGS)
 nodist_libkea_cfgclient_la_SOURCES = config_messages.h config_messages.cc
 
@@ -494,10 +502,8 @@ libkea_cfgclient_include_HEADERS = \
 	client_connection.h \
 	cmds_impl.h \
 	command_mgr.h \
-	config_data.h \
 	config_log.h \
-	hooked_command_mgr.h \
-	module_spec.h
+	hooked_command_mgr.h
 
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -582,11 +588,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base_command_mgr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/client_connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_mgr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config_data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config_log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config_messages.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hooked_command_mgr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/module_spec.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
