@@ -2,12 +2,12 @@ Source: isc-kea
 Section: net
 Priority: optional
 Maintainer: Adam Majer <adamm@zombino.com>
-Build-Depends: debhelper (>= 10), liblog4cplus-dev,
+Build-Depends: debhelper (>= 9), liblog4cplus-dev,
                libboost-dev, libboost-system-dev, bison, flex,
                libmysqlclient-dev, libpq-dev, python3-dev, elinks,
                postgresql-server-dev-all, libssl-dev,
                xsltproc, docbook, docbook-xsl
-Standards-Version: 3.9.8
+Standards-Version: 3.9.7
 Homepage: http://kea.isc.org/
 Vcs-Git: git://anonscm.debian.org/collab-maint/isc-kea.git
 Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/isc-kea.git;a=summary
