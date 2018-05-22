@@ -1,3 +1,12 @@
+isc-kea (1.3.0-1~bpo80+grnet2) jessie-backports; urgency=medium
+
+  * Sync with Debian
+  * Remove remnants of own kea-control-agent package
+    * But keep and adjust init script and systemd unit
+  * Jessie compat: Revert debhelper, Standards-Version bump, dh_missing
+
+ -- Zenon Mousmoulas <zmousm@noc.grnet.gr>  Sat, 02 Jun 2018 14:35:38 +0300
+
 isc-kea (1.3.0-1) UNRELEASED; urgency=medium
 
   [Jason Guy]
