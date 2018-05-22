@@ -18,9 +18,10 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="kea-dhcp4"
 NAME=kea-dhcp4-server
 DAEMON=/usr/sbin/kea-dhcp4
-DAEMON_ARGS="-c /etc/kea-dhcp4-server.conf"
+DAEMON_ARGS="-c /etc/kea/kea-dhcp4.conf"
 PIDFILE=/var/run/$NAME.$DESC.pid
 SCRIPTNAME=/etc/init.d/$NAME
+KEA_LOCKFILE_DIR=/var/run/lock/kea/
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0

@@ -1,20 +1,20 @@
 Source: isc-kea
 Section: net
-Priority: extra
+Priority: optional
 Maintainer: Adam Majer <adamm@zombino.com>
-Build-Depends: debhelper (>= 9), autotools-dev, liblog4cplus-dev,
+Build-Depends: debhelper (>= 10), liblog4cplus-dev,
                libboost-dev, libboost-system-dev, bison, flex,
                libmysqlclient-dev, libpq-dev, python3-dev, elinks,
                postgresql-server-dev-all, libssl-dev,
                xsltproc, docbook, docbook-xsl
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Homepage: http://kea.isc.org/
 Vcs-Git: git://anonscm.debian.org/collab-maint/isc-kea.git
 Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/isc-kea.git;a=summary
 
 Package: kea-dhcp4-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version}), lsb-base
 Suggests: kea-doc
 Description: ISC KEA IPv4 DHCP server
  KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium
@@ -24,7 +24,7 @@ Description: ISC KEA IPv4 DHCP server
 
 Package: kea-dhcp6-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version}), lsb-base
 Suggests: kea-doc
 Description: ISC KEA IPv6 DHCP server
  KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium
@@ -34,7 +34,7 @@ Description: ISC KEA IPv6 DHCP server
 
 Package: kea-dhcp-ddns-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version}), lsb-base
 Suggests: kea-doc
 Description: ISC KEA DHCP Dynamic DNS service
  KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
@@ -42,17 +42,14 @@ Description: ISC KEA DHCP Dynamic DNS service
  This package provides Dynamic DNS service to update DNS mapping based on 
  DHCP lease events.
 
-Package: kea-control-agent
+Package: kea-ctrl-agent
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, kea-common (= ${binary:Version}),
-         kea-dhcp4-server (= ${binary:Version}) |
-         kea-dhcp6-server (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}, kea-common (= ${binary:Version}), lsb-base
 Suggests: kea-doc
-Description: ISC KEA Control Agent service
+Description: ISC KEA DHCP server REST API service
  KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
  .
- This package provides the Control Agent, the REST service for controlling KEA
- services.
+ This package provides the REST API service agent for Kea DHCP.
 
 Package: kea-doc
 Architecture: all
@@ -91,3 +88,12 @@ Description: Common libraries for the ISC KEA DHCP server
  KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
  .
  This package provides common libraries used by ISC KEA servers and utilities.
+
+Package: python3-kea-connector
+Architecture: all
+Section: python
+Depends: ${misc:Depends}
+Description: Python3 management connector for ISC KEA DHCP server
+ KEA is an IPv4 and IPv6 DHCP server developed by Internet Systems Consortium.
+ .
+ This package provides Python3 connector

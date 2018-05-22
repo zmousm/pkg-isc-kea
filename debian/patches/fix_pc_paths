@@ -1,7 +1,5 @@
-Index: isc-kea/dns++.pc.in
-===================================================================
---- isc-kea.orig/dns++.pc.in	2016-01-27 19:39:30.021264872 -0600
-+++ isc-kea/dns++.pc.in	2016-01-27 19:39:30.021264872 -0600
+--- a/dns++.pc.in
++++ b/dns++.pc.in
 @@ -8,4 +8,4 @@
  Version: @PACKAGE_VERSION@
  Requires: @CRYPTO_PACKAGE@

@@ -1,3 +1,40 @@
+isc-kea (1.3.0-1) UNRELEASED; urgency=medium
+
+  [Jason Guy]
+  * New Upstream version 1.3.0 (closes: #883016, #863637)
+    + Shared networks support
+    + REST interface over HTTPS
+    + Lease and subnet management via REST interface
+    + Flexible Identifier for leases
+    + New options and per-pool options
+    + Other features and fixes
+    + Default configurations split per service
+    + Boost library now required
+  * kea-ctrl-agent - new package for REST API service
+    - kea-shell enabled, providing a text management client
+  * kea-admin package refreshed (closes: #851712)
+  * kea-dev includes all header files (closes: #874501)
+  * simplified dirs files to common dependency
+  * new systemd service files and init files
+    - specifies pid file and lock file env vars
+  * debian/patches
+    - openssl1.1 - removed, upstreamed
+    - path_fixes - refreshed, fixes log path in default configs
+    - removed source patches where config options or env vars can be used
+  * debian/rules
+    - install destinations set with config options, simplifies .install files
+    - removed --autotools-dev; deprecated with newer debhelper
+    - enabled kea-shell
+  * debian/control
+    - debhelper 10 added
+    - added kea-ctrl-agent package, separating out REST interface
+  * cleaned up other lintian warnings and errors
+
+  [Adam Majer]
+  * python3-kea-connector - new package for python3 connector to KEA
+
+ -- Adam Majer <adamm@zombino.com>  Sun, 23 Jul 2017 13:35:37 +0200
+
 isc-kea (1.3.0-1~bpo80+1) jessie-backports; urgency=medium
 
   * Drop patches for Trac #5325 etc.
