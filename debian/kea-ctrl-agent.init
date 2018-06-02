@@ -1,11 +1,11 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          kea-control-agent
+# Provides:          kea-ctrl-agent
 # Required-Start:    $local_fs $network $remote_fs $syslog
 # Required-Stop:     $local_fs $network $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: ISC KEA Control Agent
+# Short-Description: ISC KEA Control Agent service
 # Description:       <Enter a long description of the software>
 #                    <...>
 #                    <...>
@@ -15,10 +15,10 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="kea-control"
-NAME=kea-control-agent
+DESC="kea-ctrl"
+NAME=kea-ctrl-agent
 DAEMON=/usr/sbin/kea-ctrl-agent
-DAEMON_ARGS="-c /etc/kea-control.conf"
+DAEMON_ARGS="-c /etc/kea/kea-ctrl-agent.conf"
 PIDFILE=/var/run/$NAME.$DESC.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
